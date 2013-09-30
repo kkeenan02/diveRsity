@@ -1,0 +1,29 @@
+citHeader("To cite diveRsity in publications, please use:")
+
+vers <- paste("R package version", meta$Version) 
+
+citEntry(entry = "article",
+         title = "{diveRsity}: An {R} package for the estimation of population genetics parameters and their associated errors",
+         author = personList(as.person("Kevin Keenan"),
+                             as.person("Philip McGinnity"),
+                             as.person("Tom F. Cross"),
+                             as.person("Walter W. Crozier"),
+                             as.person(paste("Paulo A. Prod", iconv("\x9a", from = "MAC", to = "UTF-8") ,"hl", sep = ""))),
+         journal = "Methods in Ecology and Evolution",
+         year = "2013",
+         volume = "4",
+         number = "8",
+         doi = "10.1111/2041-210X.12067",
+         key = "keenan2013b",
+         pages = "782--788",
+         note = vers,
+         URL = "http://onlinelibrary.wiley.com/doi/10.1111/2041-210X.12067/abstract",
+         
+         textVersion = 
+           paste("Keenan, K., McGinnity, P., Cross, T.F., Crozier, W.W.,",
+                 paste("& Prod", iconv("\x9a", from = "MAC", to = "UTF-8"), "hl, P.A.,", sep = ""),
+                 "(2013),",
+                 "diveRsity: An R package for the estimation of population genetics parameters and their associated errors,",
+                 "Methods in Ecology and Evolution,",
+                 "doi: 10.1111/2041-210X.12067")
+)
