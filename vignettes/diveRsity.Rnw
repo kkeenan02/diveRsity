@@ -1,7 +1,5 @@
 % \VignetteIndexEntry{diveRsity Help}
 % \VignetteEngine{knitr::knitr}
-% \VignetteDepends{knitr}
-% \VignetteCompiler{knitr}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[a4paper,12pt]{article}
 \setlength{\parindent}{0pt}
@@ -22,7 +20,9 @@ opts_chunk$set(concordance=FALSE,
                keep.source=FALSE,
                tidy=FALSE,
                highlight=TRUE,
-               message = FALSE)
+               message = FALSE,
+               results="verbatim",
+               stop_on_error = 2)
 
 @
 \input{titlepage.tex}
@@ -433,7 +433,7 @@ Examples of the interactive plots written, if \texttt{xlsx} is available, are gi
 \subsubsection*{Returned values cont.}
 For use\texttt{R}s wishing to carry out post analysis manipulations, all results from \texttt{divPart} are returned to the \texttt{R} environment. Depending on the bootstrap options chosen these results include between three to five of the \texttt{variables} below:
 
-<<echo=FALSE, quiet=TRUE, results=hide>>=
+<<echo=FALSE, quiet=TRUE, results='hide'>>=
 #data(Test_data,package='diveRsity')
 #library(diveRsity)
 #x<-capture.output(res<-divPart(Test_data,"outtt",3,T,T,T,T,3,F,T))
@@ -660,7 +660,7 @@ Values returned from \texttt{inCalc} are a single \texttt{.xlsx} workbook (if th
 \subsubsection*{Returned values cont.}
 For use\texttt{R}s wishing to carry out post analysis manipulations, all results from \texttt{inCalc} are returned to the \texttt{R} environment. Depending on the bootstrap options chosen these results include between one to three of the \texttt{variables} below:
 
-<<echo=FALSE, results=hide>>=
+<<echo=FALSE, results='hide'>>=
 load("./in_res.RData")
 res_in <- in_results
 @
