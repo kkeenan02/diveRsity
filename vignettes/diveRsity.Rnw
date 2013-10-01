@@ -107,8 +107,20 @@ The package \texttt{diveRsity} is currently available on \texttt{CRAN} (The Comp
 install.packages("diveRsity")
 @
 
-The package is updated regularly, both with added functionality and bug fixes. The most up to date notes and versions of the package can be found at: \\
-\href{http://diversityinlife.weebly.com/software.html}{\textcolor{blue}{http://diversityinlife.weebly.com/software.html}}.
+The package is updated regularly, both with added functionality and bug fixes. The most up to version of \texttt{diveRsity} can be installed from \texttt{github} using the \texttt{devtools} package: \par
+
+<<eval=FALSE>>=
+# install and load devtools
+install.packages("devtools")
+
+library("devtools")
+
+# download and install diveRsity
+
+install_git(name = "diveRsity", subdir = "kkeenan02")
+@
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 
