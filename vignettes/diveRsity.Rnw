@@ -1,5 +1,5 @@
-% \VignetteIndexEntry{diveRsity Help}
-% \VignetteEngine{knitr::knitr}
+% \VignetteIndexEntry{diveRsity}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[a4paper,12pt]{article}
 \setlength{\parindent}{0pt}
@@ -11,20 +11,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-<<echo=FALSE>>=
-library("knitr")
-knit_theme$set("edit-eclipse")
-opts_chunk$set(concordance=FALSE,
-               background = "grey95",
-               size = 'small',
-               keep.source=FALSE,
-               tidy=FALSE,
-               highlight=TRUE,
-               message = FALSE,
-               results="verbatim",
-               stop_on_error = 2)
-
-@
+\SweaveOpts{concordance=TRUE}
+%<<echo=FALSE>>=
+%library("knitr")
+%knit_theme$set("edit-eclipse")
+%opts_chunk$set(concordance=TRUE,
+%               background = "grey95",
+%               size = 'small',
+%               keep.source=TRUE,
+%               tidy=FALSE,
+%               highlight=TRUE,
+%               message = FALSE,
+%               stop_on_error = 2)
+%@
 \input{titlepage.tex}
 \normalsize
 \tableofcontents
@@ -433,7 +432,7 @@ Examples of the interactive plots written, if \texttt{xlsx} is available, are gi
 \subsubsection*{Returned values cont.}
 For use\texttt{R}s wishing to carry out post analysis manipulations, all results from \texttt{divPart} are returned to the \texttt{R} environment. Depending on the bootstrap options chosen these results include between three to five of the \texttt{variables} below:
 
-<<echo=FALSE, quiet=TRUE, results='hide'>>=
+<<echo=FALSE, results=hide>>=
 #data(Test_data,package='diveRsity')
 #library(diveRsity)
 #x<-capture.output(res<-divPart(Test_data,"outtt",3,T,T,T,T,3,F,T))
@@ -610,8 +609,8 @@ res$bs_pairwise[[8]][c(1:3,nrow(res$bs_pairwise[[8]])),]
 The general usage of this function is as follows:
 <<eval=FALSE>>=
 inCalc(infile, outfile = NULL, gp = 3, bs_locus = FALSE,
-        bs_pairwise = FALSE, bootstraps = 0, plot = FALSE
-        parallel = FALSE)
+       bs_pairwise = FALSE, bootstraps = 0, plot = FALSE,
+       parallel = FALSE)
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Arguments}
@@ -660,7 +659,7 @@ Values returned from \texttt{inCalc} are a single \texttt{.xlsx} workbook (if th
 \subsubsection*{Returned values cont.}
 For use\texttt{R}s wishing to carry out post analysis manipulations, all results from \texttt{inCalc} are returned to the \texttt{R} environment. Depending on the bootstrap options chosen these results include between one to three of the \texttt{variables} below:
 
-<<echo=FALSE, results='hide'>>=
+<<echo=FALSE, results=hide>>=
 load("./in_res.RData")
 res_in <- in_results
 @
@@ -1416,12 +1415,12 @@ results <- parLapply(cl, file_names, function(x){
 # (1 for each diversity statistic) 
 
 # Example of output for simulation 1
-G_st_est        G_hed_st_est    D_Jost_est      Fst_WC
-0.3905          0.8938          0.8256          0.4010
-0.5519          0.8719          0.6986          0.6031
-0.5924          0.8880          0.7092          0.6096
-...             ...             ...             ...
-...             ...             ...             ...
+# G_st_est        G_hed_st_est    D_Jost_est      Fst_WC
+# 0.3905          0.8938          0.8256          0.4010
+# 0.5519          0.8719          0.6986          0.6031
+# 0.5924          0.8880          0.7092          0.6096
+# ...             ...             ...             ...
+# ...             ...             ...             ...
 
 # these results could then be piped to further analyses or 
 # visualisation tools
