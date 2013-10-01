@@ -12,13 +12,13 @@ This is the repository for the latest version of the ```diveRsity``` package. It
 
 A stable version of the package can be installed from ```CRAN``` as follows:
 
-```r
+```s
 install.packages("diveRsity")
 ```
 
 To install the latest development version of ```diveRsity```, the package ```devtools``` is required as follows:
 
-```r
+```s
 # install devtools
 install.package("devtools")
 
