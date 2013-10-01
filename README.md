@@ -27,6 +27,6 @@ library("devtools")
 
 # install diveRsity from github
 
-install_git("diveRsity", "kkeenan02")
+install_github("diveRsity", "kkeenan02")
 ```
 
