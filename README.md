@@ -20,7 +20,7 @@ To install the latest development version of ```diveRsity```, the package ```dev
 
 ```s
 # install devtools
-install.package("devtools")
+install.packages("devtools")
 
 # load devtools
 library("devtools")
