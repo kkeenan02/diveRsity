@@ -117,7 +117,7 @@ library("devtools")
 
 # download and install diveRsity
 
-install_git(name = "diveRsity", subdir = "kkeenan02")
+install_github(name = "diveRsity", subdir = "kkeenan02")
 @
 
 
