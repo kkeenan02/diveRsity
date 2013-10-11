@@ -5,7 +5,7 @@
 ##            An R package for the calculation of differentiation             ##
 ##              statistics and locus informativeness statistics               ##  
 ##                V 1.2.0 and up allows parallel computations                 ##  
-##                       copyright Kevin Keenan 2013                          ##  
+##                            GPL3 Kevin Keenan 2013                          ##  
 ################################################################################
 ################################################################################
 
