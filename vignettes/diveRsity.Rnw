@@ -88,7 +88,7 @@ Version 1.5.0 also fixes a major bug on Mac systems. Due to unexpected behaviour
 
 \textbf{Version 1.5.3} introduces the new web app, \texttt{microPlexer}. This application is intended to aid researchers wishing to develop microsatellite multiplex system based on locus size ranges and fluorphore tags.
 
-\textbf{Version 1.5.6} introduces a new function \texttt{arp2gen}, which allows users to convern \emph{arlequin} genotype files to \emph{genepop} files. The function is intended to provide a more integrated experience to users by negating the need to use seperate software to carry out file conversions. Although this function only allows \textbf{.arp} to \textbf{.gen} file conversions, other \texttt{R} packages provide addional conversion facilities. Some such packages are; \texttt{adegenet} and \texttt{PopGenKit}.
+\textbf{Version 1.5.6} introduces a new function \texttt{arp2gen}, which allows users to convert \emph{Arlequin} genotype files to \emph{genepop} files. The function is intended to provide a more integrated experience to users by negating the need to use separate software to carry out file conversions. Although this function only allows \textbf{.arp} to \textbf{.gen} file conversions, other \texttt{R} packages provide additional conversion facilities. Some such packages are; \texttt{adegenet} and \texttt{PopGenKit}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
@@ -1066,7 +1066,7 @@ The general usage of this function is as follows:
 arp2gen(infile)
 @
 
-Where \texttt{infile} is a character string pointing to an \emph{arlequin} genotype file. The infile argument can simply be the file name if the file is located in the current working directory, otherwise an absolute/relative path must be given.
+Where \texttt{infile} is a character string pointing to an \emph{Arlequin} genotype file. The infile argument can simply be the file name if the file is located in the current working directory, otherwise an absolute/relative path must be given.
 
 \newpage
 \section{Examples}
@@ -1467,6 +1467,6 @@ print(sessionInfo(), locale = FALSE)
 @
 
 \section{Acknowledgements}
-Many thanks to all of my colleagues for testing code ansd reporting bugs. In particular, we thank Mark Ravinet, Erin Landguth, Mariah Meek and Andy Jasonowicz for reporting important bugs and for making useful suggestions for the improvement of the package.
+Many thanks to all of my colleagues for testing code and reporting bugs. In particular, we thank Mark Ravinet, Erin Landguth, Mariah Meek and Andy Jasonowicz for reporting important bugs and for making useful suggestions for the improvement of the package.
 
 \end{document}
