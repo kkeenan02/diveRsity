@@ -17,7 +17,7 @@ arp2gen(infile)
 }
 \arguments{
 
-\item{infile}{Specifying the name of the \emph{`.arp'} arlequin genotype file. The argument must be a character string of the file name if it is located in the current working directory, or the file path (relative or absolute) if not.
+\item{infile}{Specifying the name of the \emph{`.arp'} arlequin genotype file. The argument must be a character string of the file name if it is located in the current working directory, or the file path (relative or absolute) if not.}
 
 }
 

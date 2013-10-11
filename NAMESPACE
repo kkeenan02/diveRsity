@@ -12,4 +12,5 @@ export (divPart,
 	readGenepop.user,
 	divRatio,
 	bigDivPart,
-	microPlexer)
+	microPlexer,
+  arp2gen)
