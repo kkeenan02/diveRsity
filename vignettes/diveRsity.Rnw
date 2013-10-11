@@ -88,6 +88,8 @@ Version 1.5.0 also fixes a major bug on Mac systems. Due to unexpected behaviour
 
 \textbf{Version 1.5.3} introduces the new web app, \texttt{microPlexer}. This application is intended to aid researchers wishing to develop microsatellite multiplex system based on locus size ranges and fluorphore tags.
 
+\textbf{Version 1.5.6} introduces a new function \texttt{arp2gen}, which allows users to convern \emph{arlequin} genotype files to \emph{genepop} files. The function is intended to provide a more integrated experience to users by negating the need to use seperate software to carry out file conversions. Although this function only allows \textbf{.arp} to \textbf{.gen} file conversions, other \texttt{R} packages provide addional conversion facilities. Some such packages are; \texttt{adegenet} and \texttt{PopGenKit}.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Setup}
@@ -162,6 +164,7 @@ For convenient access to usage information on each function, type:\par
 ?fstOnly
 ?divRatio
 ?microPlexer
+?arp2gen
 @
 Each of these commands will provide information on function usage. The help pages associated with each function describe in detail how each argument should be passed to the function. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1055,6 +1058,15 @@ After uploading input data and making the desired parameter selections, multiple
 \begin{center}
 \includegraphics[width=110mm]{microPlexer-1.png}
 \end{center}
+
+\subsection{arp2gen}
+The general usage of this function is as follows:
+
+<<eval=FALSE>>=
+arp2gen(infile)
+@
+
+Where \texttt{infile} is a character string pointing to an \emph{arlequin} genotype file. The infile argument can simply be the file name if the file is located in the current working directory, otherwise an absolute/relative path must be given.
 
 \newpage
 \section{Examples}
