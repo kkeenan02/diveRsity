@@ -43,5 +43,3 @@ no. 1, pp. 103-6, (2008).
 \author{
 Kevin Keenan <kkeenan02@qub.ac.uk>
 }
-
-}

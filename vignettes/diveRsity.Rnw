@@ -90,6 +90,8 @@ Version 1.5.0 also fixes a major bug on Mac systems. Due to unexpected behaviour
 
 \textbf{Version 1.5.6} introduces a new function \texttt{arp2gen}, which allows users to convert \emph{Arlequin} genotype files to \emph{genepop} files. The function is intended to provide a more integrated experience to users by negating the need to use separate software to carry out file conversions. Although this function only allows \textbf{.arp} to \textbf{.gen} file conversions, other \texttt{R} packages provide additional conversion facilities. Some such packages are; \texttt{adegenet} and \texttt{PopGenKit}.
 
+\textbf{Version 1.5.7} introduced a new \textbf{experimental} function, \texttt{divMigrate}. The function is based on a new methods presented in \citep{Sundqvist2013}, for detecting the direction of differentiation, and using this information to infer the relative migration between pairs of populations. While the method performs well for some simple migration scenarios, it is still not clear how generally applicable it is under other scenarios (e.g. the effect of high mutation rates, or recent divergence etc.). For this reason, we recommend caution when applying the method to your own data.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Setup}
@@ -165,6 +167,7 @@ For convenient access to usage information on each function, type:\par
 ?divRatio
 ?microPlexer
 ?arp2gen
+?divMigrate
 @
 Each of these commands will provide information on function usage. The help pages associated with each function describe in detail how each argument should be passed to the function. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -381,6 +384,14 @@ This function is the first in a series focused in the analysis of data sets cont
 \textbf{New to v1.5.3}\\
 \texttt{microPlexer} is a simple function which allows users to launch a web application designed to aid in the development of microsatellite multiplex systems. The application allows users to flexibly organise microsatellite loci into PCR groups based on two main algorithms. The first, the \emph{high-throughput} algorithm, aims to group as many loci into as few multiplex groups as possible, while ensuring user defined locus separation limits are observed. The second, the \emph{balanced throughput} algorithm, organises loci into multiple multiplex groups with, roughly, the same number of loci. This algorithm is useful for minimising the possible risk of primer interactions during PCR. The web app was built using the \texttt{shiny} package from RStudio and Inc \citep{shinypkg}.
 
+\subsection{arp2gen}
+\textbf{New to v1.5.6}
+\texttt{arp2gen} is a small function allowing the conversion of \emph{Arlequin} genotype files to \emph{genepop} file format.
+
+\subsection{divMigrate}
+\textbf{New to v1.5.7}\\
+\texttt{divMigrate} is an \textbf{experimental} function, allowing users to investigate and plot migration pattern in microsatellite allele data.
+See \texttt{?divMigrate} for more details. The paper that the method is derived from is \citep{Sundqvist2013}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Function Usage}
@@ -1067,6 +1078,15 @@ arp2gen(infile)
 @
 
 Where \texttt{infile} is a character string pointing to an \emph{Arlequin} genotype file. The infile argument can simply be the file name if the file is located in the current working directory, otherwise an absolute/relative path must be given.
+
+\subsection{divMigrate}
+The general usage of this function is as follows:
+
+<<eval = FALSE>>=
+divMigrate(infile = NULL, stat = c("gst", "d_jost"))
+@
+
+Where \texttt{infile} is either an file name or a path to a file. The file should be in either the Arlequin genotype file format (.arp) or the genepop file format used in other \texttt{diveRsity} functions. The argument \texttt{stat} determines which statistic ($G_{ST}$ or $D_{Jost}) should be used to calculate the relative migration matrix.
 
 \newpage
 \section{Examples}
