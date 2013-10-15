@@ -14,13 +14,13 @@ The function will except both Arlequin (.arp) genotype and genepop (.gen/.txt) f
 }
 
 \usage{
-divMigrate(infile = NULL, stat = c("gst", "d_jost"))
+divMigrate(infile = NULL, stat = "d_jost")
 }
 \arguments{
 
 \item{infile}{Should either be a character string of the input file name or pathway to the input file. This file should be in either the Arlequin genotype file format (.arp), or in the genepop file format.}
 
-\item{stat}{A character vector of the value \code{stat = 'gst'}, \code{stat = 'd_jost'}, or \code{stat = c('gst', 'd_jost')} (default). This argument specifies which statistic should be used to calculate relative migration between samples.}
+\item{stat}{A character vector of the value \code{stat = 'gst'}, \code{stat = 'd_jost'} (default), or \code{stat = c('gst', 'd_jost')}. This argument specifies which statistic should be used to calculate relative migration between samples.}
 
 }
 

@@ -7581,7 +7581,7 @@ arp2gen <- function(infile){
 # asymmetric migration Lisa Sundqvist, Martin Zackrisson & David Kleinhans,
 # 2013, arXiv pre-print (http://arxiv.org/abs/1304.0118)'
 
-divMigrate <- function(infile = NULL, stat =c("gst", "d_jost")){
+divMigrate <- function(infile = NULL, stat = "d_jost"){
   # check file format
   cat("Caution! The method used in this function is experimental.")
   flForm <- strsplit(infile, split = "\\.")[[1]]
@@ -7641,9 +7641,7 @@ divMigrate <- function(infile = NULL, stat =c("gst", "d_jost")){
   dimnames(gst_mig) <- list(paste("P", 1:npops),
                             paste("P", 1:npops))
   # test plot
-  #library("igraph")
   library("qgraph")
-  #g <- graph.adjacency(d_jost)
   if(length(stat == 2)){
     par(mfrow = c(2, 1 ))
     qgraph(gst_mig, posCol = "black")
