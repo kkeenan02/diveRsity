@@ -13,4 +13,5 @@ export (divPart,
 	divRatio,
 	bigDivPart,
 	microPlexer,
-  arp2gen)
+  arp2gen,
+  divMigrate)

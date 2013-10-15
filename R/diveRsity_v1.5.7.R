@@ -1,6 +1,6 @@
 ################################################################################
 ################################################################################
-##                              diveRsity v1.5.6                              ##  
+##                              diveRsity v1.5.7                              ##  
 ##                            by Kevin Keenan QUB                             ##  
 ##            An R package for the calculation of differentiation             ##
 ##              statistics and locus informativeness statistics               ##  
@@ -7567,6 +7567,127 @@ arp2gen <- function(infile){
 }
 ################################################################################
 # END - arp2gen
+################################################################################
+#
+#
+#
+#
+#
+################################################################################
+# divMigrate: an experimental function for detecting directional differentiation 
+################################################################################
+# A function to calculate pairwise directional differentiation
+# a presented in the paper 'Directional genetic differentiation and
+# asymmetric migration Lisa Sundqvist, Martin Zackrisson & David Kleinhans,
+# 2013, arXiv pre-print (http://arxiv.org/abs/1304.0118)'
+
+divMigrate <- function(infile = NULL, stat =c("gst", "d_jost")){
+  # check file format
+  flForm <- strsplit(infile, split = "\\.")[[1]]
+  ext <- flForm[[length(flForm)]]
+  if(ext == "arp"){
+    arp2gen(infile)
+    cat("Arlequin file converted to genepop format!")
+    infile <- paste(flForm[1], ".gen", sep = "")
+  }
+  dat <- fileReader(infile)
+  rownames(dat) <- NULL
+  dat <- as.matrix(dat)
+  # determine genepop format
+  p1 <- which(toupper(dat[,1]) == "POP")[1] + 1
+  gp <- as.numeric(names(sort(-table(sapply(dat[p1, - 1], nchar)/2)))[1])
+  dat <- as.data.frame(dat)
+  rawData <- readGenepop(dat, gp = gp)
+  npops <- rawData$npops
+  nloci <- rawData$nloci
+  # generate pairwise hypothetical matrices (use allele_freq)
+  pw <- combn(npops, 2)
+  # calculate ht and hs
+  hths <- lapply(rawData$allele_freq, pwDivCalc, pw = pw, npops = npops)
+  # seperate ht and hs matrices
+  ht <- lapply(hths, "[[", 1)
+  hs <- lapply(hths, "[[", 2)
+  # tidy
+  rm(hths)
+  z <- gc()
+  rm(z)
+  # find the mean (use the Reduce function)
+  ht_mean <- Reduce(`+`, ht)/nloci
+  hs_mean <- Reduce(`+`, hs)/nloci
+  # calculate Dst
+  dst <- ht_mean - hs_mean
+  # calculate gst
+  gst <- dst/ht_mean
+  gst[gst < 0.0 | is.na(gst)] <- 0
+  # calculate D(Jost)
+  d_jost <- ((dst)/(1-hs_mean)) * 2
+  # calculate relative migration from d_jost
+  d_mig <- (1 - d_jost)/d_jost
+  # replace missing and negative values with 0
+  d_mig[d_mig < 0 | is.na(d_mig)] <- 0
+  dimnames(d_mig) <- list(paste("P", 1:npops),
+                          paste("P", 1:npops))
+  # standardize
+  d_mig <- d_mig/max(d_mig, na.rm = TRUE)
+  # test gst migration rate
+  gst_mig <- 0.5 * ((1/gst) - 1)
+  # fix inf
+  gst_mig[is.infinite(gst_mig)] <- 0
+  # standardise
+  gst_mig <- gst_mig/max(gst_mig, na.rm = TRUE)
+  # replace missing and negative values with 0
+  gst_mig[gst_mig < 0 | is.na(gst_mig)] <- 0
+  dimnames(gst_mig) <- list(paste("P", 1:npops),
+                            paste("P", 1:npops))
+  # test plot
+  #library("igraph")
+  library("qgraph")
+  #g <- graph.adjacency(d_jost)
+  if(length(stat == 2)){
+    par(mfrow = c(2, 1 ))
+    qgraph(gst_mig, posCol = "black")
+    title(expression("G"["st"]))
+    qgraph(d_mig, posCol = "black")
+    title(expression("D"["Jost"]))
+  } else if(stat == "gst"){
+    qgraph(gst_mig, posCol = "black")
+    title(expression("G"["st"]))
+  } else if(stat == "d_jost"){
+    qgraph(d_mig, posCol = "black")
+    title(expression("D"["Jost"]))
+  }
+  list(D_mig =d_mig,
+       Gst_mig = gst_mig)
+}
+################################################################################
+# END - divMigrate
+################################################################################
+#
+#
+#
+#
+#
+################################################################################
+# pwDivCalc: a small function for calculating pairwise ht and hs 
+################################################################################
+pwDivCalc <- function(x, pw, npops){
+  ht <- matrix(ncol = npops, nrow = npops)
+  hs <- matrix(ncol = npops, nrow = npops)
+  for(i in 1:ncol(pw)){
+    gamma <- sum(sqrt(abs(x[,1] * x[,2])))^-1 
+    f <- gamma * sqrt(x[,pw[1,i]] * x[,pw[2,i]])
+    ht[pw[1,i],pw[2,i]] <- 1 - sum(((f + x[,pw[1,i]])/2)^2)
+    ht[pw[2,i],pw[1,i]] <- 1 - sum(((f + x[,pw[2,i]])/2)^2)
+    hs[pw[1,i],pw[2,i]] <- 1 - sum((f^2 + x[,pw[1,i]]^2)/2)
+    hs[pw[2,i],pw[1,i]] <- 1 - sum((f^2 + x[,pw[2,i]]^2)/2)
+  }
+  ht[is.nan(ht)] <- 0
+  hs[is.nan(hs)] <- 0
+  list(ht = ht, 
+       hs = hs)
+}
+################################################################################
+# END - pwDivCalc
 ################################################################################
 #
 #
