@@ -3135,16 +3135,16 @@ pre.divLowMemory <- function(y){
     # Master file reader
     ###########################################################################
     fileReader <- function(infile){
-      flForm <- strsplit(infile, split = "\\.")[[1]]
-      ext <- flForm[[length(flForm)]]
-      if(ext == "arp"){
-        arp2gen(infile)
-        cat("Arlequin file converted to genepop format! \n")
-        infile <- paste(flForm[1], ".gen", sep = "")
-      }
       if(typeof(infile)=="list"){
         return(infile) 
       } else if (typeof(infile)=="character"){
+        flForm <- strsplit(infile, split = "\\.")[[1]]
+        ext <- flForm[[length(flForm)]]
+        if(ext == "arp"){
+          arp2gen(infile)
+          cat("Arlequin file converted to genepop format! \n")
+          infile <- paste(flForm[1], ".gen", sep = "")
+        }
         dat <- scan(infile, sep = "\n", what = "character", quiet = TRUE)
         # find number of columns
         popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
@@ -5300,16 +5300,16 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
 # Master file reader
 ################################################################################
 fileReader <- function(infile){
-  flForm <- strsplit(infile, split = "\\.")[[1]]
-  ext <- flForm[[length(flForm)]]
-  if(ext == "arp"){
-    arp2gen(infile)
-    cat("Arlequin file converted to genepop format! \n")
-    infile <- paste(flForm[1], ".gen", sep = "")
-  }
   if(typeof(infile)=="list"){
     return(infile) 
   } else if (typeof(infile)=="character"){
+    flForm <- strsplit(infile, split = "\\.")[[1]]
+    ext <- flForm[[length(flForm)]]
+    if(ext == "arp"){
+      arp2gen(infile)
+      cat("Arlequin file converted to genepop format! \n")
+      infile <- paste(flForm[1], ".gen", sep = "")
+    }
     dat <- scan(infile, sep = "\n", what = "character", quiet = TRUE)
     # find number of columns
     popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
@@ -5654,16 +5654,16 @@ fstOnly <- function(infile = NULL, outfile = NULL, gp = 3,
     # Master file reader
     ###########################################################################
     fileReader <- function(infile){
-      flForm <- strsplit(infile, split = "\\.")[[1]]
-      ext <- flForm[[length(flForm)]]
-      if(ext == "arp"){
-        arp2gen(infile)
-        cat("Arlequin file converted to genepop format! \n")
-        infile <- paste(flForm[1], ".gen", sep = "")
-      }
       if(typeof(infile)=="list"){
         return(infile) 
       } else if (typeof(infile)=="character"){
+        flForm <- strsplit(infile, split = "\\.")[[1]]
+        ext <- flForm[[length(flForm)]]
+        if(ext == "arp"){
+          arp2gen(infile)
+          cat("Arlequin file converted to genepop format! \n")
+          infile <- paste(flForm[1], ".gen", sep = "")
+        }
         dat <- scan(infile, sep = "\n", what = "character", quiet = TRUE)
         # find number of columns
         popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
@@ -7624,13 +7624,13 @@ arp2gen <- function(infile){
 divMigrate <- function(infile = NULL, stat = "d_jost"){
   # check file format
   cat("Caution! The method used in this function is experimental. \n")
-  flForm <- strsplit(infile, split = "\\.")[[1]]
-  ext <- flForm[[length(flForm)]]
-  if(ext == "arp"){
-    arp2gen(infile)
-    cat("Arlequin file converted to genepop format!")
-    infile <- paste(flForm[1], ".gen", sep = "")
-  }
+#   flForm <- strsplit(infile, split = "\\.")[[1]]
+#   ext <- flForm[[length(flForm)]]
+#   if(ext == "arp"){
+#     arp2gen(infile)
+#     cat("Arlequin file converted to genepop format!")
+#     infile <- paste(flForm[1], ".gen", sep = "")
+#   }
   dat <- fileReader(infile)
   rownames(dat) <- NULL
   dat <- as.matrix(dat)
@@ -7682,7 +7682,7 @@ divMigrate <- function(infile = NULL, stat = "d_jost"){
                             paste("P", 1:npops))
   # test plot
   library("qgraph")
-  if(length(stat == 2)){
+  if(length(stat) == 2){
     par(mfrow = c(2, 1 ))
     qgraph(gst_mig, posCol = "black")
     title(expression("G"["st"]))

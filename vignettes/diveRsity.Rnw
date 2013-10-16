@@ -1086,7 +1086,7 @@ The general usage of this function is as follows:
 divMigrate(infile = NULL, stat = c("gst", "d_jost"))
 @
 
-Where \texttt{infile} is either an file name or a path to a file. The file should be in either the Arlequin genotype file format (.arp) or the genepop file format used in other \texttt{diveRsity} functions. The argument \texttt{stat} determines which statistic ($G_{ST}$ or $D_{Jost}) should be used to calculate the relative migration matrix.
+Where \texttt{infile} is either an file name or a path to a file. The file should be in either the Arlequin genotype file format (.arp) or the genepop file format used in other \texttt{diveRsity} functions. The argument \texttt{stat} determines which statistic ($G_{ST}$ or $D_{Jost}$) should be used to calculate the relative migration matrix.
 
 \newpage
 \section{Examples}
