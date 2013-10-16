@@ -3134,13 +3134,25 @@ pre.divLowMemory <- function(y){
     ###########################################################################
     # Master file reader
     ###########################################################################
-    fileReader <- function(x){
-      infile <- x
+    fileReader <- function(infile){
+      flForm <- strsplit(infile, split = "\\.")[[1]]
+      ext <- flForm[[length(flForm)]]
+      if(ext == "arp"){
+        arp2gen(infile)
+        cat("Arlequin file converted to genepop format! \n")
+        infile <- paste(flForm[1], ".gen", sep = "")
+      }
       if(typeof(infile)=="list"){
         return(infile) 
       } else if (typeof(infile)=="character"){
         dat <- scan(infile, sep = "\n", what = "character", quiet = TRUE)
         # find number of columns
+        popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
+        no_col <- popLoc[1] - 1
+        if(popLoc[1] == 3){
+          locs <- unlist(strsplit(dat[2], split = c("\\,", "\\s+")))
+          dat <- c(dat[1], locs, dat[3:(length(dat)-3)])
+        }
         popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
         no_col <- popLoc[1] - 1
         dat1 <- sapply(dat, function(x){
@@ -3166,6 +3178,7 @@ pre.divLowMemory <- function(y){
         })
       }
       out <- as.data.frame(t(dat1))
+      rownames(out) <- NULL
       return(out)
     }
     data1 <- fileReader(infile)
@@ -5286,13 +5299,25 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
 ################################################################################
 # Master file reader
 ################################################################################
-fileReader <- function(x){
-  infile <- x
+fileReader <- function(infile){
+  flForm <- strsplit(infile, split = "\\.")[[1]]
+  ext <- flForm[[length(flForm)]]
+  if(ext == "arp"){
+    arp2gen(infile)
+    cat("Arlequin file converted to genepop format! \n")
+    infile <- paste(flForm[1], ".gen", sep = "")
+  }
   if(typeof(infile)=="list"){
     return(infile) 
   } else if (typeof(infile)=="character"){
     dat <- scan(infile, sep = "\n", what = "character", quiet = TRUE)
     # find number of columns
+    popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
+    no_col <- popLoc[1] - 1
+    if(popLoc[1] == 3){
+      locs <- unlist(strsplit(dat[2], split = c("\\,", "\\s+")))
+      dat <- c(dat[1], locs, dat[3:(length(dat)-3)])
+    }
     popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
     no_col <- popLoc[1] - 1
     dat1 <- sapply(dat, function(x){
@@ -5307,7 +5332,8 @@ fileReader <- function(x){
         x <- paste(x, collapse = "")
       }
       if(length(x) < no_col){
-        tabs <- paste(rep(NA, (no_col - length(x))), sep = "\t", collapse = "\t")
+        tabs <- paste(rep(NA, (no_col - length(x))), sep = "\t", 
+                      collapse = "\t")
         line <- paste(x, tabs, sep = "\t")
         line <- unlist(strsplit(line, split = "\t"))
         return(line)
@@ -5317,6 +5343,7 @@ fileReader <- function(x){
     })
   }
   out <- as.data.frame(t(dat1))
+  rownames(out) <- NULL
   return(out)
 }
 ################################################################################
@@ -5626,13 +5653,25 @@ fstOnly <- function(infile = NULL, outfile = NULL, gp = 3,
     ###########################################################################
     # Master file reader
     ###########################################################################
-    fileReader <- function(x){
-      infile <- x
+    fileReader <- function(infile){
+      flForm <- strsplit(infile, split = "\\.")[[1]]
+      ext <- flForm[[length(flForm)]]
+      if(ext == "arp"){
+        arp2gen(infile)
+        cat("Arlequin file converted to genepop format! \n")
+        infile <- paste(flForm[1], ".gen", sep = "")
+      }
       if(typeof(infile)=="list"){
         return(infile) 
       } else if (typeof(infile)=="character"){
         dat <- scan(infile, sep = "\n", what = "character", quiet = TRUE)
         # find number of columns
+        popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
+        no_col <- popLoc[1] - 1
+        if(popLoc[1] == 3){
+          locs <- unlist(strsplit(dat[2], split = c("\\,", "\\s+")))
+          dat <- c(dat[1], locs, dat[3:(length(dat)-3)])
+        }
         popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
         no_col <- popLoc[1] - 1
         dat1 <- sapply(dat, function(x){
@@ -5658,6 +5697,7 @@ fstOnly <- function(infile = NULL, outfile = NULL, gp = 3,
         })
       }
       out <- as.data.frame(t(dat1))
+      rownames(out) <- NULL
       return(out)
     }
     data1 <- fileReader(infile)
