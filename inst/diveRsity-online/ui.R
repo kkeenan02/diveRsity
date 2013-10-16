@@ -1,5 +1,5 @@
 library(shiny)
-#library(diveRsity)
+library(diveRsity)
 
 
 
@@ -39,7 +39,7 @@ shinyUI(pageWithSidebar(
     checkboxInput("corplot", "run corPlot?", FALSE),
     
     
-    submitButton(text = "Submit Job"),
+    actionButton("goButton", "Calculate"),
     
     helpText(""),
     
@@ -51,7 +51,8 @@ shinyUI(pageWithSidebar(
     
     ,
   
-  mainPanel(tabsetPanel(
+  mainPanel(
+    tabsetPanel(
     tabPanel("Welcome",
              helpText("NOTE: This web app is designed for small to",
                       " medium data sets only (e.g.< 15 pops x 50 loci).",
