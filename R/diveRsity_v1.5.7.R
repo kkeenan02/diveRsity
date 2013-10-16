@@ -7688,6 +7688,7 @@ divMigrate <- function(infile = NULL, stat = "d_jost"){
     title(expression("G"["st"]))
     qgraph(d_mig, posCol = "black")
     title(expression("D"["Jost"]))
+    par(mfrow = c(1,1))
   } else if(stat == "gst"){
     qgraph(gst_mig, posCol = "black")
     title(expression("G"["st"]))
