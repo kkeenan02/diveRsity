@@ -7681,7 +7681,7 @@ divMigrate <- function(infile = NULL, stat = "d_jost"){
   dimnames(gst_mig) <- list(paste("P", 1:npops),
                             paste("P", 1:npops))
   # test plot
-  library("qgraph")
+  #library("qgraph")
   if(length(stat) == 2){
     par(mfrow = c(2, 1 ))
     qgraph(gst_mig, posCol = "black")
