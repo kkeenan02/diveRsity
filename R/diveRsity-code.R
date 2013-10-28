@@ -26,6 +26,10 @@ divPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
   para <- parallel
   pWise <- pairwise
   
+  # note about fastDivPart
+  cat("Notice: As of v1.6.0, fastDivPart, a faster version of divPart is \n
+      available. See ?fastDivPart for details!")
+  
   ##############################################################################
   if(bsls==T && bstrps<2){
     bs_warning<-{paste("[STOPPED]",
