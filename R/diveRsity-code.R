@@ -1306,11 +1306,22 @@ div.part<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
 # readGenepopX, a function for the generation of basic population parameters   #
 ################################################################################
 readGenepopX <- function (x) {
-  gp=x$gp
+  #gp=x$gp
   infile=x$infile
   bootstrap=x$bootstrap
   locs=x$locs
   data1 <- fileReader(infile)
+  if(is.null(x$gp)){
+    rownames(data1) <- NULL
+    data1 <- as.matrix(data1)
+    # determine genepop format
+    p1 <- which(toupper(data1[,1]) == "POP")[1] + 1
+    gp <- as.numeric(names(sort(-table(sapply(data1[p1,(-1)], nchar)/2)))[1])
+    data1 <- as.data.frame(data1)
+  } else {
+    gp <- x$gp
+  }
+  
   if(gp == 3){
     data1[data1==0]<-NA
     data1[data1=="999999"]<-NA
@@ -2306,11 +2317,21 @@ in.bs<-function(x){
   NBS=x[[4]]
   pw_only=x[[5]]
   readGenepopX <- function (x) {
-    gp=x$gp
+    #gp=x$gp
     infile=x$infile
     bootstrap=x$bootstrap
     locs=x$locs
     data1 <- fileReader(infile)
+    if(is.null(x$gp)){
+      rownames(data1) <- NULL
+      data1 <- as.matrix(data1)
+      # determine genepop format
+      p1 <- which(toupper(data1[,1]) == "POP")[1] + 1
+      gp <- as.numeric(names(sort(-table(sapply(data1[p1,(-1)], nchar)/2)))[1])
+      data1 <- as.data.frame(data1)
+    } else {
+      gp <- x$gp
+    }
     if(gp == 3){
       data1[data1==0]<-NA
       data1[data1=="999999"]<-NA
@@ -3128,7 +3149,7 @@ pre.divLowMemory <- function(y){
   #############################################################################
   readGenepopX <- function (x) {
     infile=x$infile
-    gp=x$gp
+    #gp=x$gp
     bootstrap=x$bootstrap
     # define file reader
     ###########################################################################
@@ -3182,6 +3203,16 @@ pre.divLowMemory <- function(y){
       return(out)
     }
     data1 <- fileReader(infile)
+    if(is.null(x$gp)){
+      rownames(data1) <- NULL
+      data1 <- as.matrix(data1)
+      # determine genepop format
+      p1 <- which(toupper(data1[,1]) == "POP")[1] + 1
+      gp <- as.numeric(names(sort(-table(sapply(data1[p1,(-1)], nchar)/2)))[1])
+      data1 <- as.data.frame(data1)
+    } else {
+      gp <- x$gp
+    }
     if(gp == 3){
       data1[data1==0]<-NA
       data1[data1=="999999"]<-NA
@@ -4362,10 +4393,20 @@ chiCalc <- function(infile = NULL, outfile = NULL, gp = 3, minFreq = NULL){
   # readGenepopX, a function for the generation of basic population parameters #
   #############################################################################
   readGenepopX <- function (x) {
-    gp=x$gp
+    #gp=x$gp
     infile=x$infile
     bootstrap=x$bootstrap
     data1 <- fileReader(infile)
+    if(is.null(x$gp)){
+      rownames(data1) <- NULL
+      data1 <- as.matrix(data1)
+      # determine genepop format
+      p1 <- which(toupper(data1[,1]) == "POP")[1] + 1
+      gp <- as.numeric(names(sort(-table(sapply(data1[p1,(-1)], nchar)/2)))[1])
+      data1 <- as.data.frame(data1)
+    } else {
+      gp <- x$gp
+    }
     if(gp == 3){
       data1[data1==0]<-NA
       data1[data1=="999999"]<-NA
@@ -5647,7 +5688,7 @@ fstOnly <- function(infile = NULL, outfile = NULL, gp = 3,
   # define the readGenepopX function
   readGenepopX <- function (x) {
     infile=x$infile
-    gp=x$gp
+    #gp=x$gp
     bootstrap=x$bootstrap
     # define file reader
     ###########################################################################
@@ -5701,6 +5742,16 @@ fstOnly <- function(infile = NULL, outfile = NULL, gp = 3,
       return(out)
     }
     data1 <- fileReader(infile)
+    if(is.null(x$gp)){
+      rownames(data1) <- NULL
+      data1 <- as.matrix(data1)
+      # determine genepop format
+      p1 <- which(toupper(data1[,1]) == "POP")[1] + 1
+      gp <- as.numeric(names(sort(-table(sapply(data1[p1,(-1)], nchar)/2)))[1])
+      data1 <- as.data.frame(data1)
+    } else {
+      gp <- x$gp
+    }
     if(gp == 3){
       data1[data1==0]<-NA
       data1[data1=="999999"]<-NA
