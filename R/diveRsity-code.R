@@ -7623,7 +7623,7 @@ arp2gen <- function(infile){
 
 divMigrate <- function(infile = NULL, stat = "d_jost"){
   # check file format
-  cat("Caution! The method used in this function is experimental. \n")
+  cat("Caution! The method used in this function is still under development. \n")
 #   flForm <- strsplit(infile, split = "\\.")[[1]]
 #   ext <- flForm[[length(flForm)]]
 #   if(ext == "arp"){
