@@ -1,7 +1,7 @@
 Package: diveRsity
 Version: 1.6.0
 Date: 2013/10/15
-Title: Genetic diversity partition statistics and Informative locus
+Title: diveRsity: Genetic diversity partition statistics and Informative locus
         selection using Fst, Gst, Dest(Jost Chao) G'st and In.
 Author: Kevin Keenan, <kkeenan02@qub.ac.uk>
 Maintainer: Kevin Keenan <kkeenan02@qub.ac.uk>

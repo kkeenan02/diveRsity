@@ -15,4 +15,5 @@ export (divPart,
         microPlexer,
         arp2gen,
         divMigrate,
-        fastDivPart)
+        fastDivPart,
+        haploDiv)
