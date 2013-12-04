@@ -481,7 +481,7 @@ For use\texttt{R}s wishing to carry out post analysis manipulations, all results
 #data(Test_data,package='diveRsity')
 #library(diveRsity)
 #x<-capture.output(res<-divPart(Test_data,"outtt",3,T,T,T,T,3,F,T))
-divfl <- system.file("vigData", "div_res.RData", package = "diveRsity")
+divfl <- system.file("doc", "vigData", "div_res.RData", package = "diveRsity")
 load(divfl)
 res <- div_results
 @
@@ -706,7 +706,7 @@ Values returned from \texttt{inCalc} are a single \texttt{.xlsx} workbook (if th
 For use\texttt{R}s wishing to carry out post analysis manipulations, all results from \texttt{inCalc} are returned to the \texttt{R} environment. Depending on the bootstrap options chosen these results include between one to three of the \texttt{variables} below:
 
 <<echo=FALSE, results=hide>>=
-infl <- system.file("vigData", "in_res.RData", package = "diveRsity")
+infl <- system.file("doc", "vigData", "in_res.RData", package = "diveRsity")
 load(infl)
 res_in <- in_results
 @
@@ -1166,7 +1166,7 @@ div_results <- divPart(infile = Test_data, outfile = "Test",
 @
 
 <<echo=FALSE>>=
-divfl <- system.file("vigData", "div_res.RData", package = "diveRsity")
+divfl <- system.file("doc", "vigData", "div_res.RData", package = "diveRsity")
 load(divfl)
 @
 
@@ -1254,7 +1254,7 @@ in_results <- inCalc (infile = Test_data, outfile = "Test",
 @
 
 <<echo=FALSE>>=
-infl <- system.file("vigData", "in_res.RData", package = "diveRsity") 
+infl <- system.file("doc", "vigData", "in_res.RData", package = "diveRsity") 
 load(infl)
 @
 
