@@ -56,7 +56,7 @@ fastDivPart(infile = NULL, outfile = NULL, gp = 3,
 
 \item{bs_locus}{A list containing six matrices of locus values for \emph{Gst}, \emph{G'st}, \emph{D(Jost)}, \emph{Gst-(est)}, \emph{G'st-(est)}, and \emph{D(Jost)-(est)} along with their respective 95\% confidence interval.}
 
-\item{bs_pairwise}{A list containing three-four matrices (depending on whether Weir & Cockerham's Fst is calculated) of pairwise values for \emph{Gst}, \emph{G'st}, \emph{D(Jost)}, \emph{Gst-(est)}, \emph{G'st-(est)}, and \emph{D(Jost)-(est)} along with their respective 95\% confidence intervals.}
+\item{bs_pairwise}{A list containing three-four matrices (depending on whether Weir & Cockerham's Fst is calculated) of pairwise values for \emph{Gst}, \emph{G'st}, \emph{D(Jost)}, \emph{Gst-(est)}, \emph{G'st-(est)}, and \emph{D(Jost)-(est)} along with their respective 95\% confidence intervals, including bias corrected 95\% confidence intervals.}
 }
 
 \references{
