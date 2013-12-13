@@ -100,8 +100,11 @@ Version 1.5.0 also fixes a major bug on Mac systems. Due to unexpected behaviour
 
 \end{itemize}
 
-This new function is optimised to provide faster pairwise calculations. Some performance tests can be found at: 
+This new function is optimised to provide faster pairwise calculations, especially where the number of pairwise comparisons is much greater than the number of loci. Some performance tests can be found at:\\ 
 \href{https://github.com/kkeenan02/diveRsity-dev/blob/master/fastDivPart-tests.md}{https://github.com/kkeenan02/diveRsity-dev/blob/master/fastDivPart-tests.md}
+
+\textbf{IMPORTANT NOTE}\\
+Users are encouraged to use \texttt{fastDivCalc} rather than \texttt{divPart}, as the latter function will eventually be removed from future releases of \texttt{diveRsity}. 
 
 \textbf{Version 1.6.1} contains a new function, \texttt{haploDiv}, for calculating Weir \& Cockerham's $\theta$ from haploid genotype data. The data should be in the two or three digit genepop format. See below for further description of the function.
 
@@ -183,6 +186,7 @@ For convenient access to usage information on each function, within the \texttt{
 ?arp2gen
 ?divMigrate
 ?haploDiv
+?fastDivPart
 @
 Each of these commands will provide information on function usage. The help pages associated with each function describe in detail how each argument should be passed to the function. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -282,7 +286,15 @@ Where $\hat{\sigma}_{P}^{2}$ is the sum of variance components for populations, 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \normalsize
 \subsubsection{Bootstrapping}
-The variance each statistic can be assessed using the bootstrapping method implemented in \texttt{diveRsity}. 95\% confidence intervals are calculated by taking the upper and lower 2.5\% sample quantiles.
+The variance of each statistic can be assessed using the bootstrapping method implemented in \texttt{diveRsity}. 95\% confidence intervals are calculated by taking the upper and lower 2.5\% sample quantiles form the bootstrapped parameter distribution.\\ 
+For pairwise calculations carried out by the function, \texttt{fastDivPart}, a bias corrected 95\% confidence interval is also calculated. This method accounts for the bias commonly associated with bootstrapping these types of statistics. The method is basically a technique which re-centers the confidence interval around the initial parameter estimate. Say $\theta$ is our parameter of interest, $\hat{\theta}$ is out parameter estimate, and $\hat{\theta^*}$ is a vector of length, $n$, containing estimates of $\hat{\theta}$ for resampled data. The correction is carried out as follows:
+$$\hat{\theta^*}_{[BC]} = \hat{\theta^*} - z0$$
+
+\small
+Where $z0 = \frac{\sum{\hat{\theta^*}}}{n} - \hat{\theta}$.
+
+\normalsize
+The 2.5\% and 97.5\% quantile are then taken from the re-centered vector, $\hat{\theta^*}_{[BC]}$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{inCalc()}
 \subsubsection*{NOTE}
