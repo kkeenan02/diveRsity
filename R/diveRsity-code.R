@@ -9946,15 +9946,9 @@ haploDiv <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
         if(gp == 2){
           paste(sprintf("%02g", as.numeric(dat[i, -1])), 
                 sprintf("%02g", as.numeric(dat[i, -1])), sep = "")
-          if (Sys.info()["sysname"] == "Darwin"){
-            out[out == "0000NA"] <- "    NA"
-          }
         } else if(gp == 3){
           paste(sprintf("%03g", as.numeric(dat[i, -1])), 
                 sprintf("%03g", as.numeric(dat[i, -1])), sep = "")
-          if (Sys.info()["sysname"] == "Darwin"){
-            out[out == "00NA"] <- "  NA"
-          }
         } else {
           cat("There is a problem with your input file!")
         }
@@ -10014,7 +10008,8 @@ haploDiv <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
     cat("Bootstrapped 95% Confidence intervals for Weir & Cockerham's (1984) Fst",
         "\n", sep = "\t", file = fl)
     cat("", "\n", file = fl)
-    cat(c("", "Mean", "Lower", "Upper"), "\n", sep = "\t", file = fl)
+    cat(c("","actual", "mean", "BC_mean", "lower", "upper", 
+          "BC_lower", "BC_upper"), "\n", sep = "\t", file = fl)
     for(i in 1:nrow(output$bs_pairwise)){
       cat(c(rownames(output$bs_pairwise)[i], round(output$bs_pairwise[i, ], 4)), 
           "\n", sep = "\t", file = fl)
