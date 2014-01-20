@@ -1536,6 +1536,6 @@ print(sessionInfo(), locale = FALSE)
 @
 
 \section{Acknowledgements}
-Many thanks to all of our colleagues for testing code and reporting bugs. In particular, we thank Mark Ravinet, Erin Landguth, Mariah Meek and Andy Jasonowicz for reporting important bugs and for making useful suggestions for the improvement of the package.
+Many thanks to all of my colleagues for testing code and reporting bugs. In particular, I thank Mark Ravinet, Erin Landguth, Mariah Meek and Andy Jasonowicz for reporting important bugs and for making useful suggestions for the improvement of the package. Special thanks goes to my PhD supervisor, Paulo A. Prod\"{o}hl, for many useful insights into the use and applications of \texttt{diveRsity}, as well as avenues of future developments.
 
 \end{document}
