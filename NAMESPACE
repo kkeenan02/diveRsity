@@ -17,3 +17,7 @@ export (divPart,
         divMigrate,
         fastDivPart,
         haploDiv)
+import(ggplot2,
+       qgraph,
+       plotrix,
+       shiny)

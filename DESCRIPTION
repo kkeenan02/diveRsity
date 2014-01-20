@@ -1,5 +1,5 @@
 Package: diveRsity
-Version: 1.7.5
+Version: 1.7.6
 Date: 2014/01/20
 Title: diveRsity: Genetic diversity partition statistics and Informative locus
         selection using Fst, Gst, Dest(Jost Chao) G'st and In.
@@ -7,7 +7,7 @@ Author: Kevin Keenan, <kkeenan02@qub.ac.uk>
 Maintainer: Kevin Keenan <kkeenan02@qub.ac.uk>
 Suggests: xlsx, sendplot, foreach, iterators, doParallel, parallel
 Depends: R (>= 3.0.0)
-Imports: plotrix, shiny, ggplot2, qgraph
+Imports: plotrix, shiny, qgraph, ggplot2
 Repository: CRAN
 Description: diveRsity is a package which allows the calculation of both genetic diversity partition statistics, genetic differentiation statistics and locus informativeness for ancestry assignment. It also provides users with various option to calculate bootstrapped 95% confidence intervals both across loci, for pairwise population comparisons and to plot these results interactively. V1.2 and up provides parallel computing capabilities and pairwise results without bootstrapping. Weir and Cockerham's 1984 F-statistics are now also calculated. Various plotting features are also provided. Chi-square tests of genetic heterogeneity are also provided. Functionality for the calculation of various diversity parameters is also possible for RAD-seq derived SNP data sets containing thousands of marker loci. A shiny application for the development of microsatellite multiplexes is also available
 License: GPL (>= 2)
