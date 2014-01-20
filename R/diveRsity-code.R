@@ -9091,15 +9091,27 @@ fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
         return(do.call("rbind", x))
       })
       # identify unique genotypes
-      genot <- lapply(allGenot, function(x){
-        return(apply(x, 2, function(y){
-          unique(na.omit(y))
-        }))
-      })
+      #   genot <- lapply(allGenot, function(x){
+      #     return(apply(x, 2, function(y){
+      #       unique(na.omit(y))
+      #     }))
+      #   })
       # count number of genotypes per pw per loc
+      
       genoCount <- lapply(allGenot, function(x){
-        apply(x, 2, table)
+        if(NCOL(x) == 1){
+          return(list(table(x)))
+        } else {
+          lapply(1:ncol(x), function(i) table(x[,i]))
+        }
       })
+      
+      
+      #   genoCount <- lapply(allGenot, function(x){
+      #     lapply(split(x,seq(NCOL(x))),table) # accounts for single loci
+      #     #apply(x, 2, table)
+      #   })
+      
       
       # function to count heterozygotes
       htCount <- function(x){
@@ -9169,13 +9181,13 @@ fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
       #   })
       
       fstatCal <- function(indT, indtyp, hBar, nBar, p, pw, npops){
-        #     indT=indTypTot[[28]]
-        #     indtyp=rdat$indtyp[[28]]
-        #     hBar <- hBar[[28]]
-        #     nBar <- nBar[[28]]
-        #     p <- p[[28]]
-        #     pw <- pw
-        #     npops <- rdat$npops
+        #         indT=indTypTot[[1]]
+        #         indtyp=rdat$indtyp[[1]]
+        #         hBar <- hBar[[1]]
+        #         nBar <- nBar[[1]]
+        #         p <- p[[1]]
+        #         pw <- pw
+        #         npops <- rdat$npops
         indLocPwSqSum <- sapply(seq_along(pw[1,]), function(i){
           return(sum(indtyp[pw[,i]]^2))
         })
@@ -9216,17 +9228,27 @@ fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
         a <- lapply(seq_along(s2), function(i){
           return(nBar[[i]]*(s2[[i]]-(A[[i]]-(hBar[[i]]/4))/(nBar[[i]]-1))/nC[[i]])
         })
+        #     a <- lapply(seq_along(s2), function(i){
+        #       return(a[[i]][idx[[i]]])
+        #     })
         b <- lapply(seq_along(A), function(i){
-          return(nBar[[i]]*(A[[i]]-(2*(nBar[[i]]-1))*hBar[[i]]/(4*nBar[[i]]))/(nBar[[i]]-1))
+          return((nBar[[i]]/(nBar[[i]]-1))*(A[[i]]-((2*nBar[[i]]-1)/(4*nBar[[i]]))*hBar[[i]]))
+          #return((nBar[[i]]/(nBar[[i]]-1))*(A[[i]]-(2*(nBar[[i]]-1))*hBar[[i]]/(4*nBar[[i]])))
         })
-        c <- lapply(seq_along(A), function(i){
+        #     b <- lapply(seq_along(A), function(i){
+        #       return(b[[i]][idx[[i]]])
+        #     })
+        cdat <- lapply(seq_along(A), function(i){
           return(hBar[[i]]/2)
         })
+        #     cdat <- lapply(seq_along(A), function(i){
+        #       return(cdat[[i]][idx[[i]]])
+        #     })
         A <- sapply(A, sum)
         a <- sapply(a, sum)
         b <- sapply(b, sum)
-        c <- sapply(c, sum)
-        theta <- a/(a+b+c)
+        cdat <- sapply(cdat, sum)
+        theta <- a/(a+b+cdat)
         pwMat <- matrix(ncol = npops, nrow = npops)
         aMat <- matrix(ncol = npops, nrow = npops)
         bMat <- matrix(ncol = npops, nrow = npops)
@@ -9235,7 +9257,7 @@ fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
           pwMat[pw[2,i], pw[1,i]] <- theta[i]
           aMat[pw[2,i], pw[1,i]] <- a[i]
           bMat[pw[2,i], pw[1,i]] <- b[i]
-          cMat[pw[2,i], pw[1,i]] <- c[i]
+          cMat[pw[2,i], pw[1,i]] <- cdat[i]
         }
         pwMat[is.nan(pwMat)] <- NA
         aMat[is.nan(aMat)] <- NA
