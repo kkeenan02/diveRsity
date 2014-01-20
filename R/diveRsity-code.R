@@ -1,6 +1,6 @@
 ################################################################################
 ################################################################################
-##                              diveRsity v1.7.1                              ##  
+##                              diveRsity v1.7.5                              ##  
 ##                            by Kevin Keenan QUB                             ##  
 ##            An R package for the calculation of differentiation             ##
 ##              statistics and locus informativeness statistics               ##  
@@ -52,7 +52,12 @@ divPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
 #   }
   
   # note about fastDivPart
-  cat("Notice: As of v1.6.0, fastDivPart, a faster version of divPart is \navailable. See ?fastDivPart for details!")
+  cat(paste("Notice: As of v1.6.0, fastDivPart, a faster version of divPart is",
+            "available. This function will eventually replace divPart and its",
+            "use future use is highly recommended, as divPart is no longer",
+            "maintained and some results may not be accurate.",
+            "",
+            "See ?fastDivPart for details!", sep = "\n"))
   
   ##############################################################################
   if(bsls==T && bstrps<2){
