@@ -1,23 +1,23 @@
-export (divPart,
-        inCalc,
-        readGenepop,
-        corPlot,
-        difPlot,
-        chiCalc,
-        divBasic,
-        divOnline,
-        fstOnly,
-        div.part,
-        in.calc,
-        readGenepop.user,
-        divRatio,
-        bigDivPart,
-        microPlexer,
-        arp2gen,
-        divMigrate,
-        fastDivPart,
-        haploDiv)
-import(ggplot2,
-       qgraph,
-       plotrix,
-       shiny)
+export(divPart)
+export(inCalc)
+export(readGenepop)
+export(corPlot)
+export(difPlot)
+export(chiCalc)
+export(divBasic)
+export(divOnline)
+export(fstOnly)
+export(div.part)
+export(in.calc)
+export(readGenepop.user)
+export(divRatio)
+export(bigDivPart)
+export(microPlexer)
+export(arp2gen)
+export(divMigrate)
+export(fastDivPart)
+export(haploDiv)
+import(ggplot2)
+import(qgraph)
+import(plotrix)
+import(shiny)

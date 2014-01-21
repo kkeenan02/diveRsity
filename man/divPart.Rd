@@ -22,7 +22,7 @@ divPart(infile = NULL, outfile = NULL, gp = 3,
         bootstraps = 0, plot = FALSE, 
         parallel = FALSE)
 }
-			   
+                           
 \arguments{
 
 \item{infile}{Specifying the name of the \emph{`genepop'} (Rousset, 2008) file from which the statistics are to be calculated This file can be in either the 3 digit of 2 digit format, and must contain only one whitespace separator (e.g. \dQuote{space} or \dQuote{tab}) between each column including the individual names column. The number of columns must be equal to the number of loci + 1 (the individual names column). If this file is not in the \code{working directory} the file path must be given. The name must be a character string (i.e. enclosed in \dQuote{} or `').}

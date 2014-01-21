@@ -1,3 +1,5 @@
+#' @import ggplot2 shiny qgraph plotrix
+NULL
 ################################################################################
 ################################################################################
 ##                              diveRsity v1.7.5                              ##  
@@ -10,6 +12,7 @@
 ################################################################################
 
 # divPart, a wrapper function for the calculation of differentiation stats.
+#' @export
 divPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
                   WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
                   bootstraps = 0, plot = FALSE, parallel = FALSE){
@@ -1319,6 +1322,7 @@ divPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
 ################################################################################
 # div.part: deprecated
 ################################################################################
+#' @export
 # div.part, a wrapper function for the calculation of differentiation stats.
 div.part<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
                    WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
@@ -2078,6 +2082,7 @@ plotter<-function(x,img="1200x600"){
 ################################################################################
 # inCalc, a wrapper function for the calculation of locus informativeness     #
 ################################################################################
+#' @export
 inCalc<-function(infile, outfile=NULL, gp=3, bs_locus=FALSE, bs_pairwise=FALSE,
                  bootstraps=0, plot=FALSE, parallel=FALSE){
   D=infile
@@ -2324,6 +2329,7 @@ inCalc<-function(infile, outfile=NULL, gp=3, bs_locus=FALSE, bs_pairwise=FALSE,
 ################################################################################
 # in.calc, a wrapper function for the calculation of locus informativeness     #
 ################################################################################
+#' @export
 in.calc<-function(infile, outfile = NULL, gp = 3, bs_locus = FALSE,
                   bs_pairwise = FALSE, bootstraps = 0, plot = FALSE,
                   parallel = FALSE){
@@ -2836,6 +2842,7 @@ in.bs<-function(x){
 ################################################################################
 # readGenepop.user, a usable function for basic population parameters          #
 ################################################################################
+#' @export
 readGenepop.user<- function (infile = NULL, gp = 3, bootstrap = FALSE) {
   .Deprecated(new = "readGenepop", msg = "This function name is no longer in use. Please use 'readGenepop' instead. \nSee ?readGenepop for usage details.", 
               old = "readGenepop.user")
@@ -2851,6 +2858,7 @@ readGenepop.user<- function (infile = NULL, gp = 3, bootstrap = FALSE) {
 ################################################################################
 # readGenepop, a usable function for basic population parameters               #
 ################################################################################
+#' @export
 readGenepop <- function (infile=NULL, gp=3, bootstrap=FALSE) {
   gp=gp
   infile=infile
@@ -4023,6 +4031,7 @@ pre.divLowMemory <- function(y){
 ################################################################################
 # corPlot, plot the relationship between divPart stats and number of alleles   #
 ################################################################################
+#' @export
 corPlot<-function(x,y){
   x=x
   y=y
@@ -4095,6 +4104,7 @@ corPlot<-function(x,y){
 ################################################################################
 # difPlot, plot all pairwise population pairs                                  #
 ################################################################################
+#' @export
 difPlot <- function (x, outfile= NULL, interactive = FALSE) {
   x=x
   on=outfile
@@ -4420,7 +4430,7 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
 #        Input data should be given in the 2 or 3 digit genepop format        #
 #                       By Kevin Keenan, QUB, 2013                            #
 ###############################################################################
-
+#' @export
 chiCalc <- function(infile = NULL, outfile = NULL, gp = 3, minFreq = NULL){
   inputs <- list(infile = infile, gp = gp, bootstrap = FALSE)
   minFreq <- minFreq
@@ -4925,8 +4935,9 @@ chiCalc <- function(infile = NULL, outfile = NULL, gp = 3, minFreq = NULL){
 #
 ###############################################################################
 # try to include diveRsity online
+#' @export
 divOnline <- function(){
-    shiny::runApp(system.file('diveRsity-online', package = 'diveRsity'))
+    runApp(system.file('diveRsity-online', package = 'diveRsity'))
 }
 ################################################################################
 # END
@@ -4939,8 +4950,9 @@ divOnline <- function(){
 #
 #
 # try to include microPlexer app
+#' @export
 microPlexer <- function(){
-  shiny::runApp(system.file('microPlexer', package = 'diveRsity'))
+  runApp(system.file('microPlexer', package = 'diveRsity'))
 }
 ################################################################################
 # END
@@ -4955,6 +4967,7 @@ microPlexer <- function(){
 ################################################################################
 # Calculate basic stats
 ################################################################################
+#' @export
 divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
   infile =  infile
   gp = gp
@@ -5576,6 +5589,7 @@ fstWC<-function(x){
 ################################################################################
 # fstOnly: a memory efficient function to calculate WC Fst and Fit
 ################################################################################
+#' @export
 fstOnly <- function(infile = NULL, outfile = NULL, gp = 3, 
                     bs_locus = FALSE, bs_pairwise = FALSE, 
                     bootstraps = 0, parallel = FALSE){
@@ -6319,6 +6333,7 @@ fstOnly <- function(infile = NULL, outfile = NULL, gp = 3,
 ################################################################################
 # divRatio: calculates diversity standardised to yardstick popukation
 ################################################################################
+#' @export
 divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL, 
                      refPos = NULL, bootstraps = 1000,  parallel = FALSE) {
   popStats = pop_stats
@@ -6949,6 +6964,7 @@ arHex <- function(x){
 ################################################################################
 # bigDivPart - a wrapper function for the calculation of diff stats
 ################################################################################
+#' @export
 bigDivPart <- function(infile = NULL, outfile = NULL, WC_Fst = FALSE,
                        format = NULL){
   
@@ -7558,6 +7574,7 @@ bigPreDiv <- function(prePopList, bs = FALSE, nloci, npops,
 ################################################################################
 # arp2gen: arlequin file conversion to genepop
 ################################################################################
+#' @export
 arp2gen <- function(infile){
   # define a fastscan function
   fastScan <- function(fname){
@@ -7708,7 +7725,7 @@ arp2gen <- function(infile){
 # a presented in the paper 'Directional genetic differentiation and
 # asymmetric migration Lisa Sundqvist, Martin Zackrisson & David Kleinhans,
 # 2013, arXiv pre-print (http://arxiv.org/abs/1304.0118)'
-
+#' @export
 divMigrate <- function(infile = NULL, stat = "d_jost"){
   # check file format
   cat("Caution! The method used in this function is still under development. \n")
@@ -8276,6 +8293,7 @@ pwDivCalc <- function(x, pw, npops){
 # Kevin Keenan 2013
 
 # divPart, a wrapper function for the calculation of differentiation stats.
+#' @export
 fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
                       WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
                       bootstraps = 0, plot = FALSE, parallel = FALSE){
@@ -9907,7 +9925,7 @@ fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
 ################################################################################
 # haploDiv function for calculating various statistics from haploid data
 # try diploidization first
-
+#' @export
 haploDiv <- function(infile = NULL, outfile = NULL, pairwise = FALSE, 
                      bootstraps = 0){
   if(bootstraps != 0){
