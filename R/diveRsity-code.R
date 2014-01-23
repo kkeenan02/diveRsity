@@ -7819,7 +7819,7 @@ pwDivCalc <- function(x, pw, npops){
   ht <- matrix(ncol = npops, nrow = npops)
   hs <- matrix(ncol = npops, nrow = npops)
   for(i in 1:ncol(pw)){
-    gamma <- sum(sqrt(abs(x[,1] * x[,2])))^-1 
+    gamma <- sum(sqrt(abs(x[,pw[1,i]] * x[,pw[2,i]])))^-1 
     f <- gamma * sqrt(x[,pw[1,i]] * x[,pw[2,i]])
     ht[pw[1,i],pw[2,i]] <- 1 - sum(((f + x[,pw[1,i]])/2)^2)
     ht[pw[2,i],pw[1,i]] <- 1 - sum(((f + x[,pw[2,i]])/2)^2)
@@ -9365,7 +9365,7 @@ fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
       ht <- matrix(ncol = npops, nrow = npops)
       hs <- matrix(ncol = npops, nrow = npops)
       for(i in 1:ncol(pw)){
-        gamma <- sum(sqrt(abs(x[,1] * x[,2])))^-1 
+        gamma <- sum(sqrt(abs(x[,pw[1,i]] * x[,pw[2,i]])))^-1 
         f <- gamma * sqrt(x[,pw[1,i]] * x[,pw[2,i]])
         ht[pw[1,i],pw[2,i]] <- 1 - sum(((f + x[,pw[1,i]])/2)^2)
         ht[pw[2,i],pw[1,i]] <- 1 - sum(((f + x[,pw[2,i]])/2)^2)
