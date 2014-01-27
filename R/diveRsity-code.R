@@ -4106,11 +4106,21 @@ corPlot<-function(x,y){
 ################################################################################
 #' @export
 difPlot <- function (x, outfile= NULL, interactive = FALSE) {
-  x=x
   on=outfile
-  inta<-interactive
+  inta <- interactive
   #output from divPart
   #require(plotrix)
+  if(!is.element("pairwise", names(x))){
+    stop(paste("To plot pairwise differentiation the argument 'pairwise' in ",
+               "either 'divPart' or fastDivPart' must be TRUE!", sep = "\n"))
+  }
+  if(!is.element("gstEst", names(x$pairwise))){
+    idx <- c(4, 7, 5, 6)
+    fun <- "divPart"
+  } else {
+    idx <- c(1, 4, 2, 3)
+    fun <- "fastDivPart"
+  }
   
   if(is.null(on) == TRUE && inta == TRUE){
     of = paste(getwd(),"/", sep = "")
@@ -4121,7 +4131,7 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
   }
   
   if(!exists("inta",-1)){
-    inta<-FALSE
+    inta <- FALSE
   }
   if(inta == TRUE) {
     sp.header<-list()
@@ -4134,24 +4144,33 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
                    colnames(x[[3]][[1]])[pwc[2,]],
                    sep=' vs ')
     
-    gst_lab <- as.vector(x[[3]][[4]])
+    gst_lab <- as.vector(x[[3]][[idx[1]]])
     gst_lab <- na.omit(gst_lab)
     collab111<-list()
     #
-    if(length(x[[3]]) > 6){
-      fst_lab <- as.vector(x[[3]][[8]])
+    if(length(x[[3]]) > 6 && fun == "divPart"){
+      fst_lab <- as.vector(x[[3]][[idx[2]]])
+      fst_lab<-na.omit(fst_lab)
+    } else if(length(x[[3]]) == 4 && fun == "fastDivPart"){
+      fst_lab <- as.vector(x[[3]][[idx[2]]])
       fst_lab<-na.omit(fst_lab)
     }
     #
-    gpst_lab <- as.vector(x[[3]][[5]])
+    gpst_lab <- as.vector(x[[3]][[idx[3]]])
     gpst_lab<-na.omit(gpst_lab)
     #
-    Dest_lab <- as.vector(x[[3]][[6]])
+    Dest_lab <- as.vector(x[[3]][[idx[4]]])
     Dest_lab<-na.omit(Dest_lab)
     #
     
     fl_ext<-c(".tif","Dot.png","Dot.tif")
-    if (length(x[[3]]) > 6){
+    if (length(x[[3]]) > 6 && fun == "divPart"){
+      xy.labels <-  data.frame(pops = pwNames,
+                               Nei_Gst = gst_lab,
+                               Weir_Theta = fst_lab,
+                               Hedrick_Gst = gpst_lab,
+                               Jost_D = Dest_lab)
+    } else if(length(x[[3]]) == 4 && fun == "fastDivPart"){
       xy.labels <-  data.frame(pops = pwNames,
                                Nei_Gst = gst_lab,
                                Weir_Theta = fst_lab,
@@ -4170,14 +4189,14 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
                     round(mean(gst_lab),3),
                     round(max(gst_lab),3))
     
-    plot.call <- "image(1:nrow(abx[[3]][[4]]),1:nrow(abx[[3]][[4]]),
-    abx[[3]][[4]],ylab='',xlab='',main='Pairwise Gst',xaxt='n',yaxt='n',
+    plot.call <- "image(1:nrow(abx[[3]][[idx[1]]]),1:nrow(abx[[3]][[idx[1]]]),
+    abx[[3]][[idx[1]]],ylab='',xlab='',main='Pairwise Gst',xaxt='n',yaxt='n',
     col = colleer(50),las=1,cex.main=3)"
     ##
-    plot.extras <- "color.legend(nrow(abx[[3]][[4]])/5,
-    nrow(abx[[3]][[4]])/3,
-    nrow(abx[[3]][[4]])/4,
-    nrow(abx[[3]][[4]])/1.2,
+    plot.extras <- "color.legend(nrow(abx[[3]][[idx[1]]])/5,
+    nrow(abx[[3]][[idx[1]]])/3,
+    nrow(abx[[3]][[idx[1]]])/4,
+    nrow(abx[[3]][[idx[1]]])/1.2,
     collab111,
     rect.col=colleer(50),
     gradient='y',
@@ -4204,18 +4223,50 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
     #
     #
     #Fst
-    if(length(x[[3]]) > 6){
+    if(length(x[[3]]) > 6 && fun == "divPart"){
       collab111 <<- c(round(min(fst_lab),3),
                       round(mean(fst_lab),3),
                       round(max(fst_lab),3))
-      plot.call <- "image(1:nrow(abx[[3]][[8]]),1:nrow(abx[[3]][[8]]),
-      abx[[3]][[8]],ylab = '',xlab = '',xaxt = 'n',yaxt = 'n',
+      plot.call <- "image(1:nrow(abx[[3]][[idx[2]]]),1:nrow(abx[[3]][[idx[2]]]),
+      abx[[3]][[idx[2]]],ylab = '',xlab = '',xaxt = 'n',yaxt = 'n',
       main = 'Pairwise Fst',col = colleer(50),las = 1,cex.main = 3)"
       ##
-      plot.extras <- "color.legend(nrow(abx[[3]][[8]])/5,
-      nrow(abx[[3]][[8]])/3,
-      nrow(abx[[3]][[8]])/4,
-      nrow(abx[[3]][[8]])/1.2,
+      plot.extras <- "color.legend(nrow(abx[[3]][[idx[2]]])/5,
+      nrow(abx[[3]][[idx[2]]])/3,
+      nrow(abx[[3]][[idx[2]]])/4,
+      nrow(abx[[3]][[idx[2]]])/1.2,
+      collab111,
+      rect.col=colleer(50),
+      gradient='y',
+      cex=3)"
+      #
+      suppressWarnings(imagesend(plot.call=plot.call,
+                                 x.pos=pwc[2,],
+                                 y.pos=pwc[1,],
+                                 xy.type="points",
+                                 xy.labels = xy.labels,
+                                 plot.extras=plot.extras,
+                                 fname.root="Fst_matrix",
+                                 dir=of,
+                                 image.size="1050x800",
+                                 font.size=18,
+                                 spot.radius = 10,
+                                 font.type ="Arial",
+                                 window.size="1100x800"))
+      #clean up
+      unlink(paste(of,"Fst_matrix",fl_ext,sep=""))
+    } else if(length(x[[3]]) == 4 && fun == "fastDivPart"){
+      collab111 <<- c(round(min(fst_lab),3),
+                      round(mean(fst_lab),3),
+                      round(max(fst_lab),3))
+      plot.call <- "image(1:nrow(abx[[3]][[idx[2]]]),1:nrow(abx[[3]][[idx[2]]]),
+      abx[[3]][[idx[2]]],ylab = '',xlab = '',xaxt = 'n',yaxt = 'n',
+      main = 'Pairwise Fst',col = colleer(50),las = 1,cex.main = 3)"
+      ##
+      plot.extras <- "color.legend(nrow(abx[[3]][[idx[2]]])/5,
+      nrow(abx[[3]][[idx[2]]])/3,
+      nrow(abx[[3]][[idx[2]]])/4,
+      nrow(abx[[3]][[idx[2]]])/1.2,
       collab111,
       rect.col=colleer(50),
       gradient='y',
@@ -4246,12 +4297,12 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
     collab111 <<- c(round(min(gpst_lab),3),
                     round(mean(gpst_lab),3),
                     round(max(gpst_lab),3))
-    plot.call <- "image(1:nrow(abx[[3]][[5]]),1:nrow(abx[[3]][[5]]),
-    abx[[3]][[5]],ylab='',xlab='',xaxt='n',yaxt='n',
+    plot.call <- "image(1:nrow(abx[[3]][[idx[3]]]),1:nrow(abx[[3]][[idx[3]]]),
+    abx[[3]][[idx[3]]],ylab='',xlab='',xaxt='n',yaxt='n',
     main='Pairwise Gst (Hedrick)',col = colleer(50),las=1,cex.main=3)"
     
-    plot.extras <- "color.legend(nrow(abx[[3]][[5]])/5,nrow(abx[[3]][[5]])/3,
-    nrow(abx[[3]][[5]])/4,nrow(abx[[3]][[5]])/1.2,collab111,
+    plot.extras <- "color.legend(nrow(abx[[3]][[idx[3]]])/5,nrow(abx[[3]][[idx[3]]])/3,
+    nrow(abx[[3]][[idx[3]]])/4,nrow(abx[[3]][[idx[3]]])/1.2,collab111,
     rect.col=colleer(50),gradient='y',cex=3)"
     ##
     suppressWarnings(imagesend(plot.call=plot.call,
@@ -4279,11 +4330,11 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
     collab111 <<- c(round(min(Dest_lab),3),
                     round(mean(Dest_lab),3),
                     round(max(Dest_lab),3))
-    plot.call <- "image(1:nrow(abx[[3]][[6]]),1:nrow(abx[[3]][[6]]),
-    abx[[3]][[6]],ylab='',xlab='',xaxt='n',yaxt='n',main='Pairwise D (Jost)',
+    plot.call <- "image(1:nrow(abx[[3]][[idx[4]]]),1:nrow(abx[[3]][[idx[4]]]),
+    abx[[3]][[idx[4]]],ylab='',xlab='',xaxt='n',yaxt='n',main='Pairwise D (Jost)',
     col = colleer(50),las=1,cex.main=3)"
-    plot.extras <- "color.legend(nrow(abx[[3]][[6]])/5,nrow(abx[[3]][[6]])/3,
-    nrow(abx[[3]][[6]])/4,nrow(abx[[3]][[6]])/1.2,collab111,
+    plot.extras <- "color.legend(nrow(abx[[3]][[idx[4]]])/5,nrow(abx[[3]][[idx[4]]])/3,
+    nrow(abx[[3]][[idx[4]]])/4,nrow(abx[[3]][[idx[4]]])/1.2,collab111,
     rect.col=colleer(50),gradient='y',cex=3)"
     ##
     suppressWarnings(imagesend(plot.call=plot.call,
@@ -4306,7 +4357,9 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
   } else {
     
     #
-    if(length(x[[3]]) > 6){
+    if(length(x[[3]]) > 6 && fun == "divPart"){
+      par(mfrow=c(2,2))
+    } else if(length(x[[3]]) == 4 && fun == "fastDivPart"){
       par(mfrow=c(2,2))
     } else {
       par(mfrow=c(3,1))
@@ -4314,89 +4367,110 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
     colleer<-colorRampPalette(c("blue","white"))
     cols<-colleer(50)
     #Gst
-    image(1:nrow(x[[3]][[4]]),
-          1:nrow(x[[3]][[4]]),
-          x[[3]][[4]],
+    image(1:nrow(x[[3]][[idx[1]]]),
+          1:nrow(x[[3]][[idx[1]]]),
+          x[[3]][[idx[1]]],
           ylab="population",
           xlab="population",
           main="Pairwise Gst",
           col=cols,
           las=1)
-    gst<-as.vector(x[[3]][[4]])
+    gst<-as.vector(x[[3]][[idx[1]]])
     gst<-as.vector(na.omit(gst))
     collab111<-c(round(min(gst),3),
                  round(mean(gst),3),
                  round(max(gst),3))
     
-    color.legend(nrow(x[[3]][[4]])/5,
-                 nrow(x[[3]][[4]])/3,
-                 nrow(x[[3]][[4]])/4,
-                 nrow(x[[3]][[4]])/1.2,
+    color.legend(nrow(x[[3]][[idx[1]]])/5,
+                 nrow(x[[3]][[idx[1]]])/3,
+                 nrow(x[[3]][[idx[1]]])/4,
+                 nrow(x[[3]][[idx[1]]])/1.2,
                  collab111,
                  cols,
                  gradient="y")
-    if(length(x[[3]]) > 6){
+    if(length(x[[3]]) > 6 && fun == "divPart"){
       #Fst
-      image(1:nrow(x[[3]][[8]]),
-            1:nrow(x[[3]][[8]]),
-            x[[3]][[8]],
+      image(1:nrow(x[[3]][[idx[2]]]),
+            1:nrow(x[[3]][[idx[2]]]),
+            x[[3]][[idx[2]]],
             ylab="population",
             xlab="population",
             main="Pairwise Theta",
             col = cols,
             las=1)
-      fst<-as.vector(x[[3]][[8]])
+      fst<-as.vector(x[[3]][[idx[2]]])
       fst<-as.vector(na.omit(fst))
       collab111<-c(round(min(fst),3),round(mean(fst),3),round(max(fst),3))
       
-      color.legend(nrow(x[[3]][[8]])/5,
-                   nrow(x[[3]][[8]])/3,
-                   nrow(x[[3]][[8]])/4,
-                   nrow(x[[3]][[8]])/1.2,
+      color.legend(nrow(x[[3]][[idx[2]]])/5,
+                   nrow(x[[3]][[idx[2]]])/3,
+                   nrow(x[[3]][[idx[2]]])/4,
+                   nrow(x[[3]][[idx[2]]])/1.2,
+                   collab111,
+                   cols,
+                   gradient="y")
+    } else if(length(x[[3]]) == 4 && fun == "fastDivPart"){
+      #Fst
+      image(1:nrow(x[[3]][[idx[2]]]),
+            1:nrow(x[[3]][[idx[2]]]),
+            x[[3]][[idx[2]]],
+            ylab="population",
+            xlab="population",
+            main="Pairwise Theta",
+            col = cols,
+            las=1)
+      fst<-as.vector(x[[3]][[idx[2]]])
+      fst<-as.vector(na.omit(fst))
+      collab111<-c(round(min(fst),3),round(mean(fst),3),round(max(fst),3))
+      
+      color.legend(nrow(x[[3]][[idx[2]]])/5,
+                   nrow(x[[3]][[idx[2]]])/3,
+                   nrow(x[[3]][[idx[2]]])/4,
+                   nrow(x[[3]][[idx[2]]])/1.2,
                    collab111,
                    cols,
                    gradient="y")
     }
     #Hedrick's Gst
-    image(1:nrow(x[[3]][[5]]),
-          1:nrow(x[[3]][[5]]),
-          x[[3]][[5]],
+    image(1:nrow(x[[3]][[idx[3]]]),
+          1:nrow(x[[3]][[idx[3]]]),
+          x[[3]][[idx[3]]],
           ylab="population",
           xlab="population",
           main="Pairwise G'st",
           col = cols)
-    gprimest<-as.vector(x[[3]][[5]])
+    gprimest<-as.vector(x[[3]][[idx[3]]])
     gprimest<-as.vector(na.omit(gprimest))
     collab111<-c(round(min(gprimest),3),
                  round(mean(gprimest),3),
                  round(max(gprimest),3))
     
-    color.legend(nrow(x[[3]][[5]])/5,
-                 nrow(x[[3]][[5]])/3,
-                 nrow(x[[3]][[5]])/4,
-                 nrow(x[[3]][[5]])/1.2,
+    color.legend(nrow(x[[3]][[idx[3]]])/5,
+                 nrow(x[[3]][[idx[3]]])/3,
+                 nrow(x[[3]][[idx[3]]])/4,
+                 nrow(x[[3]][[idx[3]]])/1.2,
                  collab111,
                  cols,
                  gradient="y")
     #Jost's D
-    image(1:nrow(x[[3]][[6]]),
-          1:nrow(x[[3]][[6]]),
-          x[[3]][[6]],
+    image(1:nrow(x[[3]][[idx[4]]]),
+          1:nrow(x[[3]][[idx[4]]]),
+          x[[3]][[idx[4]]],
           ylab="population",
           xlab="population",
           main="Pairwise Jost's D",
           col = cols,
           las=1)
-    D<-as.vector(x[[3]][[6]])
+    D<-as.vector(x[[3]][[idx[4]]])
     D<-as.vector(na.omit(D))
     collab111<-c(round(min(D),3),
                  round(mean(D),3),
                  round(max(D),3))
     
-    color.legend(nrow(x[[3]][[6]])/5,
-                 nrow(x[[3]][[6]])/3,
-                 nrow(x[[3]][[6]])/4,
-                 nrow(x[[3]][[6]])/1.2,
+    color.legend(nrow(x[[3]][[idx[4]]])/5,
+                 nrow(x[[3]][[idx[4]]])/3,
+                 nrow(x[[3]][[idx[4]]])/4,
+                 nrow(x[[3]][[idx[4]]])/1.2,
                  collab111,
                  cols,
                  gradient="y")
@@ -4413,6 +4487,7 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
   if(exists("sp.header", where=".GlobalEnv")==TRUE){
     rm(sp.header, pos=".GlobalEnv")
   }
+  par(mfrow = c(1,1))
 }
 ################################################################################
 # end dif.Plot                                                                 #
