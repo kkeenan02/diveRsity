@@ -4115,10 +4115,10 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
                "either 'divPart' or fastDivPart' must be TRUE!", sep = "\n"))
   }
   if(!is.element("gstEst", names(x$pairwise))){
-    idx <- c(4, 7, 5, 6)
+    idx <<- c(4, 7, 5, 6)
     fun <- "divPart"
   } else {
-    idx <- c(1, 4, 2, 3)
+    idx <<- c(1, 4, 2, 3)
     fun <- "fastDivPart"
   }
   
@@ -4144,22 +4144,22 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
                    colnames(x[[3]][[1]])[pwc[2,]],
                    sep=' vs ')
     
-    gst_lab <- as.vector(x[[3]][[idx[1]]])
+    gst_lab <- round(as.vector(x[[3]][[idx[1]]]), 4)
     gst_lab <- na.omit(gst_lab)
     collab111<-list()
     #
     if(length(x[[3]]) > 6 && fun == "divPart"){
-      fst_lab <- as.vector(x[[3]][[idx[2]]])
+      fst_lab <- round(as.vector(x[[3]][[idx[2]]]), 4)
       fst_lab<-na.omit(fst_lab)
     } else if(length(x[[3]]) == 4 && fun == "fastDivPart"){
-      fst_lab <- as.vector(x[[3]][[idx[2]]])
+      fst_lab <- round(as.vector(x[[3]][[idx[2]]]), 4)
       fst_lab<-na.omit(fst_lab)
     }
     #
-    gpst_lab <- as.vector(x[[3]][[idx[3]]])
+    gpst_lab <- round(as.vector(x[[3]][[idx[3]]]), 4)
     gpst_lab<-na.omit(gpst_lab)
     #
-    Dest_lab <- as.vector(x[[3]][[idx[4]]])
+    Dest_lab <- round(as.vector(x[[3]][[idx[4]]]), 4)
     Dest_lab<-na.omit(Dest_lab)
     #
     
