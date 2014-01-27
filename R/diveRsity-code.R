@@ -4115,10 +4115,10 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
                "either 'divPart' or fastDivPart' must be TRUE!", sep = "\n"))
   }
   if(!is.element("gstEst", names(x$pairwise))){
-    idx <<- c(4, 7, 5, 6)
+    idx <- c(4, 7, 5, 6)
     fun <- "divPart"
   } else {
-    idx <<- c(1, 4, 2, 3)
+    idx <- c(1, 4, 2, 3)
     fun <- "fastDivPart"
   }
   
@@ -4189,18 +4189,26 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
                     round(mean(gst_lab),3),
                     round(max(gst_lab),3))
     
-    plot.call <- "image(1:nrow(abx[[3]][[idx[1]]]),1:nrow(abx[[3]][[idx[1]]]),
-    abx[[3]][[idx[1]]],ylab='',xlab='',main='Pairwise Gst',xaxt='n',yaxt='n',
-    col = colleer(50),las=1,cex.main=3)"
+    plot.call <- paste("image(1:nrow(abx[[3]][[", 
+                       idx[1],
+                       "]]), 1:nrow(abx[[3]][[", 
+                       idx[1], 
+                       "]]), abx[[3]][[",
+                       idx[1], 
+                       "]], ylab='', xlab='', main='Pairwise Gst', ",
+                       "xaxt='n', yaxt='n', col = colleer(50), ",
+                       "las=1, cex.main=3)", sep = "")
     ##
-    plot.extras <- "color.legend(nrow(abx[[3]][[idx[1]]])/5,
-    nrow(abx[[3]][[idx[1]]])/3,
-    nrow(abx[[3]][[idx[1]]])/4,
-    nrow(abx[[3]][[idx[1]]])/1.2,
-    collab111,
-    rect.col=colleer(50),
-    gradient='y',
-    cex=3)"
+    plot.extras <- paste("color.legend(nrow(abx[[3]][[",
+                         idx[1], 
+                        "]])/5, nrow(abx[[3]][[",
+                         idx[1],
+                         "]])/3, nrow(abx[[3]][[",
+                         idx[1],
+                         "]])/4, nrow(abx[[3]][[",
+                         idx[1],
+                         "]])/1.2, collab111, rect.col=colleer(50), ",
+                         "gradient='y', cex=3)", sep = "")
     ##
     suppressWarnings(imagesend(plot.call=plot.call,
                                x.pos=pwc[2,],
@@ -4227,18 +4235,26 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
       collab111 <<- c(round(min(fst_lab),3),
                       round(mean(fst_lab),3),
                       round(max(fst_lab),3))
-      plot.call <- "image(1:nrow(abx[[3]][[idx[2]]]),1:nrow(abx[[3]][[idx[2]]]),
-      abx[[3]][[idx[2]]],ylab = '',xlab = '',xaxt = 'n',yaxt = 'n',
-      main = 'Pairwise Fst',col = colleer(50),las = 1,cex.main = 3)"
+      plot.call <- paste("image(1:nrow(abx[[3]][[",
+                         idx[2],
+                         "]]),1:nrow(abx[[3]][[",
+                         idx[2],
+                         "]]), abx[[3]][[",
+                         idx[2],
+                         "]],ylab = '',xlab = '',xaxt = 'n',yaxt = 'n', ",
+                         "main = 'Pairwise Fst', col = colleer(50), ",
+                         "las = 1,cex.main = 3)", sep = "")
       ##
-      plot.extras <- "color.legend(nrow(abx[[3]][[idx[2]]])/5,
-      nrow(abx[[3]][[idx[2]]])/3,
-      nrow(abx[[3]][[idx[2]]])/4,
-      nrow(abx[[3]][[idx[2]]])/1.2,
-      collab111,
-      rect.col=colleer(50),
-      gradient='y',
-      cex=3)"
+      plot.extras <- paste("color.legend(nrow(abx[[3]][[",
+                           idx[2],
+                           "]])/5, nrow(abx[[3]][[",
+                           idx[2],
+                           "]])/3, nrow(abx[[3]][[",
+                           idx[2],
+                           "]])/4, nrow(abx[[3]][[",
+                           idx[2],
+                           "]])/1.2, collab111, rect.col=colleer(50), ",
+                           "gradient='y', cex=3)", sep = "")
       #
       suppressWarnings(imagesend(plot.call=plot.call,
                                  x.pos=pwc[2,],
@@ -4259,18 +4275,26 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
       collab111 <<- c(round(min(fst_lab),3),
                       round(mean(fst_lab),3),
                       round(max(fst_lab),3))
-      plot.call <- "image(1:nrow(abx[[3]][[idx[2]]]),1:nrow(abx[[3]][[idx[2]]]),
-      abx[[3]][[idx[2]]],ylab = '',xlab = '',xaxt = 'n',yaxt = 'n',
-      main = 'Pairwise Fst',col = colleer(50),las = 1,cex.main = 3)"
+      plot.call <- paste("image(1:nrow(abx[[3]][[",
+                         idx[2],
+                         "]]),1:nrow(abx[[3]][[",
+                         idx[2],
+                         "]]), abx[[3]][[",
+                         idx[2],
+                         "]],ylab = '',xlab = '',xaxt = 'n',yaxt = 'n', ",
+                         "main = 'Pairwise Fst', col = colleer(50), ",
+                         "las = 1,cex.main = 3)", sep = "")
       ##
-      plot.extras <- "color.legend(nrow(abx[[3]][[idx[2]]])/5,
-      nrow(abx[[3]][[idx[2]]])/3,
-      nrow(abx[[3]][[idx[2]]])/4,
-      nrow(abx[[3]][[idx[2]]])/1.2,
-      collab111,
-      rect.col=colleer(50),
-      gradient='y',
-      cex=3)"
+      plot.extras <- paste("color.legend(nrow(abx[[3]][[",
+                           idx[2],
+                           "]])/5, nrow(abx[[3]][[",
+                           idx[2],
+                           "]])/3, nrow(abx[[3]][[",
+                           idx[2],
+                           "]])/4, nrow(abx[[3]][[",
+                           idx[2],
+                           "]])/1.2, collab111, rect.col=colleer(50), ",
+                           "gradient='y', cex=3)", sep = "")
       #
       suppressWarnings(imagesend(plot.call=plot.call,
                                  x.pos=pwc[2,],
@@ -4297,13 +4321,26 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
     collab111 <<- c(round(min(gpst_lab),3),
                     round(mean(gpst_lab),3),
                     round(max(gpst_lab),3))
-    plot.call <- "image(1:nrow(abx[[3]][[idx[3]]]),1:nrow(abx[[3]][[idx[3]]]),
-    abx[[3]][[idx[3]]],ylab='',xlab='',xaxt='n',yaxt='n',
-    main='Pairwise Gst (Hedrick)',col = colleer(50),las=1,cex.main=3)"
+    plot.call <- paste("image(1:nrow(abx[[3]][[",
+                       idx[3],
+                       "]]),1:nrow(abx[[3]][[",
+                       idx[3],
+                       "]]), abx[[3]][[",
+                       idx[3],
+                       "]], ylab='', xlab='', xaxt='n', yaxt='n', ",
+                       "main='Pairwise Gst (Hedrick)',col = colleer(50), ",
+                       "las=1,cex.main=3)", sep = "")
     
-    plot.extras <- "color.legend(nrow(abx[[3]][[idx[3]]])/5,nrow(abx[[3]][[idx[3]]])/3,
-    nrow(abx[[3]][[idx[3]]])/4,nrow(abx[[3]][[idx[3]]])/1.2,collab111,
-    rect.col=colleer(50),gradient='y',cex=3)"
+    plot.extras <- paste("color.legend(nrow(abx[[3]][[",
+                         idx[3],
+                         "]])/5,nrow(abx[[3]][[",
+                         idx[3],
+                         "]])/3, nrow(abx[[3]][[",
+                         idx[3],
+                         "]])/4,nrow(abx[[3]][[",
+                         idx[3],
+                         "]])/1.2,collab111, rect.col=colleer(50), ",
+                         "gradient='y',cex=3)", sep = "")
     ##
     suppressWarnings(imagesend(plot.call=plot.call,
                                x.pos=pwc[2,],
@@ -4330,12 +4367,26 @@ difPlot <- function (x, outfile= NULL, interactive = FALSE) {
     collab111 <<- c(round(min(Dest_lab),3),
                     round(mean(Dest_lab),3),
                     round(max(Dest_lab),3))
-    plot.call <- "image(1:nrow(abx[[3]][[idx[4]]]),1:nrow(abx[[3]][[idx[4]]]),
-    abx[[3]][[idx[4]]],ylab='',xlab='',xaxt='n',yaxt='n',main='Pairwise D (Jost)',
-    col = colleer(50),las=1,cex.main=3)"
-    plot.extras <- "color.legend(nrow(abx[[3]][[idx[4]]])/5,nrow(abx[[3]][[idx[4]]])/3,
-    nrow(abx[[3]][[idx[4]]])/4,nrow(abx[[3]][[idx[4]]])/1.2,collab111,
-    rect.col=colleer(50),gradient='y',cex=3)"
+    plot.call <- paste("image(1:nrow(abx[[3]][[",
+                       idx[4],
+                       "]]),1:nrow(abx[[3]][[",
+                       idx[4],
+                       "]]), abx[[3]][[", 
+                       idx[4],
+                       "]], ylab = '',xlab = '',xaxt = 'n', ",
+                       "yaxt = 'n',main = 'Pairwise D (Jost)', ",
+                       "col = colleer(50),las=1,cex.main=3)", sep = "")
+    
+    plot.extras <- paste("color.legend(nrow(abx[[3]][[",
+                         idx[4],
+                         "]])/5,nrow(abx[[3]][[",
+                         idx[4],
+                         "]])/3, nrow(abx[[3]][[",
+                         idx[4],
+                         "]])/4,nrow(abx[[3]][[",
+                         idx[4],
+                         "]])/1.2,collab111, rect.col = colleer(50), ",
+                         "gradient='y',cex=3)", sep = "")
     ##
     suppressWarnings(imagesend(plot.call=plot.call,
                                x.pos=pwc[2,],
