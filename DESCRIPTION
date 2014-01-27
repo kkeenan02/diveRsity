@@ -25,12 +25,12 @@ Suggests:
     doParallel,
     parallel
 Depends:
-    R (>= 3.0.0)
+    R (>= 3.0.0),
+    plotrix
 Imports:
     ggplot2,
     shiny,
-    qgraph,
-    plotrix
+    qgraph
 Repository: CRAN
 License: GPL (>= 2)
 URL: http://diversityinlife.weebly.com/
