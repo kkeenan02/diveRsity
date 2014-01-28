@@ -5345,16 +5345,17 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
   # numbers for HWE testing
   
   # generate all possible genotypes for each locus per population
-  posGeno <- apply(allele_names, 2, function(x){
-    sapply(x, function(y){
-      if(length(y) == 0){
+  posGeno <- apply(allele_names, 2, function(x) {
+    lapply(x, function(y) {
+      if (length(y) == 0) {
         return(NA)
-      } else {
+      }
+      else {
         genos <- expand.grid(y, y)
         genos.sort <- t(apply(genos, 1, sort))
         genos <- unique(genos.sort)
-        geno <- paste(genos[,1], genos[,2], sep = "") 
-        return(geno)      
+        geno <- paste(genos[, 1], genos[, 2], sep = "")
+        return(geno)
       }
     })
   })
