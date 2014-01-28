@@ -5349,8 +5349,7 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
     lapply(x, function(y) {
       if (length(y) == 0) {
         return(NA)
-      }
-      else {
+      } else {
         genos <- expand.grid(y, y)
         genos.sort <- t(apply(genos, 1, sort))
         genos <- unique(genos.sort)
