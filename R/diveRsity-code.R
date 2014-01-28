@@ -11,7 +11,6 @@ NULL
 ################################################################################
 ################################################################################
 
-# divPart, a wrapper function for the calculation of differentiation stats.
 #' @export
 divPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
                   WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
@@ -5305,7 +5304,7 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
   #calculate allele frequencies
   afCalcpop<-sapply(1:length(actab), function(x){
     sapply(1:length(actab[[x]]),function(y){
-      actab[[x]][[y]]/(indtyppop[[x]][y]*2)
+      list(actab[[x]][[y]]/(indtyppop[[x]][y]*2))
     })
   })
   preFreq <- lapply(1:nrow(afCalcpop), function(i){
