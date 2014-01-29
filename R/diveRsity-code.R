@@ -3197,47 +3197,49 @@ pre.divLowMemory <- function(y){
     ###########################################################################
     # Master file reader
     ###########################################################################
-    fileReader <- function (infile) {
-      if (typeof(infile) == "list") {
-        return(infile)
-      }
-      else if (typeof(infile) == "character") {
+    fileReader <- function(infile){
+      if(typeof(infile)=="list"){
+        return(infile) 
+      } else if (typeof(infile)=="character"){
         flForm <- strsplit(infile, split = "\\.")[[1]]
         ext <- flForm[[length(flForm)]]
-        if (ext == "arp") {
-          arp2gen(infile)
-          cat("Arlequin file converted to genepop format! \n")
-          infile <- paste(flForm[1], ".gen", sep = "")
+        if(ext == "arp"){
+          convRes <- diveRsity:::arp2gen(infile)
+          if(!is.null(convRes)){
+            cat("Arlequin file converted to genepop format! \n")
+            infile <- paste(flForm[1], ".gen", sep = "")
+          } else {
+            infile <- paste(flForm[1], ".gen", sep = "")
+          }
         }
         dat <- scan(infile, sep = "\n", what = "character", quiet = TRUE)
+        # find number of columns
         popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
         no_col <- popLoc[1] - 1
-        if (popLoc[1] == 3) {
-          locs <- unlist(strsplit(dat[2], split = c("\\,", 
-                                                    "\\s+")))
+        if(popLoc[1] == 3){
+          locs <- unlist(strsplit(dat[2], split = c("\\,", "\\s+")))
           dat <- c(dat[1], locs, dat[3:length(dat)])
         }
         popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
         no_col <- popLoc[1] - 1
-        dat1 <- sapply(dat, function(x) {
+        dat1 <- sapply(dat, function(x){
           x <- unlist(strsplit(x, split = "\\s+"))
-          if (is.element("", x)) {
-            x <- x[-(which(x == ""))]
+          if(is.element("", x)){
+            x <- x[- (which(x == ""))]
           }
-          if (is.element(",", x)) {
-            x <- x[-(which(x == ","))]
+          if(is.element(",", x)){
+            x <- x[- (which(x ==","))]
           }
-          if (length(x) != 1 && length(x) != no_col) {
+          if(length(x) != 1 && length(x) != no_col){
             x <- paste(x, collapse = "")
           }
-          if (length(x) < no_col) {
-            tabs <- paste(rep(NA, (no_col - length(x))), 
-                          sep = "\t", collapse = "\t")
+          if(length(x) < no_col){
+            tabs <- paste(rep(NA, (no_col - length(x))), sep = "\t", 
+                          collapse = "\t")
             line <- paste(x, tabs, sep = "\t")
             line <- unlist(strsplit(line, split = "\t"))
             return(line)
-          }
-          else {
+          } else {
             return(x)
           }
         })
