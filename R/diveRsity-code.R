@@ -7822,7 +7822,7 @@ arp2gen <- function(infile){
     
     # Generate the outfile name
     outfile <- strsplit(infile, "\\.")[[1]]
-    if(length(outfile) > 2){
+    if(length(outfile) >= 2){
       outfile <- paste(outfile[-length(outfile)], collapse = ".")
     } else {
       outfile <- outfile[1]
