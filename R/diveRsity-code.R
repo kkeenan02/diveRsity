@@ -5524,7 +5524,7 @@ fileReader <- function(infile){
     flForm <- strsplit(infile, split = "\\.")[[1]]
     ext <- flForm[[length(flForm)]]
     if(ext == "arp"){
-      convRes <- diveRsity:::arp2gen(infile)
+      convRes <- arp2gen(infile)
       if(!is.null(convRes)){
         cat("Arlequin file converted to genepop format! \n")
         infile <- paste(flForm[1], ".gen", sep = "")
@@ -7707,8 +7707,14 @@ bigPreDiv <- function(prePopList, bs = FALSE, nloci, npops,
 ################################################################################
 #' @export
 arp2gen <- function(infile){
+  # test if the file exists
+  flForm <- strsplit(infile, split = "\\.")[[1]]
+  if(length(flForm) > 2){
+    stop("There were multiple '.' characters in your file name!")
+  }
+  tstfile <- paste(flForm[1], ".gen", sep = "")
   # define a fastscan function
-  if(!file.exists(infile)){
+  if(!file.exists(tstfile)){
     fastScan <- function(fname){
       s <- file.info(fname)$size 
       buf <-  readChar(fname, s, useBytes = TRUE)
