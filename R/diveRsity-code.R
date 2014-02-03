@@ -7086,118 +7086,65 @@ bigDivPart <- function(infile = NULL, outfile = NULL, WC_Fst = FALSE,
   
   fstat = WC_Fst
   on = outfile
-  if (!is.null(on) && format != "txt" && format != "xlsx"){
+  if (!is.null(on) && format != "txt" && format != "xlsx") {
     stop("Please provide a valid output file format")
   }
-  ############################
-  
-  # use file reader modified from:
-  # mlt-thinks.blogspot
-  
-  fastScan <- function(fname){
-    s <- file.info(fname)$size 
-    buf <-  readChar(fname, s, useBytes = TRUE)
-    return(strsplit(buf, "\n", fixed = TRUE, 
-                    useBytes = TRUE)[[1]])
+  fastScan <- function(fname) {
+    s <- file.info(fname)$size
+    buf <- readChar(fname, s, useBytes = TRUE)
+    return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
   }
-  
-  # read data
-  
   dat <- fastScan(fname = infile)
-  
-  # remove the last line if it is blank
-  
-  if(length(strsplit(dat[length(dat)], split = "\\s+")[[1]]) == 1){
+  if (length(strsplit(dat[length(dat)], split = "\\s+")[[1]]) == 
+        1) {
     dat <- dat[-(length(dat))]
   }
-  
-  # remove the fastScan function
   rm(fastScan)
   z <- gc()
   rm(z)
-  
-  ############################
-  # set up parallel env
-  #library("doParallel")
-  #cores <- detectCores()
-  
-  
-  # identify population locations
-  popLocation <- grep("^([[:space:]]*)POP([[:space:]]*)$", toupper(dat))
-  # extract loci names
-  
-  pop_pos <- c(popLocation, (length(dat)+1))
-  
-  loci_names <- as.vector(sapply(dat[2:(pop_pos[1] - 1)], function(x){
+  popLocation <- grep("^([[:space:]]*)POP([[:space:]]*)$", 
+                      toupper(dat))
+  pop_pos <- c(popLocation, (length(dat) + 1))
+  loci_names <- as.vector(sapply(dat[2:(pop_pos[1] - 1)], function(x) {
     gsub(pattern = "\\s+", replacement = "", x)
   }))
-  
-  ########################
-  # seperate populations #
-  ########################
-  # get population sizes
-  
   popSizes <- NULL
-  for(i in 1:(length(pop_pos) - 1)){
-    popSizes[i] <- length((pop_pos[i]+1):(pop_pos[(i+1)] - 1))
+  for (i in 1:(length(pop_pos) - 1)) {
+    popSizes[i] <- length((pop_pos[i] + 1):(pop_pos[(i + 
+                                                       1)] - 1))
   }
-  
-  # create population subsets
-  
-  # pop data only
-  
-  pops <- dat[-(c(1:(popLocation[1]-1), popLocation))]
-  
-  # calculate the row indexes for each population
-  
-  popList <- lapply(seq_along(popSizes), function(i){
-    if(i == 1){
+  pops <- dat[-(c(1:(popLocation[1] - 1), popLocation))]
+  popList <- lapply(seq_along(popSizes), function(i) {
+    if (i == 1) {
       indx <- 1:popSizes[i]
     } else {
-      indx <- (sum(popSizes[1:(i-1)])+1):((sum(popSizes[1:(i-1)])) + 
-                                            popSizes[i])
+      indx <- (sum(popSizes[1:(i - 1)]) + 1):((sum(popSizes[1:(i - 1)])) +
+                                                popSizes[i])
     }
     return(pops[indx])
   })
-  
   npops <- length(popList)
   nloci <- length(loci_names)
   pop_sizes <- popSizes
-  
-  ####################################
-  # remove dat
   rm(dat, pops)
   z <- gc(reset = TRUE)
   rm(z)
-  
-  
-  # determine the genepop format of data
-  
   testStr <- strsplit(popList[[1]][1], split = "\\s+")[[1]]
-  
-  gpEst <- sapply(testStr, function(x){
-    if(is.character(x)){
+  gpEst <- sapply(testStr, function(x) {
+    if (is.character(x)) {
       nchar(x)/2
     } else {
       NA
     }
   })
-  
   rm(testStr)
-  
-  
-  # take the mode of testStr 
-  
   gp <- as.numeric(names(sort(-table(gpEst)))[1])
-  
-  ############################
-  # organise data into a list of arrays
-  prePopList <- lapply(popList, function(x){
-    y <- array(data = NA, dim = c(length(x), (nloci+1), 2))
+  prePopList <- lapply(popList, function(x) {
+    y <- array(data = NA, dim = c(length(x), (nloci + 1), 2))
     colnames(y) <- c("ind", loci_names)
-    for(j in 1:length(x)){
+    for (j in 1:length(x)) {
       data <- strsplit(x[j], split = "\\s+")[[1]]
-      if(data[2] == ","){
+      if (data[2] == ",") {
         data <- data[-2]
       }
       data[data == "NANA"] <- NA
@@ -7206,116 +7153,88 @@ bigDivPart <- function(infile = NULL, outfile = NULL, WC_Fst = FALSE,
       data[data == "999999"] <- NA
       data[data == "-9-9"] <- NA
       data[data == "0000"] <- NA
-      y[j, 2:(nloci+1), 1] <- substr(data[2:(nloci+1)], 1, gp)
-      y[j, 2:(nloci+1), 2] <- substr(data[2:(nloci+1)], gp + 1, gp * 2)
+      y[j, 2:(nloci + 1), 1] <- substr(data[2:(nloci + 1)], 1, gp)
+      y[j, 2:(nloci + 1), 2] <- substr(data[2:(nloci + 1)], gp + 1, gp * 2)
       y[j, 1, 1] <- data[1]
       y[j, 1, 2] <- data[1]
     }
     return(y)
   })
   rm(popList)
-  
-  # get individuals names
-  ind_names <- lapply(prePopList, function(x){
-    return(x[ , 1, 1])
+  ind_names <- lapply(prePopList, function(x) {
+    return(x[, 1, 1])
   })
-  
-  
-  # pop names
-  
-  pop_names <- sapply(ind_names, function(x){
+  pop_names <- sapply(ind_names, function(x) {
     return(x[1])
   })
-  
-  
-  # non bootstrapped stats
-  nb <- bigPreDiv(prePopList, FALSE, nloci, npops, popSizes, fstat)
-  
-  # generate output structures
-  
-  #standard stats
-  
-  stdOut <- data.frame(loci = c(loci_names, "Global"),
-                       H_st = c(nb$hst, NA),
-                       D_st = c(nb$dst, NA),
-                       G_st = c(nb$gst, nb$gst_all),
-                       G_hed_st = c(nb$gst_hedrick, 
-                                    nb$gst_all_hedrick),
+  nb <- bigPreDiv_dev(prePopList, FALSE, nloci, npops, popSizes, 
+                      fstat)
+  stdOut <- data.frame(loci = c(loci_names, "Global"), 
+                       H_st = c(nb$hst, NA), 
+                       D_st = c(nb$dst, NA), 
+                       G_st = c(nb$gst, nb$gst_all), 
+                       G_hed_st = c(nb$gst_hedrick, nb$gst_all_hedrick), 
                        D_Jost = c(nb$djost, nb$djost_all))
-  
-  # estimated stats
-  
-  if(fstat){
-    estOut <- data.frame(loci = c(loci_names, "Global"),
-                         Harmonic_N = c(nb$locus_harmonic_N, NA),
-                         H_st_est = c(nb$hst_est, NA),
-                         D_st_est = c(nb$dst_est, NA),
-                         G_st_est = c(nb$gst_est, nb$gst_est_all),
+  if (fstat) {
+    estOut <- data.frame(loci = c(loci_names, "Global"), 
+                         Harmonic_N = c(nb$locus_harmonic_N, NA), 
+                         H_st_est = c(nb$hst_est, NA), 
+                         D_st_est = c(nb$dst_est, NA), 
+                         G_st_est = c(nb$gst_est, nb$gst_est_all), 
                          G_hed_st = c(nb$gst_est_hedrick, 
-                                      nb$gst_est_all_hedrick),
-                         D_Jost = c(nb$djost_est, nb$djost_est_all),
-                         Fst_WC = nb$fstats[,1], Fit_WC = nb$fstats[,2])
+                                      nb$gst_est_all_hedrick), 
+                         D_Jost = c(nb$djost_est, nb$djost_est_all), 
+                         Fst_WC = nb$fstats[, 1], Fit_WC = nb$fstats[, 2])
   } else {
-    estOut <- data.frame(loci = c(loci_names, "Global"),
-                         Harmonic_N = c(nb$locus_harmonic_N, NA),
-                         H_st_est = c(nb$hst_est, NA),
-                         D_st_est = c(nb$dst_est, NA),
-                         G_st_est = c(nb$gst_est, nb$gst_est_all),
+    estOut <- data.frame(loci = c(loci_names, "Global"), 
+                         Harmonic_N = c(nb$locus_harmonic_N, NA), 
+                         H_st_est = c(nb$hst_est, NA), 
+                         D_st_est = c(nb$dst_est, NA), 
+                         G_st_est = c(nb$gst_est, nb$gst_est_all), 
                          G_hed_st = c(nb$gst_est_hedrick, 
-                                      nb$gst_est_all_hedrick),
+                                      nb$gst_est_all_hedrick), 
                          D_Jost = c(nb$djost_est, nb$djost_est_all))
   }
-  
-  # write the file to either excel or text
-  
-  # create results directory
-  if(!is.null(on)){
-    suppressWarnings(dir.create(path=paste(getwd(),"/",on,
-                                           "-[diveRsity]","/",sep="")))
+  if (!is.null(on)) {
+    suppressWarnings(dir.create(path = paste(getwd(), "/", 
+                                             on, "-[diveRsity]", "/", 
+                                             sep = "")))
     of = paste(getwd(), "/", on, "-[diveRsity]", "/", sep = "")
   }
-  
-  # check if xlsx is installed
   write_res <- is.element("xlsx", installed.packages()[, 1])
-  
-  if(!is.null(on)){
-    if(write_res && format == "xlsx"){
-      
-      # load xlsx package
+  if (!is.null(on)) {
+    if (write_res && format == "xlsx") {
       require("xlsx")
-      
-      # standard stats
-      write.xlsx(stdOut, file = paste(of, "[bigDivPart].xlsx", sep = ""),
-                 sheetName = "Standard_stats", col.names = TRUE,
+      write.xlsx(stdOut, file = paste(of, "[bigDivPart].xlsx", 
+                                      sep = ""), 
+                 sheetName = "Standard_stats", col.names = TRUE, 
                  row.names = FALSE, append = FALSE)
       
-      # Estimated stats
-      write.xlsx(estOut, file = paste(of,"[bigDivPart].xlsx", sep = ""),
-                 sheetName = "Estimated_stats", col.names = TRUE,
+      write.xlsx(estOut, file = paste(of, "[bigDivPart].xlsx", 
+                                      sep = ""), 
+                 sheetName = "Estimated_stats", col.names = TRUE, 
                  row.names = FALSE, append = TRUE)
     } else {
-      # text file alternatives
-      
-      # standard
-      std <- file(paste(of, "Standard-stats[bigDivPart].txt", sep = ""), "w")
-      cat(paste(colnames(stdOut), sep = ""), "\n", sep = "\t", file = std)
+      std <- file(paste(of, "Standard-stats[bigDivPart].txt", 
+                        sep = ""), "w")
+      cat(paste(colnames(stdOut), sep = ""), "\n", sep = "\t", 
+          file = std)
       stdOut <- as.matrix(stdOut)
-      for(i in 1:nrow(stdOut)){
+      for (i in 1:nrow(stdOut)) {
         cat(stdOut[i, ], "\n", file = std, sep = "\t")
       }
       close(std)
-      
-      # estimated
-      est <- file(paste(of, "Estimated-stats[bigDivPart].txt", sep = ""), "w")
-      cat(paste(colnames(estOut), sep = ""), "\n", sep = "\t", file = est)
+      est <- file(paste(of, "Estimated-stats[bigDivPart].txt", 
+                        sep = ""), "w")
+      cat(paste(colnames(estOut), sep = ""), "\n", sep = "\t", 
+          file = est)
       estOut <- as.matrix(estOut)
-      for(i in 1:nrow(estOut)){
+      for (i in 1:nrow(estOut)) {
         cat(estOut[i, ], "\n", file = est, sep = "\t")
       }
       close(est)
     }
   }
-  
   list(standard = stdOut, estimates = estOut)
 }
 ################################################################################
@@ -7334,347 +7253,267 @@ bigDivPart <- function(infile = NULL, outfile = NULL, WC_Fst = FALSE,
 bigPreDiv <- function(prePopList, bs = FALSE, nloci, npops, 
                       popSizes, fstat){
   ps <- popSizes
-  
-  # popList
-  
-  if(bs){
-    popList <- lapply(prePopList, function(x){
-      boot <- sample(1:length(x[,1,1]), replace = TRUE)
-      return(x[boot,(2:(nloci+1)),])
+  if (bs) {
+    popList <- lapply(prePopList, function(x) {
+      boot <- sample(1:length(x[, 1, 1]), replace = TRUE)
+      return(x[boot, (2:(nloci + 1)), ])
     })
   } else {
-    popList <- lapply(prePopList, function(x){
-      return(x[,(2:(nloci+1)),])
+    popList <- lapply(prePopList, function(x) {
+      return(x[, (2:(nloci + 1)), ])
     })
   }
-  
-  # count the numbers of individuals typed per population
-  
-  indtyp <- lapply(popList, function(x){
-    apply(x, 2, function(y){
-      length(na.omit(y[,1]))
+  indtyp <- lapply(popList, function(x) {
+    apply(x, 2, function(y) {
+      length(na.omit(y[, 1]))
     })
   })
-  
-  # get unique alleles per pop
-  
-  alls <- lapply(seq_along(popList), function(i){
-    apply(popList[[i]], 2, function(x){
-      return(unique(c(x[,1], x[,2])))
+  alls <- lapply(seq_along(popList), function(i) {
+    apply(popList[[i]], 2, function(x) {
+      return(unique(c(x[, 1], x[, 2])))
     })
   })
-  
-  
-  # get unique alleles across pops
-  
-  all_alleles <- lapply(1:nloci, function(i){
-    alleles <- lapply(alls, function(x){
+  all_alleles <- lapply(1:nloci, function(i) {
+    alleles <- lapply(alls, function(x) {
       return(x[[i]])
     })
     return(sort(unique(unlist(alleles))))
   })
-  
-  # count all observed allele numbers per population
-  # (parallel is slower)
-  
-  obsAlls <- lapply(popList, function(x){
-    apply(x, 2, function(y){
-      als <- unique(c(na.omit(y[,1]), na.omit(y[,2])))
-      counts <- sapply(als, function(z){
-        res <- length(which(y == z))
-        return(res)
-      })
+  #   obsAlls <- lapply(popList, function(x) {
+  #     apply(x, 2, function(y) {
+  #       als <- unique(c(na.omit(y[, 1]), na.omit(y[, 2])))
+  #       counts <- sapply(als, function(z) {
+  #         res <- length(which(y == z))
+  #         return(res)
+  #       })
+  #     })
+  #   })
+  obsAlls <- lapply(popList, function(x) {
+    lapply(1:ncol(x), function(i){
+      alls <- c(x[,i,1], x[,i,2])
+      return(table(alls))
     })
   })
-  
-  
-  # calculate allele frequencies
-  
-  allele_freq <- lapply(1:nloci, function(i){
-    loc <- matrix(nrow = length(all_alleles[[i]]),
-                  ncol = npops)
+  allele_freq <- lapply(1:nloci, function(i) {
+    loc <- matrix(nrow = length(all_alleles[[i]]), ncol = npops)
     rownames(loc) <- all_alleles[[i]]
-    for(j in 1:npops){
+    for (j in 1:npops) {
       o <- obsAlls[[j]][[i]]
       n <- indtyp[[j]][i]
-      loc[names(o), j] <- o/(2*n)
+      loc[names(o), j] <- o/(2 * n)
     }
     loc[is.na(loc)] <- 0
     return(loc)
   })
-  
-  # generate harmonic mean pop sizes per locus
-  preLoc <- lapply(indtyp, function(x){
+  preLoc <- lapply(indtyp, function(x) {
     return(1/x)
   })
-  
-  loci_harm_N <- sapply(1:nloci, function(i){
-    loc <- sapply(1:npops, function(j){
+  loci_harm_N <- sapply(1:nloci, function(i) {
+    loc <- sapply(1:npops, function(j) {
       return(preLoc[[j]][i])
     })
     return(npops/sum(loc))
   })
-  
   loci_harm_N <- round(loci_harm_N, 2)
-  
-  # convert indtyp to per locus format
-  indtypLoc <- lapply(1:nloci, function(i){
-    res <- sapply(1:npops, function(j){
+  indtypLoc <- lapply(1:nloci, function(i) {
+    res <- sapply(1:npops, function(j) {
       return(indtyp[[j]][i])
     })
   })
   rm(indtyp)
-  
-  ###############################################
-  #  Calculate Weir and Cockerham's (1984) Fst  #
-  ###############################################
-  if(fstat){            
-    badData <- sapply(indtypLoc, function(y){
+  if (fstat) {
+    badData <- sapply(indtypLoc, function(y) {
       is.element(0, y)
     })
-    if(sum(badData) > 0){
+    if (sum(badData) > 0) {
       nl <- nloci - (sum(badData))
-    } else{
+    } else {
       nl <- nloci
     }
-    gdData<-which(!badData)
-    badData<-which(badData)
-    
-    # create all genot object
-    all_genot <- array(data = NA, dim = c(sum(ps), length(gdData), 1))
-    for(i in 1:npops){
-      if(i == 1){
-        res <- apply(popList[[i]], 2, function(y){
-          return(paste0(y[,1], y[,2]))
+    gdData <- which(!badData)
+    badData <- which(badData)
+    all_genot <- matrix(data = NA, nrow = sum(ps),
+                        ncol =  length(gdData))
+    for (i in 1:npops) {
+      if (i == 1) {
+        res <- apply(popList[[i]], 2, function(y) {
+          return(paste0(y[, 1], y[, 2]))
         })
-        all_genot[1:ps[i], ,] <- res[,gdData]
+        all_genot[1:ps[i],] <- res[, gdData]
         rm(res)
       } else {
-        res <- apply(popList[[i]], 2, function(y){
-          return(paste0(y[,1], y[,2]))
+        res <- apply(popList[[i]], 2, function(y) {
+          return(paste0(y[, 1], y[, 2]))
         })
-        all_genot[(sum(ps[1:(i-1)]) + 1): sum(ps[1:i]), , ] <- res[,gdData]
+        all_genot[(sum(ps[1:(i - 1)]) + 1):sum(ps[1:i]), ] <- res[, gdData]
         rm(res)
       }
     }
-    
     all_genot[all_genot == "NANA"] <- NA
-    
-    # count Genotypes
-    #cl <- makeCluster(cores)      
-    genoCount <- apply(all_genot, 2, table)
-    #stopCluster(cl)
-    
-    # reformat genoCount names
-    nameFormat <- function(x){
+    genoCount <- lapply(1:ncol(all_genot), function(i){
+      table(all_genot[,i])
+    })
+    nameFormat <- function(x) {
       nms <- names(x)
       lgth <- nchar(nms[1])
-      newNms <- sapply(nms, function(y){
-        paste(substr(y, 1, lgth/2), "/", substr(y, (lgth / 2) + 1, lgth), 
-              sep = "")
+      newNms <- sapply(nms, function(y) {
+        paste(substr(y, 1, lgth/2), "/", substr(y, (lgth/2) + 
+                                                  1, lgth), sep = "")
       })
       names(x) <- newNms
       return(x)
     }
-    # run
     genoCount <- lapply(genoCount, nameFormat)
-    
-    
-    # calculate mean heterozygosity per locus
     h_sum <- list()
-    for(i in 1:length(gdData)){
+    for (i in 1:length(gdData)) {
       h_sum[[i]] <- vector()
       cnSplit <- strsplit(names(genoCount[[i]]), "/")
-      for(j in 1:length(all_alleles[[gdData[i]]])){
-        het_id1 <- lapply(cnSplit, is.element, 
-                          all_alleles[[gdData[i]]][j])
+      for (j in 1:length(all_alleles[[gdData[i]]])) {
+        het_id1 <- lapply(cnSplit, is.element, all_alleles[[gdData[i]]][j])
         het_id2 <- lapply(het_id1, sum)
         het_id1 <- which(het_id2 == 1)
         h_sum[[i]][j] <- sum(genoCount[[i]][het_id1])
       }
     }
     indtyp_tot <- lapply(indtypLoc, sum)
-    
-    kk_hsum <- lapply(1:ncol(all_genot), function(i){
+    kk_hsum <- lapply(1:ncol(all_genot), function(i) {
       list(h_sum[[i]], indtyp_tot[[gdData[i]]])
     })
-    
-    kk_hbar<-lapply(kk_hsum, function(x){
+    kk_hbar <- lapply(kk_hsum, function(x) {
       return(x[[1]]/x[[2]])
     })
-    
-    pdat <- lapply(1:length(all_genot[1,,1]), function(i){
+    pdat <- lapply(1:length(all_genot[1, ]), function(i) {
       list(allele_freq[[gdData[i]]], indtypLoc[[gdData[i]]])
     })
-    
-    kk_p <- lapply(pdat, function(x){
-      if(is.null(x[[1]]) == FALSE){
-        apply(x[[1]], 1, function(y){
-          y*(2*x[[2]])
+    kk_p <- lapply(pdat, function(x) {
+      if (is.null(x[[1]]) == FALSE) {
+        apply(x[[1]], 1, function(y) {
+          y * (2 * x[[2]])
         })
       }
     })
-    
-    res <- matrix(0, (nloci+1), 2)
-    colnames(res) <- c("Fst_WC","Fit_WC")
-    #rownames(res) <- c(loci_names, "All")
+    res <- matrix(0, (nloci + 1), 2)
+    colnames(res) <- c("Fst_WC", "Fit_WC")
     A <- vector()
     a <- vector()
     b <- vector()
     c <- vector()
-    for(i in 1:length(gdData)){
+    for (i in 1:length(gdData)) {
       kknbar <- indtyp_tot[[gdData[i]]]/npops
-      kknC <- (indtyp_tot[[gdData[i]]] - sum(indtypLoc[[gdData[i]]] ^ 2) / 
-                 indtyp_tot[[gdData[i]]]) / (npops - 1)
-      kkptild <- kk_p[[i]]/(2*indtypLoc[[gdData[i]]])
+      kknC <- (indtyp_tot[[gdData[i]]] - sum(indtypLoc[[gdData[i]]]^2)/indtyp_tot[[gdData[i]]])/(npops - 1)
+      kkptild <- kk_p[[i]]/(2 * indtypLoc[[gdData[i]]])
       kkptild[kkptild == "NaN"] <- NA
       kkpbar <- colSums(kk_p[[i]])/(2 * indtyp_tot[[gdData[i]]])
-      kks2 <- colSums(indtypLoc[[gdData[i]]] * 
-                        (kkptild - rep(kkpbar, each = npops)) ^ 2) / 
-        ((npops - 1) * kknbar)
-      kkA <- kkpbar * (1 - kkpbar) - (npops - 1) * kks2 / npops
-      kka <- kknbar * (kks2 - (kkA - (kk_hbar[[i]] / 4)) / 
-                         (kknbar - 1)) / kknC
-      kkb <- kknbar * (kkA - (2 * (kknbar - 1)) * kk_hbar[[i]] / 
-                         (4 * kknbar)) / (kknbar - 1)
-      kkc <- kk_hbar[[i]] / 2
+      kks2 <- colSums(indtypLoc[[gdData[i]]] * (kkptild - rep(kkpbar, each = npops))^2)/((npops - 1) * kknbar)
+      kkA <- kkpbar * (1 - kkpbar) - (npops - 1) * kks2/npops
+      kka <- kknbar * (kks2 - (kkA - (kk_hbar[[i]]/4))/(kknbar - 1))/kknC
+      kkb <- (kknbar/(kknbar - 1))*(kkA-((2*kknbar-1)/(4*kknbar))*kk_hbar[[i]])
+      #kkb <- kknbar * (kkA - (2 * (kknbar - 1)) * kk_hbar[[i]]/(4 * kknbar))/(kknbar - 1)
+      kkc <- kk_hbar[[i]]/2
       A[i] <- sum(kkA, na.rm = TRUE)
       a[i] <- sum(kka, na.rm = TRUE)
       b[i] <- sum(kkb, na.rm = TRUE)
       c[i] <- sum(kkc, na.rm = TRUE)
-      res[gdData[i], "Fst_WC"] <- round(sum(kka) / 
-                                          sum(kka + kkb + kkc), 4)
-      res[gdData[i], "Fit_WC"] <- round(1 - sum(kkc) / 
-                                          sum(kka + kkb + kkc),4)
+      res[gdData[i], "Fst_WC"] <- round(sum(kka)/sum(kka + kkb + kkc), 4)
+      res[gdData[i], "Fit_WC"] <- round(1 - sum(kkc)/sum(kka + kkb + kkc), 4)
     }
-    
     res[res == "NaN"] <- NA
-    res[res == 0.000] <- NA
+    res[res == 0] <- NA
     sumA <- sum(A, na.rm = TRUE)
     suma <- sum(a, na.rm = TRUE)
     sumb <- sum(b, na.rm = TRUE)
     sumc <- sum(c, na.rm = TRUE)
-    res[(nloci+1), "Fst_WC"] <- round(suma / (suma +sumb + sumc), 4)
-    res[(nloci+1), "Fit_WC"] <- round(1 - sumc / 
-                                        (suma + sumb + sumc), 4)
+    res[(nloci + 1), "Fst_WC"] <- round(suma/(suma + sumb + sumc), 4)
+    res[(nloci + 1), "Fit_WC"] <- round(1 - sumc/(suma + sumb + sumc), 4)
     z <- gc(reset = TRUE)
     rm(z)
     fst <- res
     rm(res)
   }
-  #############
-  #  end fst  #
-  #############    
-  
-  
-  # calculate observed heterozygosity
-  
-  ho <- lapply(popList, function(x){
-    apply(x, 2, function(y){
-      1 - (sum(na.omit(y[ ,1] == y[ ,2])) / length(na.omit(y[,1])))
+  ho <- lapply(popList, function(x) {
+    apply(x, 2, function(y) {
+      1 - (sum(na.omit(y[, 1] == y[, 2]))/length(na.omit(y[, 1])))
     })
   })
-  
-  # calculate expected heterozygosity
-  
-  he <- t(sapply(allele_freq, function(x){
-    apply(x, 2, function(y){
+  he <- t(sapply(allele_freq, function(x) {
+    apply(x, 2, function(y) {
       return(1 - sum(y^2))
     })
   }))
-  
-  # mean frequency
-  mf <- lapply(allele_freq, function(x){
+  mf <- lapply(allele_freq, function(x) {
     rowSums(x)/ncol(x)
   })
-  
-  # mean expected heterozygosity
-  ht <- sapply(mf, function(x){
+  ht <- sapply(mf, function(x) {
     1 - sum(x^2)
   })
-  
-  ############################
-  #   calculate locus stats  #
-  ############################
-  
-  hs <- rowSums(he) / npops
-  hs_est <- hs * ((2 * loci_harm_N) / ((2 * loci_harm_N) - 1))
-  ht_est <- ht + (hs_est / (2 * loci_harm_N * npops))
-  # replace missing data
+  hs <- rowSums(he)/npops
+  hs_est <- hs * ((2 * loci_harm_N)/((2 * loci_harm_N) - 1))
+  ht_est <- ht + (hs_est/(2 * loci_harm_N * npops))
   ht_est[is.nan(ht_est)] <- NA
-  hst <- round((ht - hs) / (1 - hs), 4)
+  hst <- round((ht - hs)/(1 - hs), 4)
   dst <- round(ht - hs, 4)
-  gst <- round(dst / ht, 4)
-  # replace missing data
+  gst <- round(dst/ht, 4)
   gst[is.nan(gst)] <- NA
-  djost <- round((dst / (1 - hs)) * (npops / (npops - 1)), 4)
-  # replace missing data
+  djost <- round((dst/(1 - hs)) * (npops/(npops - 1)), 4)
   djost[djost == 0] <- NA
-  hst_est <- round((ht_est - hs_est) / (1 - hs_est), 4)
+  hst_est <- round((ht_est - hs_est)/(1 - hs_est), 4)
   dst_est <- round(ht_est - hs_est, 4)
-  gst_est <- round(dst_est / ht_est, 4)
-  # replace missing data
+  gst_est <- round(dst_est/ht_est, 4)
   gst_est[is.nan(gst_est)] <- NA
-  gst_max <- ((npops - 1) * (1 - hs)) / (npops - 1 + hs)
-  gst_est_max <- (((npops - 1) * (1 - hs_est)) / (npops - 1 + hs_est))
-  gst_hedrick <- round(gst / gst_max, 4)
-  gst_est_hedrick <- round(gst_est / gst_est_max, 4)
+  gst_max <- ((npops - 1) * (1 - hs))/(npops - 1 + hs)
+  gst_est_max <- (((npops - 1) * (1 - hs_est))/(npops - 1 + 
+                                                  hs_est))
+  gst_hedrick <- round(gst/gst_max, 4)
+  gst_est_hedrick <- round(gst_est/gst_est_max, 4)
   gst_est_hedrick[gst_est_hedrick > 1] <- 1
-  djost_est <- round((npops / (npops - 1)) * ((ht_est - hs_est) / 
-                                                (1 - hs_est)), 4)
-  # replace missing data
+  djost_est <- round((npops/(npops - 1)) * ((ht_est - hs_est)/(1 - hs_est)), 4)
   djost_est[djost_est == 0] <- NA
-  
-  ############################
-  #   calculate across loci  #
-  ############################
-  # standard
   ht_mean <- round(mean(ht, na.rm = TRUE), 4)
   hs_mean <- round(mean(hs), 4)
-  gst_all <- round((ht_mean - hs_mean) / ht_mean, 4)
-  gst_all_max <- round(((npops - 1) * (1 - hs_mean)) / 
-                         (npops - 1 + hs_mean), 4)
-  gst_all_hedrick <- round(gst_all / gst_all_max, 4)
-  djost_all <- round(((ht_mean - hs_mean) / (1 - hs_mean)) * 
-                       (npops / (npops - 1)), 4)
-  # estimated
+  gst_all <- round((ht_mean - hs_mean)/ht_mean, 4)
+  gst_all_max <- round(((npops - 1) * (1 - hs_mean))/(npops - 
+                                                        1 + hs_mean), 4)
+  gst_all_hedrick <- round(gst_all/gst_all_max, 4)
+  djost_all <- round(((ht_mean - hs_mean)/(1 - hs_mean)) * 
+                       (npops/(npops - 1)), 4)
   hs_est_mean <- mean(hs_est, na.rm = TRUE)
   ht_est_mean <- mean(ht_est, na.rm = TRUE)
-  gst_est_all <- round((ht_est_mean - hs_est_mean) / ht_est_mean, 4)
-  gst_est_all_max <- round((((npops - 1) * (1 - hs_est_mean)) / 
-                              (npops - 1 + hs_est_mean)), 4)
-  gst_est_all_hedrick <- round(gst_est_all / gst_est_all_max, 4)
+  gst_est_all <- round((ht_est_mean - hs_est_mean)/ht_est_mean, 
+                       4)
+  gst_est_all_max <- round((((npops - 1) * (1 - hs_est_mean))/(npops - 
+                                                                 1 + hs_est_mean)), 4)
+  gst_est_all_hedrick <- round(gst_est_all/gst_est_all_max, 
+                               4)
   gst_est_all_hedrick[gst_est_all_hedrick > 1] <- 1
-  if (nloci == 1){
+  if (nloci == 1) {
     djost_est_all <- round(djost_est, 4)
   } else {
-    djost_est_all <- round(1 / (1 / mean(djost_est, na.rm = TRUE) + 
-                                  (var(djost_est, na.rm = TRUE) * 
-                                     (1/mean(djost_est, na.rm = TRUE)) ^ 3)), 4)
-  }    
-  djost_est[djost_est==0]<-NaN
-  djost[djost==0]<-NaN
-  # END    
-  
-  # return results
-  if(fstat){
-    list(hst = hst, dst = dst, gst = gst, gst_hedrick = gst_hedrick,
-         djost = djost, locus_harmonic_N = loci_harm_N, 
-         hst_est = hst_est, dst_est = dst_est, gst_est = gst_est,
-         gst_est_hedrick = gst_est_hedrick, djost_est = djost_est,
-         gst_all = gst_all, gst_all_hedrick = gst_all_hedrick,
-         djost_all = djost_all, gst_est_all = gst_est_all,
-         gst_est_all_hedrick = gst_est_all_hedrick,
-         djost_est_all = djost_est_all, fstats = fst)
-    
-  } else{
+    djost_est_all <- round(1/(1/mean(djost_est, na.rm = TRUE) + 
+                                (var(djost_est, na.rm = TRUE) * (1/mean(djost_est, 
+                                                                        na.rm = TRUE))^3)), 4)
+  }
+  djost_est[djost_est == 0] <- NaN
+  djost[djost == 0] <- NaN
+  if (fstat) {
     list(hst = hst, dst = dst, gst = gst, gst_hedrick = gst_hedrick, 
-         djost = djost, locus_harmonic_N = loci_harm_N, 
-         hst_est = hst_est, dst_est = dst_est, gst_est = gst_est,
-         gst_est_hedrick = gst_est_hedrick, djost_est = djost_est,
-         gst_all = gst_all, gst_all_hedrick = gst_all_hedrick,
-         djost_all = djost_all, gst_est_all = gst_est_all,
-         gst_est_all_hedrick = gst_est_all_hedrick,
+         djost = djost, locus_harmonic_N = loci_harm_N, hst_est = hst_est, 
+         dst_est = dst_est, gst_est = gst_est, 
+         gst_est_hedrick = gst_est_hedrick, 
+         djost_est = djost_est, gst_all = gst_all, 
+         gst_all_hedrick = gst_all_hedrick, 
+         djost_all = djost_all, gst_est_all = gst_est_all, 
+         gst_est_all_hedrick = gst_est_all_hedrick, 
+         djost_est_all = djost_est_all, 
+         fstats = fst)
+  } else {
+    list(hst = hst, dst = dst, gst = gst, gst_hedrick = gst_hedrick, 
+         djost = djost, locus_harmonic_N = loci_harm_N, hst_est = hst_est, 
+         dst_est = dst_est, gst_est = gst_est, 
+         gst_est_hedrick = gst_est_hedrick, 
+         djost_est = djost_est, gst_all = gst_all, 
+         gst_all_hedrick = gst_all_hedrick, 
+         djost_all = djost_all, gst_est_all = gst_est_all, 
+         gst_est_all_hedrick = gst_est_all_hedrick, 
          djost_est_all = djost_est_all)
   }
 }
