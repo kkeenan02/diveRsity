@@ -1372,10 +1372,8 @@ readGenepopX <- function (x) {
     data1[data1=="NA"]<-NA
   }
   raw_data<-data1
-  npops<-length(c(which(data1[,1]=="Pop"),which(data1[,1]=="POP"),
-                  which(data1[,1]=="pop")))
-  pop_pos<- c(which(data1[,1]=="POP"),which(data1[,1]=="Pop"),
-              which(data1[,1]=="pop"),(nrow(data1)+1))
+  npops<-length(which(toupper(data1[,1]) == "POP"))
+  pop_pos<- c(which(toupper(data1[,1]) == "POP"),(nrow(data1)+1))
   pop_sizes<-vector()
   for(i in 1:npops){
     pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
@@ -2384,10 +2382,8 @@ in.bs<-function(x){
       data1[data1=="NA"]<-NA
     }
     raw_data<-data1
-    npops<-length(c(which(data1[,1]=="Pop"),which(data1[,1]=="POP"),
-                    which(data1[,1]=="pop")))
-    pop_pos<- c(which(data1[,1]=="POP"),which(data1[,1]=="Pop"),
-                which(data1[,1]=="pop"),(nrow(data1)+1))
+    npops<-length(which(toupper(data1[,1]) == "POP"))
+    pop_pos<- c(which(toupper(data1[,1]) == "POP"),(nrow(data1)+1))
     pop_sizes<-vector()
     for(i in 1:npops){
       pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
@@ -2875,10 +2871,8 @@ readGenepop <- function (infile=NULL, gp=3, bootstrap=FALSE) {
     data1[data1=="NA"]<-NA
   }
   raw_data<-data1
-  npops<-length(c(which(data1[,1]=="Pop"),which(data1[,1]=="POP"),
-                  which(data1[,1]=="pop")))
-  pop_pos<- c(which(data1[,1]=="POP"),which(data1[,1]=="Pop"),
-              which(data1[,1]=="pop"),(nrow(data1)+1))
+  npops<-length(which(toupper(data1[,1]) == "POP"))
+  pop_pos<- c(which(toupper(data1[,1]) == "POP"),(nrow(data1)+1))
   pop_sizes<-vector()
   for(i in 1:npops){
     pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
@@ -3271,10 +3265,8 @@ pre.divLowMemory <- function(y){
       data1[data1=="NA"]<-NA
     }    
     raw_data<-data1
-    npops<-length(c(which(data1[,1]=="Pop"),which(data1[,1]=="POP"),
-                    which(data1[,1]=="pop")))
-    pop_pos<- c(which(data1[,1]=="POP"),which(data1[,1]=="Pop"),
-                which(data1[,1]=="pop"),(nrow(data1)+1))
+    npops<-length(which(toupper(data1[,1]) == "POP"))
+    pop_pos<- c(which(toupper(data1[,1]) == "POP"),(nrow(data1)+1))
     pop_sizes<-vector()
     for(i in 1:npops){
       pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
@@ -4593,10 +4585,8 @@ chiCalc <- function(infile = NULL, outfile = NULL, gp = 3, minFreq = NULL){
       data1[data1=="NA"]<-NA
     }    
     raw_data<-data1
-    npops<-length(c(which(data1[,1]=="Pop"),which(data1[,1]=="POP"),
-                    which(data1[,1]=="pop")))
-    pop_pos<- c(which(data1[,1]=="POP"),which(data1[,1]=="Pop"),
-                which(data1[,1]=="pop"),(nrow(data1)+1))
+    npops<-length(which(toupper(data1[,1]) == "POP"))
+    pop_pos<- c(which(toupper(data1[,1]) == "POP"),(nrow(data1)+1))
     pop_sizes<-vector()
     for(i in 1:npops){
       pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
@@ -5110,10 +5100,8 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
   data1 <- fileReader(infile)
   data1[data1==0]<-NA;data1[data1=="999999"]<-NA;data1[data1=="000000"]<-NA
   #raw_data<-data1
-  npops<-length(c(which(data1[,1]=="Pop"),which(data1[,1]=="POP"),
-                  which(data1[,1]=="pop")))
-  pop_pos<- c(which(data1[,1]=="POP"),which(data1[,1]=="Pop"),
-              which(data1[,1]=="pop"),(nrow(data1)+1))
+  npops<-length(which(toupper(data1[,1]) == "POP"))
+  pop_pos<- c(which(toupper(data1[,1]) == "POP"),(nrow(data1)+1))
   pop_sizes <- sapply(1:npops, function(i){
     pop_pos[(i+1)] - pop_pos[i]-1
   })
@@ -5946,10 +5934,8 @@ fstOnly <- function(infile = NULL, outfile = NULL, gp = 3,
       data1[data1=="NA"]<-NA
     }    
     raw_data<-data1
-    npops<-length(c(which(data1[,1]=="Pop"),which(data1[,1]=="POP"),
-                    which(data1[,1]=="pop")))
-    pop_pos<- c(which(data1[,1]=="POP"),which(data1[,1]=="Pop"),
-                which(data1[,1]=="pop"),(nrow(data1)+1))
+    npops<-length(which(toupper(data1[,1]) == "POP"))
+    pop_pos<- c(which(toupper(data1[,1]) == "POP"), (nrow(data1)+1))
     pop_sizes<-vector()
     for(i in 1:npops){
       pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
@@ -6480,10 +6466,8 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
   data1 <- fileReader(infile)
   data1[data1==0]<-NA;data1[data1=="999999"]<-NA;data1[data1=="000000"]<-NA
   #raw_data<-data1
-  npops<-length(c(which(data1[,1]=="Pop"),which(data1[,1]=="POP"),
-                  which(data1[,1]=="pop")))
-  pop_pos<- c(which(data1[,1]=="POP"),which(data1[,1]=="Pop"),
-              which(data1[,1]=="pop"),(nrow(data1)+1))
+  npops<-length(which(toupper(data1[,1]) == "POP"))
+  pop_pos<- c(which(toupper(data1[,1]) == "POP"), (nrow(data1)+1))
   loci_names<-as.vector(data1[2:(pop_pos[1]-1),1])
   # Calculate the minimum sample size
   pop_sizes <- sapply(1:npops, function(i){
