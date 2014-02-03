@@ -7167,7 +7167,7 @@ bigDivPart <- function(infile = NULL, outfile = NULL, WC_Fst = FALSE,
   pop_names <- sapply(ind_names, function(x) {
     return(x[1])
   })
-  nb <- bigPreDiv_dev(prePopList, FALSE, nloci, npops, popSizes, 
+  nb <- bigPreDiv(prePopList, FALSE, nloci, npops, popSizes, 
                       fstat)
   stdOut <- data.frame(loci = c(loci_names, "Global"), 
                        H_st = c(nb$hst, NA), 
