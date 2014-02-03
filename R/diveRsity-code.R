@@ -2,7 +2,7 @@
 NULL
 ################################################################################
 ################################################################################
-##                              diveRsity v1.7.8                              ##  
+##                              diveRsity v1.7.9                              ##  
 ##                            by Kevin Keenan QUB                             ##  
 ##            An R package for the calculation of differentiation             ##
 ##              statistics and locus informativeness statistics               ##  
@@ -3198,7 +3198,7 @@ pre.divLowMemory <- function(y){
         flForm <- strsplit(infile, split = "\\.")[[1]]
         ext <- flForm[[length(flForm)]]
         if(ext == "arp"){
-          convRes <- diveRsity:::arp2gen(infile)
+          convRes <- arp2gen(infile)
           if(!is.null(convRes)){
             cat("Arlequin file converted to genepop format! \n")
             infile <- paste(flForm[1], ".gen", sep = "")
