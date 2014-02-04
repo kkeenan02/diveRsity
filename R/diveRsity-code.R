@@ -3191,49 +3191,47 @@ pre.divLowMemory <- function(y){
     ###########################################################################
     # Master file reader
     ###########################################################################
-    fileReader <- function(infile){
-      if(typeof(infile)=="list"){
-        return(infile) 
-      } else if (typeof(infile)=="character"){
+    fileReader <- function (infile) {
+      if (typeof(infile) == "list") {
+        return(infile)
+      }
+      else if (typeof(infile) == "character") {
         flForm <- strsplit(infile, split = "\\.")[[1]]
         ext <- flForm[[length(flForm)]]
-        if(ext == "arp"){
-          convRes <- arp2gen(infile)
-          if(!is.null(convRes)){
-            cat("Arlequin file converted to genepop format! \n")
-            infile <- paste(flForm[1], ".gen", sep = "")
-          } else {
-            infile <- paste(flForm[1], ".gen", sep = "")
-          }
+        if (ext == "arp") {
+          arp2gen(infile)
+          cat("Arlequin file converted to genepop format! \n")
+          infile <- paste(flForm[1], ".gen", sep = "")
         }
         dat <- scan(infile, sep = "\n", what = "character", quiet = TRUE)
-        # find number of columns
         popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
         no_col <- popLoc[1] - 1
-        if(popLoc[1] == 3){
-          locs <- unlist(strsplit(dat[2], split = c("\\,", "\\s+")))
+        if (popLoc[1] == 3) {
+          locs <- unlist(strsplit(dat[2], split = c("\\,", 
+                                                    "\\s+")))
           dat <- c(dat[1], locs, dat[3:length(dat)])
         }
         popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
         no_col <- popLoc[1] - 1
-        dat1 <- sapply(dat, function(x){
+        dat1 <- sapply(dat, function(x) {
           x <- unlist(strsplit(x, split = "\\s+"))
-          if(is.element("", x)){
-            x <- x[- (which(x == ""))]
+          if (is.element("", x)) {
+            x <- x[-(which(x == ""))]
           }
-          if(is.element(",", x)){
-            x <- x[- (which(x ==","))]
+          if (is.element(",", x)) {
+            x <- x[-(which(x == ","))]
           }
-          if(length(x) != 1 && length(x) != no_col){
+          if (length(x) != 1 && length(x) != no_col) {
             x <- paste(x, collapse = "")
           }
-          if(length(x) < no_col){
-            tabs <- paste(rep(NA, (no_col - length(x))), sep = "\t", 
-                          collapse = "\t")
+          if (length(x) < no_col) {
+            tabs <- paste(rep(NA, (no_col - length(x))), 
+                          sep = "\t", collapse = "\t")
             line <- paste(x, tabs, sep = "\t")
             line <- unlist(strsplit(line, split = "\t"))
             return(line)
-          } else {
+          }
+          else {
             return(x)
           }
         })
@@ -3265,8 +3263,10 @@ pre.divLowMemory <- function(y){
       data1[data1=="NA"]<-NA
     }    
     raw_data<-data1
-    npops<-length(which(toupper(data1[,1]) == "POP"))
-    pop_pos<- c(which(toupper(data1[,1]) == "POP"),(nrow(data1)+1))
+    npops<-length(c(which(data1[,1]=="Pop"),which(data1[,1]=="POP"),
+                    which(data1[,1]=="pop")))
+    pop_pos<- c(which(data1[,1]=="POP"),which(data1[,1]=="Pop"),
+                which(data1[,1]=="pop"),(nrow(data1)+1))
     pop_sizes<-vector()
     for(i in 1:npops){
       pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
@@ -3622,12 +3622,11 @@ pre.divLowMemory <- function(y){
         kkptild<-kk_p[[i]]/(2*x$indtyp[[gdData[i]]])
         kkptild[kkptild=="NaN"]<-NA
         kkpbar<-colSums(kk_p[[i]])/(2*indtyp_tot[[gdData[i]]])
-        kks2<-colSums(x$indtyp[[gdData[i]]]*
-                        (kkptild-rep(kkpbar,
-                                     each = x$npops))^2)/((x$npops-1)*kknbar)
-        kkA<-kkpbar*(1-kkpbar)-(x$npops-1)*kks2/x$npops
+        kks2<-colSums(x$indtyp[[gdData[i]]] * (kkptild-rep(kkpbar, each = x$npops))^2)/((x$npops-1)*kknbar)
+        kkA <- kkpbar * (1-kkpbar)-(x$npops-1)*kks2/x$npops
         kka<-kknbar*(kks2-(kkA-(kk_hbar[[i]]/4))/(kknbar-1))/kknC
-        kkb<-kknbar*(kkA-(2*(kknbar-1))*kk_hbar[[i]]/(4*kknbar))/(kknbar-1)
+        kkb <- (kknbar/(kknbar - 1))*(kkA-((2*kknbar-1)/(4*kknbar))*kk_hbar[[i]])
+        #kkb<-kknbar*(kkA-(2*(kknbar-1))*kk_hbar[[i]]/(4*kknbar))/(kknbar-1)
         kkc<-kk_hbar[[i]]/2
         A[i]<-sum(kkA)
         a[i]<-sum(kka)
