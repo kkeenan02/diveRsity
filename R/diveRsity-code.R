@@ -8265,9 +8265,9 @@ pwDivCalc <- function(x, pw, npops){
 
 # divPart, a wrapper function for the calculation of differentiation stats.
 #' @export
-fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
-                      WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
-                      bootstraps = 0, plot = FALSE, parallel = FALSE){
+fastDivPart <-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
+                       WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
+                       bootstraps = 0, plot = FALSE, parallel = FALSE){
   
   ############################ Argument definitions ############################
   # define arguments for testing
@@ -9463,6 +9463,25 @@ fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
       for(i in 1:length(pwMatListOut)){
         dimnames(pwMatListOut[[i]]) <- list(popNms, popNms)
       }
+      # convert locstats in to list format
+      locstats <- lapply(apply(locstats, 4, list), function(x){
+        lapply(apply(x[[1]], 3, list), function(y){
+          out <- y[[1]]
+          dimnames(out) <- list(popNms, popNms)
+          return(out)
+        })
+      })
+      # add names etc
+      if(fst){
+        # prepare locstats for output
+        names(locstats) <- c("gstEst", "gstEstHed", "djostEst", "thetaWC")
+      } else {
+        names(locstats) <- c("gstEst", "gstEstHed", "djostEst")
+      }
+      for(i in 1:length(locstats)){
+        names(locstats[[i]]) <- accDat$locus_names
+      }
+      
     }
     
     #Bootstrap
@@ -9595,12 +9614,6 @@ fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
       # convert locus bs stats into seperate loci
       locStats <- lapply(locStats, function(x){
         lapply(apply(x, 3, list), function(y){
-          return(y[[1]])
-        })
-      })
-      # convert locus stats into the same format
-      locstats <- lapply(apply(locstats, 4, list), function(x){
-        lapply(apply(x[[1]], 3, list), function(y){
           return(y[[1]])
         })
       })
@@ -10071,12 +10084,14 @@ fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
            estimate = ot2out,
            pairwise = pwMatListOut,
            meanPairwise = meanPairwise,
-           bs_locus = bs_res1)
+           bs_locus = bs_res1,
+           pw_locus = locstats)
     } else if(bspw == FALSE && bsls == FALSE && pWise == TRUE){
       list(standard = ot1out,
            estimate = ot2out,
            pairwise = pwMatListOut,
-           meanPairwise = meanPairwise)
+           meanPairwise = meanPairwise,
+           pw_locus = locstats)
     } else if(bspw == FALSE && bsls == TRUE && pWise == FALSE){
       list(standard = ot1out,
            estimate = ot2out,
@@ -10087,6 +10102,9 @@ fastDivPart<-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
     }
   }
 }
+################################################################################
+# fastsDivPart end                                                             #
+################################################################################
 ################################################################################
 # fastsDivPart end                                                             #
 ################################################################################
