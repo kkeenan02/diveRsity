@@ -11167,7 +11167,7 @@ writeBoot <- function(infile = NULL, outfile = NULL, gp = 3, bootstraps = 0,
       fileNms[[i]][1] <- paste(of, names(stats)[i], 
                                "-actual.txt", sep = "")
       fileNms[[i]][2] <- paste(of, names(stats)[i], 
-                               "-uncorrrected.txt", sep = "")
+                               "-uncorrected.txt", sep = "")
       fileNms[[i]][3] <- paste(of, names(stats)[i], 
                                "-corrected.txt", sep = "")
     }
