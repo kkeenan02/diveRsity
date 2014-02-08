@@ -5091,9 +5091,8 @@ microPlexer <- function(){
 # Calculate basic stats
 ################################################################################
 #' @export
-divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
-  infile =  infile
-  gp = gp
+divBasic <- function (infile = NULL, outfile = NULL, gp = 3, 
+                      bootstraps = NULL) {
   on = outfile
   
   # create a results dir
@@ -5426,6 +5425,126 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
   HWE <- sapply(1:npops, function(i){
     round(pchisq(q = chiDif[,i], df = df[,i], lower.tail = FALSE), 4)
   })
+  if(!is.null(bootstraps)){
+    # write a function to calculate allele freq and  obsHet from pop_alleles object
+    # convert pop_alleles into a list of arrays
+    pa <- lapply(pop_alleles, function(x){
+      return(array(unlist(x), dim = c(nrow(x[[1]]), ncol(x[[1]]), 2)))
+    })
+    # fit boot function
+    bootPA <- function(pa){
+      if(!is.list(pa)){
+        idx <- sample(dim(pa)[1], dim(pa)[1], replace = TRUE)
+        pa <- pa[idx,,]
+        obsHet <- apply(pa, 2, function(x){
+          (x[,1] != x[, 2])*1
+        })
+        obsHet <- apply(obsHet, 2, function(x){
+          sum(na.omit(x))/length(na.omit(x))
+        })
+        # calculate expected
+        htExp <- apply(pa, 2, function(x){
+          af <- as.vector((table(c(x[,1], x[,2]))/(length(na.omit(x[,1]))*2))^2)
+          return(1 - sum(af, na.rm = TRUE))
+        })
+        ht <- sum(htExp, na.rm=TRUE)
+        ho <- sum(obsHet, na.rm=TRUE)
+        overall <- (ht-ho)/ht
+        return(c((htExp-obsHet)/htExp, overall))
+      } else {
+        out <- lapply(pa, function(pasub){
+          idx <- sample(dim(pasub)[1], dim(pasub)[1], replace = TRUE)
+          pasub <- pasub[idx,,]
+          obsHet <- apply(pasub, 2, function(x){
+            (x[,1] != x[, 2])*1
+          })
+          obsHet <- apply(obsHet, 2, function(x){
+            sum(na.omit(x))/length(na.omit(x))
+          })
+          # calculate expected
+          htExp <- apply(pasub, 2, function(x){
+            af <- as.vector((table(c(x[,1], x[,2]))/(length(na.omit(x[,1]))*2))^2)
+            return(1 - sum(af, na.rm = TRUE))
+          })
+          ht <- htExp
+          ho <- obsHet
+          fis <- (ht-ho)/ht
+          fis[is.nan(fis)] <- NA
+          overall <- (sum(ht,na.rm=TRUE)-sum(ho,na.rm=TRUE))/sum(ht,na.rm=TRUE)
+          fis <- c(fis, overall)
+          return(fis)
+        })
+        return(do.call("rbind", out))
+      }
+    }
+    # calculate base fis
+    fisCalc <- function(x, y){
+      ho <- colSums(x, na.rm = TRUE)
+      he <- colSums(y, na.rm = TRUE)
+      return((he-ho)/he)
+    }
+    fisLoc <- round((hetExp[-(nloci+1),] - hetObs[-(nloci+1),])/hetExp[-(nloci+1),], 4)
+    fisLoc[is.nan(fisLoc)] <- NA
+    fisAct <- fisCalc(hetObs, hetExp)
+    # calculate fis CIs
+    fisBS <- replicate(bootstraps, bootPA(pa))
+    # convert fisBS into list format
+    fisBSloc <- lapply(1:npops, function(i){
+      return(t(fisBS[i,-(nloci+1),]))
+    })
+    fisBSOverall <- lapply(1:npops, function(i){
+      return(as.vector((fisBS[i,nloci+1,])))
+    })
+    # fix the bias
+    biasCor <- lapply(1:npops, function(i){
+      bs <- fisBSloc[[i]]
+      mnBA <- colMeans(bs, na.rm = TRUE) - fisLoc[,i]
+      mnBA[is.nan(mnBA)] <- NA
+      bcCor <- t(apply(bs, 1, function(x){
+        return(x - mnBA)
+      }))
+    })
+    biasCorall <- lapply(1:npops, function(i){
+      bs <- fisBSOverall[[i]]
+      mnBA <- mean(bs, na.rm = TRUE) - fisAct[i]
+      mnBA[is.nan(mnBA)] <- NA
+      return(as.vector(bs - mnBA))
+    })
+    
+    # bias cor CIs
+    bcCILoc <- lapply(biasCor, function(x){
+      apply(x, 2, quantile, probs = c(0.025, 0.975), na.rm = TRUE)
+    })
+    bcCIall <- lapply(biasCorall, quantile, 
+                      probs = c(0.025, 0.975), na.rm = TRUE)
+    nbcCILoc <- lapply(fisBSloc, function(x){
+      apply(x, 2, quantile, probs = c(0.025, 0.975), na.rm = TRUE)
+    })
+    nbcCIall <- lapply(fisBSOverall, quantile, 
+                       probs = c(0.025, 0.975), na.rm = TRUE)
+    fisLoc <- lapply(1:npops, function(i){
+      return(fisLoc[,i])
+    })
+    # arrange data for outpup
+    # define function
+    tableMake <- function(fisLoc, fisAct, bcCIall, bcCILoc, nbcCIall, nbcCILoc,
+                          loci_names){
+      out <- data.frame(fis = c(fisLoc, fisAct),
+                        lower_CI = c(nbcCILoc[1,], nbcCIall[1]),
+                        upper_CI = c(nbcCILoc[2,], nbcCIall[2]),
+                        BC_lower_CI = c(bcCILoc[1,], bcCIall[1]),
+                        BC_upper_CI = c(bcCILoc[2,], bcCIall[2]))
+      rownames(out) <- c(loci_names, "overall")
+      return(round(out, 4))
+    }
+    
+    output <- mapply(tableMake, fisLoc = fisLoc,
+                     fisAct = fisAct, bcCIall = bcCIall,
+                     bcCILoc = bcCILoc, nbcCIall = nbcCIall,
+                     nbcCILoc = nbcCILoc,  SIMPLIFY = FALSE,
+                     MoreArgs = list(loci_names = loci_names))
+    
+  }
   
   # Calculate over all HWE significance
   HWEall <- round(pchisq(q = colSums(chiDif), df = colSums(df), 
@@ -5452,30 +5571,63 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
   # HWE
   HWE <- rbind(HWE, HWEall)
   # Compile information into writable format
-  statComp <- lapply(1:npops, function(i){
-    pop <- rbind(locPopSize[,i], obsAlls[,i],
-                 propAlls[,i], AR[,i], hetObs[,i],
-                 hetExp[,i], HWE[,i])
-    return(pop)
-  })
-  if(npops > 1){
-    writeOut <- cbind(c(pop_names[1], 
-                        "N", "A", "%", "Ar", "Ho", "He", "HWE", "\t"), 
-                      rbind(c(loci_names, "Overall"), 
-                            statComp[[1]], rep("\t", nloci+1)))
-    for(i in 2:npops){
-      writeOut <- rbind(writeOut, 
-                        cbind(c(pop_names[i], 
-                                "N", "A", "%", "Ar", "Ho", "He", "HWE", "\t"),
-                              rbind(c(loci_names, "Overall"), statComp[[i]], 
-                                    rep("\t", nloci+1))))
+  if(!is.null(bootstraps)){
+    statComp <- lapply(1:npops, function(i){
+      pop <- rbind(locPopSize[,i], obsAlls[,i],
+                   propAlls[,i], AR[,i], hetObs[,i],
+                   hetExp[,i], HWE[,i], output[[i]][,1],
+                   output[[i]][,4], output[[i]][,5])
+      return(pop)
+    })
+    if(npops > 1){
+      writeOut <- cbind(c(pop_names[1], 
+                          "N", "A", "%", "Ar", "Ho", "He", "HWE", "Fis",
+                          "Fis_Low", "Fis_High", "\t"), 
+                        rbind(c(loci_names, "Overall"), 
+                              statComp[[1]], rep("\t", nloci+1)))
+      for(i in 2:npops){
+        writeOut <- rbind(writeOut, 
+                          cbind(c(pop_names[i], 
+                                  "N", "A", "%", "Ar", "Ho", "He", "HWE", "Fis",
+                                  "Fis_Low", "Fis_High", "\t"),
+                                rbind(c(loci_names, "Overall"), statComp[[i]], 
+                                      rep("\t", nloci+1))))
+      }
+    } else {
+      writeOut <- cbind(c(pop_names[1], 
+                          "N", "A", "%", "Ar", "Ho", "He", "HWE", "Fis",
+                          "Fis_Low", "Fis_High", "\t"), 
+                        rbind(c(loci_names, "Overall"), 
+                              statComp[[1]], rep("\t", nloci+1)))
     }
   } else {
-    writeOut <- cbind(c(pop_names[1], 
-                        "N", "A", "%", "Ar", "Ho", "He", "HWE", "\t"), 
-                      rbind(c(loci_names, "Overall"), 
-                            statComp[[1]], rep("\t", nloci+1)))
+    statComp <- lapply(1:npops, function(i){
+      pop <- rbind(locPopSize[,i], obsAlls[,i],
+                   propAlls[,i], AR[,i], hetObs[,i],
+                   hetExp[,i], HWE[,i])
+      return(pop)
+    })
+    if(npops > 1){
+      writeOut <- cbind(c(pop_names[1], 
+                          "N", "A", "%", "Ar", "Ho", "He", "HWE", "\t"), 
+                        rbind(c(loci_names, "Overall"), 
+                              statComp[[1]], rep("\t", nloci+1)))
+      for(i in 2:npops){
+        writeOut <- rbind(writeOut, 
+                          cbind(c(pop_names[i], 
+                                  "N", "A", "%", "Ar", "Ho", "He", "HWE", "\t"),
+                                rbind(c(loci_names, "Overall"), statComp[[i]], 
+                                      rep("\t", nloci+1))))
+      }
+    } else {
+      writeOut <- cbind(c(pop_names[1], 
+                          "N", "A", "%", "Ar", "Ho", "He", "HWE", "\t"), 
+                        rbind(c(loci_names, "Overall"), 
+                              statComp[[1]], rep("\t", nloci+1)))
+    }
   }
+  
+  
   if (!is.null(outfile)){
     write_res<-is.element("xlsx",installed.packages()[,1])
     if(write_res){
@@ -5492,14 +5644,27 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3) {
       close(out)
     }
   }
-  list(locus_pop_size = locPopSize,
-       Allele_number = obsAlls,
-       proportion_Alleles = propAlls,
-       Allelic_richness = AR,
-       Ho = hetObs,
-       He = hetExp,
-       HWE = HWE,
-       mainTab = writeOut)
+  if(!is.null(bootstraps)){
+    list(locus_pop_size = locPopSize,
+         Allele_number = obsAlls,
+         proportion_Alleles = propAlls,
+         Allelic_richness = AR,
+         Ho = hetObs,
+         He = hetExp,
+         HWE = HWE,
+         fis = output,
+         mainTab = writeOut)
+  } else {
+    list(locus_pop_size = locPopSize,
+         Allele_number = obsAlls,
+         proportion_Alleles = propAlls,
+         Allelic_richness = AR,
+         Ho = hetObs,
+         He = hetExp,
+         HWE = HWE,
+         mainTab = writeOut)
+  }
+  
 }
 ################################################################################
 # END

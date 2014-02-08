@@ -16,7 +16,7 @@ HWE tests are carried out as standard. These tests are known to be unreliable wh
 }
 
 \usage{
-divBasic(infile = NULL, outfile = NULL, gp = 3)
+divBasic(infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL)
 }
 \arguments{
 
@@ -26,6 +26,7 @@ divBasic(infile = NULL, outfile = NULL, gp = 3)
 
 \item{gp}{Specifies the digit format of the \code{infile}. Either 3 (default) or 2.}
 
+\item{bootstraps}{This argument specifies how many bootstrap iterations should be executed when calculating 95\% confidence intervals for $F_is$. The argument should be an integer greater than 1. Setting \code{bootstrap = NULL} suppresses the calculation of F_is. Users should note that setting this argument to values greater than 1000 may result in longer executions times.}
 }
 
 \value{
@@ -44,6 +45,8 @@ divBasic(infile = NULL, outfile = NULL, gp = 3)
 
 \item{HWE}{A matrix containing uncorrected \emph{p}-values from chi-square test for goodness-of-fit to Hardy-Weinberg equilibrium. Overall \emph{p}-values are also given per population sample.}
 
+\item{fis}{A list of dataframes containing locus and global F_is values for each population sample. In each dataframe the actual F_is is listed in the first column of the matrix, lower and upper 95\% confidence intervals are listed in the next two columns, while bias corrected 95\% CI are listed in the last two columns. This object is only returned when \code{bootstraps} is not \code{NULL}}
+
 }
 
 \references{
@@ -59,5 +62,5 @@ Kevin Keenan <kkeenan02@qub.ac.uk>
 \examples{
 # To run an example use the following format
 #
-# test_results <- divBasic(infile = Test_data, outfile = 'out', gp = 3)
+# test_results <- divBasic(infile = Test_data, outfile = 'out', gp = 3, bootstraps = 1000)
 }
