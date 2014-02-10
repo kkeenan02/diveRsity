@@ -5103,7 +5103,11 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
   }
   
   data1 <- fileReader(infile)
-  data1[data1==0]<-NA;data1[data1=="999999"]<-NA;data1[data1=="000000"]<-NA
+  data1[data1 == 0] <- NA
+  data1[data1 == "999999"] <- NA
+  data1[data1 == "000000"] <- NA
+  data1[data1 == "9999"] <- NA
+  data1[data1 == "0000"] <- NA
   #raw_data<-data1
   npops<-length(which(toupper(data1[,1]) == "POP"))
   pop_pos<- c(which(toupper(data1[,1]) == "POP"),(nrow(data1)+1))
