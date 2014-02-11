@@ -11376,6 +11376,71 @@ writeBoot <- function(infile = NULL, outfile = NULL, gp = 3, bootstraps = 0,
 ################################################################################
 # writeBoot end                                                                #
 ################################################################################
+#
+#
+#
+#
+#
+################################################################################
+# gpSampler                                                                    #
+################################################################################
+#' @export
+gpSampler <- function(infile = NULL, samp_size = 10, outfile = NULL){
+  dat <- fileReader(infile)
+  rownames(dat) <- NULL
+  dat <- as.matrix(dat)
+  # determine genepop format
+  p1 <- which(toupper(dat[,1]) == "POP")[1] + 1
+  gp <- as.numeric(names(sort(-table(sapply(dat[p1, - 1], nchar)/2)))[1])
+  dat <- as.data.frame(dat)
+  rawData <- readGenepop(dat, gp = gp)  
+  # resample
+  if (length(samp_size) == 1){
+    samp_size <- rep(samp_size, rawData$npops)
+  }
+  idx <- lapply(seq_along(samp_size), function(i){
+    sample(samp_size[i], size = samp_size[i], replace = FALSE)
+  })
+  pop_list <- lapply(seq_along(idx), function(i){
+    samp <- rawData$pop_list[[i]][idx[[i]], ]
+    blnk <- rep("\t", ncol(samp))
+    return(rbind(blnk, samp))
+  })
+  
+  ind_vectors <- lapply(seq_len(rawData$npops), function(i){
+    return(c("POP", paste(rep("pop_", samp_size[i]), i, "_", 
+                          1:samp_size[i], ",", sep = "")))
+  })
+  pre_data <- matrix(rep("\t", ((rawData$nloci + 1) * (rawData$nloci + 1))),
+                     ncol = (rawData$nloci + 1))
+  pre_data[1, ] <- c("Title", rep("\t", rawData$nloci))
+  for(i in 2:(rawData$nloci+1)){
+    pre_data[i,1] <- rawData$loci_names[(i-1)]
+  }
+  # add pop to ind_vectors and pop_list
+  popOut <- do.call("rbind", pop_list)
+  indVect <- do.call("c", ind_vectors)
+  output <- rbind(pre_data, cbind(indVect, popOut))
+  rownames(output) <- NULL
+  if(gp == 3){
+    output[is.na(output)] <- "000000"
+  } else {
+    output[is.na(output)] <- "0000"
+  }
+  #bs_data_file<-data.frame(bs_data_file)
+  out <- file(paste(outfile,".gen",sep=""), "w")
+  for(i in 1:nrow(output)){
+    if(i == nrow(output)){
+      cat(output[i,], file = out,  sep="\t")
+    } else {
+      cat(output[i,], "\n", file = out,  sep="\t") 
+    }
+  }
+  close(out)
+}
+################################################################################
+# gpSampler                                                                    #
+################################################################################
 ################################################################################
 #################################     END ALL       ############################
 ################################################################################
