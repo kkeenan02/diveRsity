@@ -1385,7 +1385,7 @@ readGenepopX <- function (x) {
   for(i in 1:npops){
     pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
   }
-  pop_names<-data1[(pop_pos[1:npops]+1),1]
+  pop_names<-as.character(data1[(pop_pos[1:npops]+1),1])
   pop_weights<- 1/pop_sizes
   
   n_harmonic<-npops/sum(pop_weights)
@@ -2395,7 +2395,7 @@ in.bs<-function(x){
     for(i in 1:npops){
       pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
     }
-    pop_names<-data1[(pop_pos[1:npops]+1),1]
+    pop_names<-as.character(data1[(pop_pos[1:npops]+1),1])
     pop_weights<- 1/pop_sizes
     
     n_harmonic<-npops/sum(pop_weights)
@@ -2884,7 +2884,7 @@ readGenepop <- function (infile=NULL, gp=3, bootstrap=FALSE) {
   for(i in 1:npops){
     pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
   }
-  pop_names<-data1[(pop_pos[1:npops]+1),1]
+  pop_names<-as.character(data1[(pop_pos[1:npops]+1),1])
   pop_weights<- 1/pop_sizes
   
   n_harmonic<-npops/sum(pop_weights)
@@ -3278,7 +3278,7 @@ pre.divLowMemory <- function(y){
     for(i in 1:npops){
       pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
     }
-    pop_names<-data1[(pop_pos[1:npops]+1),1]
+    pop_names<-as.character(data1[(pop_pos[1:npops]+1),1])
     pop_weights<- 1/pop_sizes
     
     n_harmonic<-npops/sum(pop_weights)
@@ -4597,7 +4597,7 @@ chiCalc <- function(infile = NULL, outfile = NULL, gp = 3, minFreq = NULL){
     for(i in 1:npops){
       pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
     }
-    pop_names<-data1[(pop_pos[1:npops]+1),1]
+    pop_names<-as.character(data1[(pop_pos[1:npops]+1),1])
     pop_weights<- 1/pop_sizes
     
     n_harmonic<-npops/sum(pop_weights)
@@ -5115,7 +5115,7 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
     pop_pos[(i+1)] - pop_pos[i]-1
   })
   minSize <- min(pop_sizes) 
-  pop_names<-data1[(pop_pos[1:npops]+1),1]
+  pop_names<-as.character(data1[(pop_pos[1:npops]+1),1])
   nloci<- (pop_pos[1]-2)
   loci_names<-as.vector(data1[2:(pop_pos[1]-1),1])
   pop_list <- lapply(1:npops, function(i){
@@ -6115,7 +6115,7 @@ fstOnly <- function(infile = NULL, outfile = NULL, gp = 3,
     for(i in 1:npops){
       pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
     }
-    pop_names<-data1[(pop_pos[1:npops]+1),1]
+    pop_names<-as.character(data1[(pop_pos[1:npops]+1),1])
     pop_weights<- 1/pop_sizes
     
     n_harmonic<-npops/sum(pop_weights)
@@ -6649,7 +6649,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
     pop_pos[(i+1)] - pop_pos[i]-1
   })
   #minSize <- min(pop_sizes) 
-  pop_names<-data1[(pop_pos[1:npops]+1),1]
+  pop_names<-as.character(data1[(pop_pos[1:npops]+1),1])
   nloci<- (pop_pos[1]-2)
   loci_names<-as.vector(data1[2:(pop_pos[1]-1),1])
   pop_list <- lapply(1:npops, function(i){
