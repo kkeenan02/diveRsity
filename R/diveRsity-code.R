@@ -3278,7 +3278,7 @@ pre.divLowMemory <- function(y){
     for(i in 1:npops){
       pop_sizes[i]<- pop_pos[(i+1)] - pop_pos[i]-1
     }
-    pop_names<-substr(data1[(pop_pos[1:npops]+1),1],1,6)
+    pop_names<-data1[(pop_pos[1:npops]+1),1]
     pop_weights<- 1/pop_sizes
     
     n_harmonic<-npops/sum(pop_weights)
