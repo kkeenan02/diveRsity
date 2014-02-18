@@ -23,7 +23,7 @@ divPart <- function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
 #                   WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
 #                   bootstraps = 0, plot = FALSE, parallel = FALSE){
 #                    
-#   ############################ Argument definitions ############################
+#   ############################ Argument definitions ##########################
 #   D <- infile
 #   on <- outfile
 #   gp <- gp
