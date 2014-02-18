@@ -5110,8 +5110,8 @@ microPlexer <- function(){
 #' @export
 divBasic <- function (infile = NULL, outfile = NULL, gp = 3, 
                       bootstraps = NULL) {
-  on = outfile
   
+  on = outfile
   # create a results dir
   if(!is.null(on)){
     suppressWarnings(dir.create(path=paste(getwd(),"/",on,
@@ -5214,17 +5214,23 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
   }
   ############################# END AR function ###############################
   # Calculate allelic richness
-  
   ARdata <- replicate(1000, ARfun(pop_list))
   
   AR <- apply(ARdata, 2, function(x){
     round(rowMeans(x), 2)
   })
+  meanAR <- apply(ARdata, 3, colMeans, na.rm = TRUE)
+  arLCI <- apply(meanAR, 1, quantile, probs = 0.025, na.rm = TRUE)
+  arUCI <- apply(meanAR, 1, quantile, probs = 0.975, na.rm = TRUE)
+  locSD <- apply(ARdata, c(1,2), sd, na.rm = TRUE)
+  locSD <- rbind(locSD, arLCI, arUCI)
+  colnames(locSD) <- pop_names
+  rownames(locSD) <- c(loci_names, "Lower", "Upper")
   ###vectorize loci_pop_sizes#################################################
   lps<-function(x){#
     lsp_count<-as.vector(colSums(!is.na(x)))#
     return(lsp_count)#
-  }#
+  }
   locPopSize <- sapply(pop_list,lps)
   ###vectorize pop_alleles####################################################
   if (gp==3){
@@ -5674,6 +5680,7 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
          He = hetExp,
          HWE = HWE,
          fis = output,
+         arSD = round(locSD, 4),
          mainTab = writeOut)
   } else {
     list(locus_pop_size = locPopSize,
@@ -5683,6 +5690,7 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
          Ho = hetObs,
          He = hetExp,
          HWE = HWE,
+         arSD = round(locSD, 4),
          mainTab = writeOut)
   }
   
