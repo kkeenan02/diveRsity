@@ -24,7 +24,7 @@ Results object returned from the function \code{readGenepop}
 }
 
 \item{y}{
-Results object returned from the function \code{divPart}
+Results object returned from the function \code{fastDivPart}
 }
 }
 
