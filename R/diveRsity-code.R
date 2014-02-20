@@ -7965,13 +7965,13 @@ divMigrate <- function(infile = NULL, stat = "d_jost"){
   gst <- dst/ht_mean
   gst[gst < 0.0 | is.na(gst)] <- 0
   # calculate D(Jost)
-  d_jost <- ((dst)/(1-hs_mean)) * 2
+  d_jost <- (2*(dst))/(1-hs_mean)
   # calculate relative migration from d_jost
   d_mig <- (1 - d_jost)/d_jost
   # replace missing and negative values with 0
   d_mig[d_mig < 0 | is.na(d_mig)] <- 0
-  dimnames(d_mig) <- list(paste("P", 1:npops),
-                          paste("P", 1:npops))
+  dimnames(d_mig) <- list(rawData$pop_names,
+                          rawData$pop_names)
   # standardize
   d_mig <- d_mig/max(d_mig, na.rm = TRUE)
   # test gst migration rate
@@ -7982,22 +7982,26 @@ divMigrate <- function(infile = NULL, stat = "d_jost"){
   gst_mig <- gst_mig/max(gst_mig, na.rm = TRUE)
   # replace missing and negative values with 0
   gst_mig[gst_mig < 0 | is.na(gst_mig)] <- 0
-  dimnames(gst_mig) <- list(paste("P", 1:npops),
-                            paste("P", 1:npops))
+  dimnames(gst_mig) <- list(rawData$pop_names,
+                            rawData$pop_names)
   # test plot
   #library("qgraph")
   if(length(stat) == 2){
     par(mfrow = c(2, 1 ))
-    qgraph(gst_mig, posCol = "black")
+    qgraph(gst_mig, posCol = "black",
+           nodeNames = rawData$pop_names)
     title(expression("G"["st"]))
-    qgraph(d_mig, posCol = "black")
+    qgraph(d_mig, posCol = "black",
+           nodeNames = rawData$pop_names)
     title(expression("D"["Jost"]))
     par(mfrow = c(1,1))
   } else if(stat == "gst"){
-    qgraph(gst_mig, posCol = "black")
+    qgraph(gst_mig, posCol = "black",
+           nodeNames = rawData$pop_names)
     title(expression("G"["st"]))
   } else if(stat == "d_jost"){
-    qgraph(d_mig, posCol = "black")
+    qgraph(d_mig, posCol = "black",
+           nodeNames = rawData$pop_names)
     title(expression("D"["Jost"]))
   }
   list(D_mig =d_mig,
