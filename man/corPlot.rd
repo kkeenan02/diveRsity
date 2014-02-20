@@ -20,7 +20,7 @@ corPlot(x, y)
 \arguments{
 
 \item{x}{
-Results object returned from the function \code{readGenepop.user}
+Results object returned from the function \code{readGenepop}
 }
 
 \item{y}{
