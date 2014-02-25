@@ -20,7 +20,7 @@ polyIn(infile = NULL, pairwise = FALSE, parallel = FALSE)
 If \code{pairwise = TRUE}, a list of pairwise matrices for each locus is returned. These list elements are named as per loci names in \code{infile} to allow simple indexing for loci of interest. If \code{pairwise = FALSE} and named numeric vector is returned.
 }
 \references{
-Rosenberg, N., Li, L., Ward, R., and Pritchard, J., “Informativeness of genetic markers for inference of ancestry.,” American Journal of Human Genetics, vol. 73, no. 6, pp. 1402-22, (2003).
+Rosenberg, N., Li, L., Ward, R., and Pritchard, J., (2003) 'Informativeness of genetic markers for inference of of ancestry.', American Journal of Human Genetics, vol. 73, no. 6 pp. 1402-22.
 }
 \author{
 Kevin Keenan 2014

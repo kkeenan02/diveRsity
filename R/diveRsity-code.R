@@ -11536,7 +11536,10 @@ gpSampler <- function(infile = NULL, samp_size = 10, outfile = NULL){
 #' for loci of any ploidy.
 #' Kevin Keenan 2014
 #' @export 
-polyIn <- function(infile, pairwise = TRUE, parallel = FALSE){
+polyIn <- function(infile = NULL, pairwise = FALSE, parallel = FALSE){
+  if(is.null(infile)){
+    stop("Please provide and input file!")
+  }
   polyReader <- function(infile, parallel){
     # read data
     fastScan <- function(fname) {
