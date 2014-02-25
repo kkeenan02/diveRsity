@@ -11663,7 +11663,7 @@ polyIn <- function(infile = NULL, pairwise = FALSE, parallel = FALSE){
           return(sum(sum(trm1 + trm2)))
         }))
       })
-      inOut <- matrix(NA, ncol = ncol(combs), nrow = ncol(combs))
+      inOut <- matrix(NA, ncol = ncol(af), nrow = ncol(af))
       for(i in 1:length(Out)){
         inOut[combs[2,i], combs[1,i]] <- Out[[i]]
       }
