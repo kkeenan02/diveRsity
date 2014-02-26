@@ -11700,6 +11700,102 @@ polyIn <- function(infile = NULL, pairwise = FALSE, parallel = FALSE){
 # polyIn                                                                       #
 ################################################################################
 #
+#
+#
+#
+#
+#
+#
+#
+################################################################################
+# snp2gp: a function for converting SNP data to genepop format                 #
+################################################################################
+snp2gp <- function(infile, prefix_length = 2){
+  fastScan <- function(fname) {
+    s <- file.info(fname)$size
+    buf <- readChar(fname, s, useBytes = TRUE)
+    return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
+  }
+  dat <- fastScan(infile)
+  inds <- strsplit(dat[1], split = "\\s+")[[1]][-1]
+  splitNames <- lapply(inds, function(x){
+    return(strsplit(x, split = "")[[1]])
+  })
+  pop_pre <- sapply(splitNames, function(x){
+    return(paste(x[1:prefix_length], collapse = ""))
+  })
+  prefixes <- unique(pop_pre)
+  pop_idx <- lapply(prefixes, function(x){
+    which(x == pop_pre)
+  })
+  npops <- length(prefixes)
+  pop_sizes <- sapply(pop_idx, length)
+  # organise genotypes into matrix
+  genos <- t(sapply(dat[-1], function(x){
+    return(strsplit(x, split = "\\s+")[[1]])
+  }))
+  dimnames(genos) <- list(NULL, NULL)
+  # extract snp names
+  locs <- as.vector(genos[,1])
+  nloci <- length(locs)
+  genos <- genos[,-1]
+  genos <- strsplit(genos, split = "")
+  al1 <- matrix(sapply(genos, "[", 1), ncol = sum(pop_sizes),
+                nrow = nloci, byrow = FALSE)
+  al2 <- matrix(sapply(genos, "[", 2), ncol = sum(pop_sizes),
+                nrow = nloci, byrow = FALSE)
+  # geno array [ind, loc, allele]
+  genos <- array(NA, dim = c(nrow(al1), ncol(al1), 2))
+  genos[,,1] <- al1
+  genos[,,2] <- al2
+  # replace nucleotides with genepop ids
+  genos[toupper(genos) == "A"] <- "01"
+  genos[toupper(genos) == "C"] <- "02"
+  genos[toupper(genos) == "G"] <- "03"
+  genos[toupper(genos) == "T"] <- "04"
+  genos[genos == "-"] <- "00"
+  # extract populations
+  pop_list <- lapply(pop_idx, function(x){
+    return(genos[,x,])
+  })
+  # convert pop_list to genepop format
+  pop_list <- lapply(pop_list, function(x){
+    out <- apply(x, 2, function(y){
+      return(paste(y[,1], y[,2], sep = ""))
+    })
+    return(t(out))
+  })
+  pop_list <- lapply(pop_list, function(x){
+    return(rbind(rep(NA, ncol(x)), x))
+  })
+  # get ind names
+  indNames <- lapply(pop_idx, function(x){
+    return(c("pop", paste(inds[x], " ,", sep = "")))
+  })
+  pre <- strsplit(infile, split = "\\.")[[1]][1]
+  pop_list <- cbind(do.call("c", indNames),
+                    do.call("rbind", pop_list))
+  pop_list <- rbind(c(paste(pre, "-converted", sep = ""), 
+                      rep(NA, nloci)),
+                    c(c(paste(locs[1:(nloci-1)], ",", sep = ""), 
+                        locs[nloci]), NA), pop_list)
+  pop_list[is.na(pop_list)] <- "\t"
+  # write the results
+  fl <- file(paste(pre, "_converted.gen", sep = ""), "w")
+  for(i in 1:nrow(pop_list)){
+    out <- pop_list[i,]
+    if(all(out[-1] == "\t")){
+      out <- out[1]
+    }
+    cat(out, "\n", file = fl, sep = "\t")
+  }
+  close(fl)
+  z <- gc()
+}
+################################################################################
+# end snp2gp                                                                   #
+################################################################################
+#
 ################################################################################
 #################################     END ALL       ############################
 ################################################################################
