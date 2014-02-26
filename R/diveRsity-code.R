@@ -11716,7 +11716,16 @@ snp2gp <- function(infile, prefix_length = 2){
     buf <- readChar(fname, s, useBytes = TRUE)
     return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
   }
-  dat <- fastScan(infile)
+  if(is.list(infile)){
+    infile <- as.matrix(infile)
+    dat <- sapply(1:nrow(infile), function(i){
+      out <- paste(infile[i,], collapse = "\t")
+      return(out)
+    })
+    dat <- c(paste(colnames(infile), collapse = "\t"), dat)
+  } else {
+    dat <- fastScan(infile)
+  }
   inds <- strsplit(dat[1], split = "\\s+")[[1]][-1]
   splitNames <- lapply(inds, function(x){
     return(strsplit(x, split = "")[[1]])
