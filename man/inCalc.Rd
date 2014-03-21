@@ -10,13 +10,12 @@ A function to calculate locus informative for the inference of ancestry
 }
 
 \details{
-All results will be written to a user defined folder ("working_directory/outfile"). The format of outputs will vary depending on the availability of the package \code{'xlsx'} in the users local package library. If \code{'xlsx'} is available, results will be written to an Excel workbook. If \code{'xlsx'} is not available, results will be written to \code{.txt} files.
+All results will be written to a user defined folder ("working_directory/outfile"). The format of outputs will vary depending value of the \code{xlsx} argument. If \code{xlsx = TRUE}, results will be written to a .xlsx workbook using the \code{xlsx} package. If \code{xlsx = FALSE}, results will be written to \code{.txt} files.
 }
 
 \usage{
-inCalc(infile, outfile = NULL, gp = 3, 
-       bs_locus = FALSE, bs_pairwise = FALSE, 
-       bootstraps = 0, plot = FALSE, parallel = FALSE)
+inCalc(infile = NULL, outfile = NULL, pairwise = FALSE,
+       xlsx = FALSE, bootstraps = NULL, parallel = FALSE)
 }
 \arguments{
 
@@ -24,27 +23,28 @@ inCalc(infile, outfile = NULL, gp = 3,
 
 \item{outfile}{Allows users to specify a prefix for an output folder. Name must a character string enclosed in either ``'' or `'.}
 
-\item{gp}{Specifies the digit format of the \code{infile}. Either 3 (default) or 2.}
+\item{pairwise}{Specified whether pairwise I_{n} should be calculated.}
 
-\item{bs_locus}{Gives users the option to bootstrap locus statistics. Results will be written to \code{.xlsx} file by default if the package \code{'xlsx'} is installed, and to a \code{.png} file if \code{plot=TRUE}. If \code{'xlsx'} is not installed, results will be written to \code{.txt} files.}
-
-\item{bs_pairwise}{Gives users the option to bootstrap statistics across all loci for each pairwise population comparison. Results will be written to a \code{.xlsx} file by default if the package \code{'xlsx'} is installed. If \code{'xlsx'} is not installed, results will be written to \code{.txt} files.}
+\item{xlsx}{A logical argument indicating whether results should be written to an \emph{xlsx} file. If \code{xlsx = FALSE} (default), results will be written to text files.}
 
 \item{bootstraps}{Determines the number of bootstrap iterations to be carried out. The default value is \code{bootstraps = 0}, this is only valid when 
-all bootstrap options are false.  Again, there is no limit on the number of bootstrap iterations, however very large numbers of bootstrap iterations (i.e. > 1000) will take quite a long time to run.}
-
-\item{plot}{Optional \code{.png} image file of the plotted bootstrap results for loci if \code{bs_locus = TRUE}. The default option is \code{plot = FALSE}.}
+all bootstrap options are false.}
 
 \item{parallel}{Allows for parallel computation of pairwise locus \emph{In}. The number of available core is automatically detected if \code{parallel = TRUE}.}
 }
 
 \value{
 
-\item{Allele_In}{A character matrix of allelic \emph{In} values per locus along with locus sums.}
+\code{inCalc} return a list object to the R workspace, with elements described below. In addition to this results can be optionally written to file using the \code{outfile} argument. If \code{xlsx = TRUE} results will be written to a multi-sheet xlsx file. If \code{xlsx = FALSE} results are written to multiple text file, the number of which depends on the function arguments used.
 
-\item{l_bootstrap}{A character matrix of locus \emph{In} values as well as 95\% confidence intervals, calculated from bootstraps (Manly, 1997). Returned when \code{bs_locus} is set to \code{TRUE}.}
+\item{global}{A \code{data.frame} containing the \emph{In} values for each locus, calculated across all samples in \code{infile}. If \code{bootstraps} is an integer greater than 0, this data.frame will also contain lower and upper 95\% confidence limits for each locus.}
 
-\item{PW_bootstrap}{A list of matrices of bootstrapped pairwise locus \emph{In} results corresponding to each pairwise comparison.}
+\item{pairwise}{A \code{data.frame} containing the pairwise locus \emph{In} values for all possible pairwise population comparisons. This object is returned when \code{bootstraps} is an integer greater than 0.}
+
+\item{lower_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{lower_CI} is returned. It is a \code{data.frame} containing the lower 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
+
+\item{upper_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{upper_CI} is returned. It is a \code{data.frame} containing the upper 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
+
 }
 
 \references{
@@ -67,8 +67,10 @@ Kevin Keenan <kkeenan02@qub.ac.uk>
 
 \examples{
 # To run an example use the following format
+# library(diveRsity)
+# data(Test_data)
+# Test_data[is.na(Test_data)] <- ""
 #
-# test_results<-inCalc(infile = Test_data, outfile = 'out',
-#                      gp = 3, bs_locus = TRUE, bs_pairwise = TRUE,
-#                      bootstraps = 10, plot = FALSE, parallel = TRUE)
+# test_results<-inCalc(infile = Test_data, outfile = 'out', pairwise = TRUE,
+#                      xlsx = FALSE, bootstraps = 1000, parallel = TRUE)
 }
