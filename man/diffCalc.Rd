@@ -11,15 +11,13 @@ This function allows the calculation of pairwise differentiation using a range o
 
 
 \usage{
-
 diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE, 
          bs_locus = FALSE, bs_pairwise = FALSE, boots = NULL, para = FALSE)
-
 }
   		   
 \arguments{
 
-\item{infile}{Specifying the name of the \emph{`genepop'} (Rousset, 2008) file from which the statistics are to be calculated This file can be in either the 3 digit of 2 digit format. See http://genepop.curtin.edu.au/help_input.html for detail on the genepop file format.}
+\item{infile}{Specifying the name of the \emph{`genepop'} (Rousset, 2008) file from which the statistics are to be calculated This file can be in either the 3 digit of 2 digit format. See \url{http://genepop.curtin.edu.au/help_input.html} for detail on the genepop file format.}
 
 \item{outfile}{A character string specifying the name of the folder to which results should be written.}
 
