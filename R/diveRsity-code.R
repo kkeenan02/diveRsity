@@ -13221,7 +13221,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
                   unlist(ot))
         }
         writeLines(paste(ot, collapse = "\n"), 
-                   paste(opf, x, "txt", sep = ""))
+                   paste(opf, x, ".txt", sep = ""))
         ot <- NULL
       } else if(x == "bs_locus"){
         statnms <- names(op[x][[1]])
