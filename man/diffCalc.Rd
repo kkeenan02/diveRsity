@@ -12,10 +12,8 @@ This function allows the calculation of pairwise differentiation using a range o
 
 \usage{
 
-diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE, 
-                     pairwise = FALSE, bs_locus = FALSE, 
-                     bs_pairwise = FALSE, boots = NULL, 
-                     para = FALSE)
+diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE, 
+         bs_locus = FALSE, bs_pairwise = FALSE, boots = NULL, para = FALSE)
 
 }
   		   
