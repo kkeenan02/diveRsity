@@ -10,7 +10,7 @@ A function to calculate locus informative for the inference of ancestry
 }
 
 \details{
-All results will be written to a user defined folder ("working_directory/outfile"). The format of outputs will vary depending value of the \code{xlsx} argument. If \code{xlsx = TRUE}, results will be written to a .xlsx workbook using the \code{xlsx} package. If \code{xlsx = FALSE}, results will be written to \code{.txt} files.
+All results will be written to a user defined folder ("working\_directory/outfile"). The format of outputs will vary depending value of the \code{xlsx} argument. If \code{xlsx = TRUE}, results will be written to a .xlsx workbook using the \code{xlsx} package. If \code{xlsx = FALSE}, results will be written to \code{.txt} files.
 }
 
 \usage{
@@ -23,7 +23,7 @@ inCalc(infile = NULL, outfile = NULL, pairwise = FALSE,
 
 \item{outfile}{Allows users to specify a prefix for an output folder. Name must a character string enclosed in either ``'' or `'.}
 
-\item{pairwise}{Specified whether pairwise I_{n} should be calculated.}
+\item{pairwise}{Specified whether pairwise I\_{n} should be calculated.}
 
 \item{xlsx}{A logical argument indicating whether results should be written to an \emph{xlsx} file. If \code{xlsx = FALSE} (default), results will be written to text files.}
 
@@ -41,9 +41,9 @@ all bootstrap options are false.}
 
 \item{pairwise}{A \code{data.frame} containing the pairwise locus \emph{In} values for all possible pairwise population comparisons. This object is returned when \code{bootstraps} is an integer greater than 0.}
 
-\item{lower_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{lower_CI} is returned. It is a \code{data.frame} containing the lower 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
+\item{lower\_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{lower\_CI} is returned. It is a \code{data.frame} containing the lower 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
 
-\item{upper_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{upper_CI} is returned. It is a \code{data.frame} containing the upper 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
+\item{upper\_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{upper\_CI} is returned. It is a \code{data.frame} containing the upper 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
 
 }
 
