@@ -20,7 +20,7 @@ difPlot(x, outfile = NULL, interactive = FALSE)
 \arguments{
 
 \item{x}{Results object returned from the function 'divPart'}
-\item{outfile}{A character string indication the folder location to which plot files should be writen.}
+\item{outfile}{A character string indication the folder location to which plot files should be written.}
 \item{interactive}{A logical argument indication whether the package 'sendplot' should be used to plot 'divPart' pairwise results.}
 }
 

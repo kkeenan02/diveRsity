@@ -10,7 +10,7 @@ A function to calculate allele frequencies from genepop files.
 }
 
 \details{
-Results from this function allow for the calculation of various population genetics statistics, such as those calculated by \code{div.part} and \code{in.calc}. Users may find it useful for data exploration. For instance by employing the \code{plot {graphics}} function, an \emph{'ad hoc'} assesment of allele size distribution can be carried out using the code in the example section below.
+Results from this function allow for the calculation of various population genetics statistics, such as those calculated by \code{div.part} and \code{in.calc}. Users may find it useful for data exploration. For instance by employing the \code{plot {graphics}} function, an \emph{'ad hoc'} assessment of allele size distribution can be carried out using the code in the example section below.
 From this example it is clear that the function will be particularly useful for those wishing to develop their own novel analysis methods. 
 }
 
@@ -32,7 +32,7 @@ readGenepop(infile = NULL, gp = 3, bootstrap = FALSE)
 
 \item{npops}{The number of population samples in \code{infile}.}
 \item{nloci}{The number of loci in \code{infile}.}
-\item{pop_alleles}{A list of matrices (n = 2 x \code{npops}) containing haploid allele designations. Every two matrices contain the two alleles per individula per population. For example \code{pop_alleles[[1]][1,1]} and \code{pop_alleles[[2]][1,1]} are the two alleles observed in individulal `1' in population `1' at locus `1', whereas \code{pop_alleles[[3]][1,1]} and \code{pop_alleles[[4]][1,1]} are the two alleles observed in individual `1' in population `2' at locus `1'.}
+\item{pop_alleles}{A list of matrices (n = 2 x \code{npops}) containing haploid allele designations. Every two matrices contain the two alleles per individual per population. For example \code{pop_alleles[[1]][1,1]} and \code{pop_alleles[[2]][1,1]} are the two alleles observed in individual `1' in population `1' at locus `1', whereas \code{pop_alleles[[3]][1,1]} and \code{pop_alleles[[4]][1,1]} are the two alleles observed in individual `1' in population `2' at locus `1'.}
 \item{pop_list}{A list of matrices (n = \code{npops}) containing the diploid genotypes of individuals per locus. }
 \item{loci_lames}{A character vector containing the names of loci from \code{infile}.}
 \item{pop_pos}{A numeric vector or the row index locations of the first individual per population in \code{infile}.}
@@ -41,10 +41,10 @@ readGenepop(infile = NULL, gp = 3, bootstrap = FALSE)
 \item{all_alleles}{A list of \code{nloci} character vectors of all alleles observed across all population samples in \code{infile}. }
 \item{allele_freq}{A list containing \code{nloci} matrices containing allele frequencies per alleles per population sample.}
 \item{raw_data}{An unaltered data frame of \code{infile}.}
-\item{loci_harm_N}{A numeric vector of length \code{nloci}, containing the harmonic mean number of individulas genotyped per locus.}
+\item{loci_harm_N}{A numeric vector of length \code{nloci}, containing the harmonic mean number of individuals genotyped per locus.}
 \item{n_harmonic}{A numeric value representing the harmonic mean of \code{npops}.}
 \item{pop_names}{A character vector containing a four letter population sample name for each population in \code{infile} (the first four letter of the first individual).}
-\item{indtyp}{A list of length \code{nloci} containing character vectors of length \code{npops}, indicating the number of individulas per population sample typed at each locus.}
+\item{indtyp}{A list of length \code{nloci} containing character vectors of length \code{npops}, indicating the number of individuals per population sample typed at each locus.}
 \item{nalleles}{A vector of the total number of alleles observed at each locus.}
 \item{bs_file}{A genepop format data frame of bootstrapped \code{infile}. This value is only returned if \code{bootstrap = TRUE}.}
 }

@@ -10,7 +10,7 @@ This function will launch a browser based app designed using the package, \code{
 }
 
 \details{
-The application provides flexibility in marker organisation through the use of two distinct algorithms. The \emph{high-throughput} algorithm will attempt to group as many loci into as few multiplex groups as allowable based on locus size and the available fluorophore labels, while the \emph{balanced} algorithm attempts to organise loci into multiplex group of roughly equal density, so as to offset possible primer interactions etc. As input, the application accepts a \code{.csv} file with three nameds columns. The structure of this file is as follows:
+The application provides flexibility in marker organisation through the use of two distinct algorithms. The \emph{high-throughput} algorithm will attempt to group as many loci into as few multiplex groups as allowable based on locus size and the available fluorophore labels, while the \emph{balanced} algorithm attempts to organise loci into multiplex group of roughly equal density, so as to offset possible primer interactions etc. As input, the application accepts a \code{.csv} file with three named columns. The structure of this file is as follows:
 
 \code{nms} - contains the names of loci
 

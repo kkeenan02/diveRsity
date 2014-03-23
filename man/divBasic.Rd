@@ -31,13 +31,13 @@ divBasic(infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL)
 
 \value{
 
-\item{locus_pop_size}{A matrix containing the number of indivuduals typed per locus per population sample. Mean values across loci are also given.}
+\item{locus_pop_size}{A matrix containing the number of individuals typed per locus per population sample. Mean values across loci are also given.}
 
 \item{Allele_number}{A matrix containing the number of alleles observed per locus per population sample. Mean values across loci are also given.}
 
 \item{proportion_Alleles}{A matrix containing the percentage of total alleles observed per locus per population sample. Mean values across loci are also given.}
 
-\item{Allelic_richness}{A matrix containing the allelic richness per locus per population sample. Allelic richness is calculated using 1000 resamples (n = smallest sample in the input data file), with replacement per population sample locus per population sample. Mean values across loci are also given.}
+\item{Allelic_richness}{A matrix containing the allelic richness per locus per population sample. Allelic richness is calculated using 1000 re-samples (n = smallest sample in the input data file), with replacement per population sample locus per population sample. Mean values across loci are also given.}
 
 \item{Ho}{A matrix containing observed heterozygosity per locus per population sample. Mean values across loci are also given.}
 

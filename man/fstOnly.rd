@@ -10,7 +10,7 @@ This function calculates locus and pairwise confidence intervals for Weir & Cock
 }
 
 \details{
-Because \code{fstOnly} is intended to maximise memory (RAM) efficiency, the funciton does not provide many of the plotting utilities that \code{divPart} does.
+Because \code{fstOnly} is intended to maximise memory (RAM) efficiency, the function does not provide many of the plotting utilities that \code{divPart} does.
 }
 
 \usage{
@@ -42,6 +42,10 @@ fstOnly(infile = NULL, outfile = NULL, gp = 3, bs_locus = FALSE,
 
 \item{pairwise}{A list object containing two matrices, F_{ST} and F_{IT}. These matrices contain actual, lower 95\% confidence interval and upper 95\% confidence interval per pairwise population comparison.}
 
+}
+
+\note{
+This function has become obsolete following improvements to \code{fastDivPart} and \code{diffCalc}. The use of either of these two functions is recommended over \code{fstOnly}. \code{fstOnly} will be deprecated in future \code{diveRsity} releases.
 }
 
 \references{

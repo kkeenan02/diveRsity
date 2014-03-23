@@ -36,17 +36,19 @@ diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE,
 
 \value{
 
-If \code{outfile} is given as a character string, all results will be written to text files. The files will be written to a directory under the current working directory. The number of files written depends on the options choosen. As well as this a list object is returned to the R workspace, containing the following results:
+If \code{outfile} is given as a character string, all results will be written to text files. The files will be written to a directory under the current working directory. The number of files written depends on the options choose. As well as this a list object is returned to the R workspace, containing the following results:
 
-\item{std_stats}{A \code{data.frame}, containing locus estimates for Gst, G'st, D (and Weir and Cockerham's F-statistics, if \code{fst = TRUE}). The last row of this dataframe containd the global estimate for each statistic across all samples and loci.}
+\item{std_stats}{A \code{data.frame}, containing locus estimates for Gst, G'st, D (and Weir and Cockerham's F-statistics, if \code{fst = TRUE}). The last row of this dataframe contains the global estimate for each statistic across all samples and loci.}
 
-\item{global_bs}{If \code{bs_locus = TRUE}, this object is returned. It is a \code{dataframe} containg global estimates and lower and upper 95\% CIs for all relavant statistics.}
+\item{global_bs}{If \code{bs_locus = TRUE}, this object is returned. It is a \code{dataframe} containing global estimates and lower and upper 95\% CIs for all relevant statistics.}
 
 \item{bs_locus}{If \code{bs_locus = TRUE}, this object is returned. It is a list of either 3 or 6 dataframes the number of which depend on \code{fst}. Each dataframe contains the locus statistics estimate across all samples along with lower and upper 95\% confidence limits.}
 
+\item{pw_locus}{If \code{pairwise = TRUE}, this list of dataframes is returned. The list contains a dataframe for each relevant statistics, where rows correspond to loci and columns correspond to all possible pairwise combinations of samples. If \code{outfile} is provided, these results are also written to file.}
+
 \item{pairwise}{If \code{pairwise = TRUE}, this object is returned. It is a list of either 3 or 4 matrices (depending on the value of \code{fst}) containing pairwise estimate of relevant statistics.}
 
-\item{bs_pairwise}{A list of either 3 or 4 (depending on the value of \code{fst}) dataframescontaining pairwise estimates and lower and upper 95\% confidence intervals for all relevant statistics.}
+\item{bs_pairwise}{A list of either 3 or 4 (depending on the value of \code{fst}) containing pairwise estimates and lower and upper 95\% confidence intervals for all relevant statistics.}
 }
 
 \references{

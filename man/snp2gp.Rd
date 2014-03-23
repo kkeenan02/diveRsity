@@ -5,7 +5,7 @@
 Conversion function for SNP nucleotide genotype matrix to a genepop file.
 }
 \description{
-This function converts SNP nucliotide genotype to genepop file format.
+This function converts SNP nucleotide genotype to genepop file format.
 }
 \usage{
 snp2gp(infile, prefix_length)

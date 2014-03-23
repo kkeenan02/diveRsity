@@ -47,6 +47,10 @@ all bootstrap options are false.}
 
 }
 
+\note{
+Since version 1.9.0, the speed of this function has been greatly improved. Users can expect up to x10 speed up on previous versions. The output data structure is also slightly different from v1.9.0 onwards.
+}
+
 \references{
 Dragulescu, A.D., ``xlsx: Read, write, formal Excel 2007 and Excel 97/2000/xp/2003 files'', R package version 0.4.2, url:http://CRAN.R-project.org/package=xlsx, (2012).
 
