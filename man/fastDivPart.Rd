@@ -10,7 +10,7 @@ Genetic differentiation statistics and their estimators
 }
 
 \details{
-All results will be written to a user defined folder ("working_directory/outfile"). The format of outputs will vary depending on the availability of the package \code{'xlsx'} in the users local package library. If \code{'xlsx'} is available, results will be written to an Excel workbook. If \code{'xlsx'} is not available, results will be written to \code{.txt} files. 
+All results will be written to a user defined folder ("working\_directory/outfile"). The format of outputs will vary depending on the availability of the package \code{'xlsx'} in the users local package library. If \code{'xlsx'} is available, results will be written to an Excel workbook. If \code{'xlsx'} is not available, results will be written to \code{.txt} files. 
 Multi-locus estimates of Weir and Cockerham's theta are calculated as per Weir and Cockerham, 1984.
 }
 

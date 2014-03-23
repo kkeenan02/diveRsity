@@ -41,9 +41,9 @@ all bootstrap options are false.}
 
 \item{pairwise}{A \code{data.frame} containing the pairwise locus \emph{In} values for all possible pairwise population comparisons. This object is returned when \code{bootstraps} is an integer greater than 0.}
 
-\item{lower\_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{lower\_CI} is returned. It is a \code{data.frame} containing the lower 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
+\item{lower_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{lower_CI} is returned. It is a \code{data.frame} containing the lower 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
 
-\item{upper\_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{upper\_CI} is returned. It is a \code{data.frame} containing the upper 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
+\item{upper_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{upper_CI} is returned. It is a \code{data.frame} containing the upper 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
 
 }
 
