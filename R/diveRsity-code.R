@@ -12991,9 +12991,8 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
         return(thetaCalc(a, b, cdat))
       }, simplify = "array")
       # clean up
-      rm(wcVar)
+      rm(wcVar, bsDat)
       z <- gc()
-      rm(z)
       
       
       
@@ -13148,36 +13147,83 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   # Pairwise stats
   #################################
   if(pairwise){
+    # locus
+    if(fst){
+      # gst
+      pwgLoc <- data.frame(round(t(pwgLoc), 4))
+      dimnames(pwgLoc) <- list(ip$locs, pwpops)
+      op$pw_locus$gst <- pwgLoc
+      rm(pwgLoc)
+      # Gst
+      pwGLoc <- data.frame(round(t(pwGLoc), 4))
+      dimnames(pwGLoc) <- list(ip$locs, pwpops)
+      op$pw_locus$Gst <- pwGLoc
+      rm(pwGLoc)
+      # D
+      pwDLoc <- data.frame(round(t(pwDLoc), 4))
+      dimnames(pwDLoc) <- list(ip$locs, pwpops)
+      op$pw_locus$D <- pwDLoc
+      rm(pwDLoc)
+      # Fst
+      pwFstLoc <- data.frame(round(t(pwFstLoc), 4))
+      dimnames(pwFstLoc) <- list(ip$locs, pwpops)
+      op$pw_locus$Fst <- pwFstLoc
+      rm(pwFstLoc)
+    } else {
+      # gst
+      pwgLoc <- data.frame(round(t(pwgLoc), 4))
+      dimnames(pwgLoc) <- list(ip$locs, pwpops)
+      op$pw_locus$gst <- pwgLoc
+      rm(pwgLoc)
+      # Gst
+      pwGLoc <- data.frame(round(t(pwGLoc), 4))
+      dimnames(pwGLoc) <- list(ip$locs, pwpops)
+      op$pw_locus$Gst <- pwGLoc
+      rm(pwGLoc)
+      # D
+      pwDLoc <- data.frame(round(t(pwDLoc), 4))
+      dimnames(pwDLoc) <- list(ip$locs, pwpops)
+      op$pw_locus$D <- pwDLoc
+      rm(pwDLoc)
+    }
+    # global
     if(fst){
       # gst
       op$pairwise <- list(gst = matrix(NA, nrow = np, ncol = np))
       op$pairwise$gst[lower.tri(op$pairwise$gst)] <- round(pwgAll, 4)
       dimnames(op$pairwise$gst) <- list(popnms, popnms)
+      #rm(pwgAll)
       # Gst
       op$pairwise$Gst <- op$pairwise$gst
       op$pairwise$Gst[lower.tri(op$pairwise$Gst)] <- round(pwGAll, 4)
       dimnames(op$pairwise$Gst) <- list(popnms, popnms)
+      #rm(pwGAll)
       # D
       op$pairwise$D <- op$pairwise$gst
       op$pairwise$D[lower.tri(op$pairwise$D)] <- round(pwDall, 4)
       dimnames(op$pairwise$D) <- list(popnms, popnms)
+      #rm(pwDall)
       # Fst
       op$pairwise$Fst <- op$pairwise$gst
       op$pairwise$Fst[lower.tri(op$pairwise$Fst)] <- round(pwFstAll, 4)
       dimnames(op$pairwise$Fst) <- list(popnms, popnms)
+      #rm(pwFstAll)
     } else {
       # gst
       op$pairwise <- list(gst = matrix(NA, nrow = np, ncol = np))
       op$pairwise$gst[lower.tri(op$pairwise$gst)] <- round(pwgAll, 4)
       dimnames(op$pairwise$gst) <- list(popnms, popnms)
+      #rm(pwgAll)
       # Gst
       op$pairwise$Gst <- op$pairwise$gst
       op$pairwise$Gst[lower.tri(op$pairwise$Gst)] <- round(pwGAll, 4)
       dimnames(op$pairwise$Gst) <- list(popnms, popnms)
+      #rm(pwGAll)
       # D
       op$pairwise$D <- op$pairwise$gst
       op$pairwise$D[lower.tri(op$pairwise$D)] <- round(pwDall, 4)
       dimnames(op$pairwise$D) <- list(popnms, popnms)
+      #rm(pwDall)
     }
   }
   #################################
@@ -13321,6 +13367,33 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
                   unlist(ot))
         }
         writeLines(paste(ot, collapse = "\n"), 
+                   paste(opf, x, ".txt", sep = ""))
+        ot <- NULL
+      } else if(x == "pw_locus"){
+        statnms <- names(op[x][[1]])
+        ot <- lapply(statnms, function(y){
+          ot1 <- c("", y, "", paste("Loci", paste(colnames(op[x][[1]][y][[1]]), 
+                                                  collapse = "\t"), sep = "\t"))
+          ot2 <- apply(op[x][[1]][y][[1]], 1, paste, collapse = "\t")
+          ot2 <- mapply(`paste`, rownames(op[x][[1]][y][[1]]), ot2,
+                        MoreArgs = list(sep = "\t"))
+          return(c(ot1, ot2))
+        })
+        if(fst){
+          ot <- c("Locus Pairwise estimates", "",
+                  "gst = Nei & Chesser, 1983",
+                  "Gst = Hedrick, 2005",
+                  "D = Jost, 2008",
+                  "Fst = Weir & Cockerham, 1984",
+                  unlist(ot))
+        } else {
+          ot <- c("Locus Pairwise estimates", "",
+                  "gst = Nei & Chesser, 1983",
+                  "Gst = Hedrick, 2005",
+                  "D = Jost, 2008",
+                  unlist(ot))
+        }
+        writeLines(paste(ot, collapse = "\n"),
                    paste(opf, x, ".txt", sep = ""))
         ot <- NULL
       } else if(x == "bs_pairwise"){
