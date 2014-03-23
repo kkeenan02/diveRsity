@@ -7,3 +7,4 @@ git_control.txt
 .gitignore
 .git/
 .Rproj.user
+.Rprofile
