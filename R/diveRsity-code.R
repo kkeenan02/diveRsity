@@ -11822,6 +11822,9 @@ snp2gp <- function(infile, prefix_length = 2){
 ################################################################################
 # NEW STYLE FUNCTIONS                                                          #
 ################################################################################
+################################################################################
+# NEW STYLE FUNCTIONS                                                          #
+################################################################################
 #' # New fastDivPart
 #' 
 #' ```{r echo = FALSE, message = TRUE, cache = FALSE}
@@ -11893,15 +11896,17 @@ glbWC <- function(hsum, af, indtyp){
     y[!is.na(match(nms, names(x)))] <- x
     y[is.na(y)] <- 0
     names(y) <- nms
-    return(y)
+    return(y) 
   })
+  indtyp <- indtyp[indtyp != 0]
   # combine tables
   tabMerge <- function(...){
     ip <- unlist(list(...))
     return(sapply(split(ip, names(ip)), sum))
   }
+  af <- af[,colSums(af) != 0]
   # caluclate variance components
-  r <-  ncol(af) # good
+  r <-  length(indtyp) # good
   indT <- sum(indtyp) # good
   sumSq <- sum(indtyp^2) # good
   nbar <- sum(indtyp)/r # good
@@ -12032,7 +12037,10 @@ pwWC <- function(hsum, indtyp, af, pw = NULL){
     names(y) <- nms
     return(y)
   })
+  indtyp[indtyp == 0] <- NA
   pwtyp <- cbind(indtyp[pw[1,]], indtyp[pw[2,]])
+  af[, colSums(af) == 0] <- NA
+  
   indT <- rowSums(pwtyp)
   sumSq <- rowSums(pwtyp^2)
   # define nbar
@@ -12100,7 +12108,11 @@ statCalc <- function(rsDat, idx = NULL, al, fst, bs = TRUE){
   # calculate allele frequecies
   alf <- lapply(rsDat, function(x){
     apply(x, 2, function(y){
-      myTab(y)/(length(na.omit(y[,1]))*2)
+      if(all(is.na(y))){
+        return(NA)
+      } else {
+        return(myTab(y)/(length(na.omit(y[,1]))*2))
+      }
     })
   })
   nloci <- length(al)
@@ -12151,13 +12163,19 @@ statCalc <- function(rsDat, idx = NULL, al, fst, bs = TRUE){
       #      return(table(gts[!hts,]))
       #     }
       htCount <- function(gts, hts, alls){
-        gts <- gts[!hts, ]
-        #gts <- c(gts[,1], gts[,2])
-        ht <- sapply(alls, function(al){
-          return(sum((gts == al), na.rm = TRUE))
-        })
-        names(ht) <- alls
-        return(ht)
+        if(all(is.na(gts))){
+          out <- 0
+          names(out) <- "NA"
+          return(out)
+        } else {
+          gts <- gts[!hts, ]
+          #gts <- c(gts[,1], gts[,2])
+          ht <- sapply(alls, function(al){
+            return(sum((gts == al), na.rm = TRUE))
+          })
+          names(ht) <- alls
+          return(ht)
+        }
       }
       htcounts <- mapply(htCount, gts = gts, hts = hts, alls = alls, 
                          SIMPLIFY = FALSE)
@@ -12356,17 +12374,17 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
                      pairwise = FALSE, bs_locus = FALSE, 
                      bs_pairwise = FALSE, boots = NULL, 
                      para = FALSE){
-  # data(Test_data, package = "diveRsity")
-  # Test_data[is.na(Test_data)] <- ""
-  # Test_data[Test_data == "0"] <- "000000"
-  # infile <- Test_data
-  # outfile <- "test"
-  # fst = TRUE
-  # pairwise = TRUE
-  # bs_locus = TRUE
-  # bs_pairwise = TRUE
-  # boots = 1000
-  # para = FALSE
+  #   data(Test_data, package = "diveRsity")
+  #   Test_data[is.na(Test_data)] <- ""
+  #   Test_data[Test_data == "0"] <- "000000"
+  #   infile <- "MyData_GP2D.gen"#Test_data
+  #   outfile <- "test"
+  #   fst = TRUE
+  #   pairwise = TRUE
+  #   bs_locus = TRUE
+  #   bs_pairwise = TRUE
+  #   boots = 100
+  #   para = FALSE
   
   
   bs <- boots
@@ -12852,6 +12870,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       
       # loci
       pwFstLoc <- mapply(thetaCalc, a = pwVar$a, b = pwVar$b, cdat = pwVar$cdat)
+      pwFstLoc[is.nan(pwFstLoc)] <- NA
       
       # Global
       mnA <- vapply(1:ncol(pw), function(i){
@@ -12931,6 +12950,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     pwDLocbs <- sapply(hths, function(x){
       return(mapply(dCalc, ht = x$htEst, hs = x$hsEst, SIMPLIFY = TRUE))
     }, simplify = "array")
+    #pwDLocbs[pwDLocbs == 0.0] <- NA
     # overall d bootstraps
     if(para){
       pwDAllbs <- parApply(cl, pwDLocbs, c(1,3), function(x){
