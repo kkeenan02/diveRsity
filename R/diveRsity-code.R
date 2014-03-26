@@ -8489,15 +8489,25 @@ pwDivCalc <- function(x, pw, npops){
 
 # divPart, a wrapper function for the calculation of differentiation stats.
 #' @export
-fastDivPart <-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
-                       WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
-                       bootstraps = 0, plot = FALSE, parallel = FALSE){
+fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
+                        WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
+                        bootstraps = 0, plot = FALSE, parallel = FALSE){
   
   ############################ Argument definitions ############################
   # define arguments for testing
+  #   D <- "MyData_GP2D.gen"
+  #   on <- NULL
+  #   fst <- T
+  #   bstrps <- 10
+  #   bsls <- T
+  #   bspw <- T
+  #   plt <- F
+  #   para <- T
+  #   pWise <- T
+  #   gp = 2
+  # define
   D <- infile
   on <- outfile
-  gp <- gp
   fst <- WC_Fst
   bstrps <- bootstraps
   bsls <- bs_locus
@@ -8505,7 +8515,7 @@ fastDivPart <-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
   plt <- plot
   para <- parallel
   pWise <- pairwise
-  
+  gp = gp
   ##############################################################################
   if(bsls==T && bstrps<2){
     bs_warning<-{paste("[STOPPED]",
@@ -8519,12 +8529,12 @@ fastDivPart <-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
     cat(noquote(bs_warning))
   } else {
     #Use pre.div to calculate the standard global and locus stats
-    accDat <- pre.divLowMemory(list(infile = D,
-                                    gp = gp,
-                                    bootstrap = FALSE,
-                                    locs = TRUE,
-                                    fst = fst,
-                                    min = FALSE))
+    accDat <- pre.divLowMemory(x <- list(infile = D,
+                                         gp = gp,
+                                         bootstrap = FALSE,
+                                         locs = TRUE,
+                                         fst = fst,
+                                         min = FALSE))
     # create a directory for output
     if(!is.null(on)){
       suppressWarnings(dir.create(path=paste(getwd(),"/",on,
@@ -9287,7 +9297,7 @@ fastDivPart <-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
     ############################################################################
     # pwFstWC: a function co calculate weir and cockerhams fis, fit, and fst
     ############################################################################
-    pwFstWC<-function(rdat){
+    pwFstWC <- function(rdat){
       #   rdat <- diveRsity::readGenepop("KK_test1v2.gen")
       pw <- combn(rdat$npops, 2)
       #   # account for loci with missing info for pops
@@ -9366,7 +9376,12 @@ fastDivPart <-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
           idx <- which(rowSums(alls == a) == 1)
           return(sum(x[idx]))
         })
-        return(hetCounts)
+        # needed for no het count
+        if(length(hetCounts) == 0L){
+          return(NA)
+        } else {
+          return(hetCounts) 
+        }
       }
       # hSum is the total observed hets per allele
       hSum <- lapply(genoCount, function(x){
@@ -9389,7 +9404,7 @@ fastDivPart <-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
       # total ind typed per loc per pw
       indTypTot <- lapply(rdat$indtyp, function(x){
         return(apply(pw, 2, function(y){
-          sum(x[y])
+          sum(x[y], na.rm = TRUE)
         }))
       })
       # nBar is the mean number of inds per pop
@@ -9423,13 +9438,13 @@ fastDivPart <-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
       #   })
       
       fstatCal <- function(indT, indtyp, hBar, nBar, p, pw, npops){
-        #         indT=indTypTot[[1]]
-        #         indtyp=rdat$indtyp[[1]]
-        #         hBar <- hBar[[1]]
-        #         nBar <- nBar[[1]]
-        #         p <- p[[1]]
-        #         pw <- pw
-        #         npops <- rdat$npops
+        #                 indT=indTypTot[[17]]
+        #                 indtyp=rdat$indtyp[[17]]
+        #                 hBar <- hBar[[17]]
+        #                 nBar <- nBar[[17]]
+        #                 p <- p[[17]]
+        #                 pw <- pw
+        #                 npops <- rdat$npops
         indLocPwSqSum <- sapply(seq_along(pw[1,]), function(i){
           return(sum(indtyp[pw[,i]]^2))
         })
@@ -9490,7 +9505,9 @@ fastDivPart <-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
         a <- sapply(a, sum)
         b <- sapply(b, sum)
         cdat <- sapply(cdat, sum)
+        cdat[is.na(cdat)] <- 0
         theta <- a/(a+b+cdat)
+        theta[is.nan(theta)] <- NA
         pwMat <- matrix(ncol = npops, nrow = npops)
         aMat <- matrix(ncol = npops, nrow = npops)
         bMat <- matrix(ncol = npops, nrow = npops)
@@ -9501,10 +9518,10 @@ fastDivPart <-function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
           bMat[pw[2,i], pw[1,i]] <- b[i]
           cMat[pw[2,i], pw[1,i]] <- cdat[i]
         }
-        pwMat[is.nan(pwMat)] <- NA
-        aMat[is.nan(aMat)] <- NA
-        cMat[is.nan(bMat)] <- NA
-        bMat[is.nan(bMat)] <- NA
+        #pwMat[is.nan(pwMat)] <- 0
+        aMat[is.nan(aMat)] <- 0
+        cMat[is.nan(bMat)] <- 0
+        bMat[is.nan(bMat)] <- 0
         
         list(pwMat, aMat, bMat, cMat)
       }
