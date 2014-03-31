@@ -11,10 +11,10 @@ This function allows the calculation of pairwise differentiation using a range o
 
 
 \usage{
-diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE, 
+diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE,
          bs_locus = FALSE, bs_pairwise = FALSE, boots = NULL, para = FALSE)
 }
-  		   
+    	   
 \arguments{
 
 \item{infile}{Specifying the name of the \emph{`genepop'} (Rousset, 2008) file from which the statistics are to be calculated This file can be in either the 3 digit of 2 digit format. See \url{http://genepop.curtin.edu.au/help_input.html} for detail on the genepop file format.}
@@ -52,6 +52,9 @@ If \code{outfile} is given as a character string, all results will be written to
 }
 
 \references{
+
+Eddelbuettel, D., and Francois, R., (2011). Rcpp: Seamless R and C++ Integration. Journal of Statistical Software, 40(8), 1-18. URL http://www.jstatsoft.org/v40/i08/.
+
 Dragulescu, A.D., ``xlsx: Read, write, formal Excel 2007 and Excel 97/2000/xp/2003 files'', R package version 0.4.2, url:http://CRAN.R-project.org/package=xlsx, (2012).
 
 Guile, D.P., Shepherd, L.A., Sucheston, L., Bruno, A.,  and Manly, K.F., ``sendplot: Tool for sending interactive plots with tool-tip content.'', R package version 3.8.10, url: http://CRAN.R-project.org/package=sendplot, (2012).
