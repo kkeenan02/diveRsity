@@ -8,3 +8,5 @@ git_control.txt
 .git/
 .Rproj.user
 tests/
+src-i386/
+src-x64/

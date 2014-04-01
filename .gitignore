@@ -6,3 +6,5 @@ diveRsity.Rproj
 *.txt
 *.pdf
 tests/
+src-i386/
+src-x64/

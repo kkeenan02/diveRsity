@@ -20,6 +20,7 @@ Description: diveRsity is a package which allows the calculation of both genetic
 Suggests:
     xlsx,
     sendplot,
+    plotrix,
     foreach,
     iterators,
     doParallel,
