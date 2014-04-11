@@ -2,7 +2,7 @@
 NULL
 ################################################################################
 ################################################################################
-##                              diveRsity v1.9.1                              ##  
+##                              diveRsity v1.9.2                              ##  
 ##                            by Kevin Keenan QUB                             ##  
 ##            An R package for the calculation of differentiation             ##
 ##              statistics and locus informativeness statistics               ##  
