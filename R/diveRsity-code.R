@@ -11267,7 +11267,7 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
                 " bootstraps)", sep = ""))
     qgraph::qgraph(bsMeanSig, nodeNames = sapply(dat$indnms, "[", 1),
                    legend = TRUE, posCol = "blue", label.color = plot_col,
-                   edge.labels = round(weightMat, 2))
+                   edge.labels = round(dRelPlt, 2))
     title(paste("Significant relative migration network (", nbs, 
                 " bootstraps)", sep = ""))
     dev.off()
@@ -11278,7 +11278,7 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
                 " bootstraps)", sep = ""))
     qgraph::qgraph(bsMeanSig, nodeNames = sapply(dat$indnms, "[", 1),
                    legend = TRUE, posCol = "blue", label.color = plot_col,
-                   edge.labels = round(weightMat, 2))
+                   edge.labels = round(dRelPlt, 2))
     title(paste("Significant relative migration network (", nbs, 
                 " bootstraps)", sep = ""))
     bsMean[is.nan(bsMean)] <- NA
@@ -11311,7 +11311,7 @@ bsFun <- function(genos, idx, af, pw){
                   SIMPLIFY = FALSE)
   
   # calculate allele frequencies ----
-  sourceCpp("src/myTab.cpp")
+  #sourceCpp("src/myTab.cpp")
   
   alf <- lapply(genos, function(x){
     apply(x, 2, function(y){

@@ -26,7 +26,7 @@ using namespace Rcpp;
 List pwHt(NumericMatrix af, IntegerMatrix pw) {
   int np = af.ncol();
   int n = pw.ncol();
-  int na = af.nrow();
+  //int na = af.nrow();
   NumericMatrix ht(np, np);
   NumericMatrix hs(np, np);
   for(int i = 0; i < n; ++i){
