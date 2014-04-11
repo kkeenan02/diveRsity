@@ -13,6 +13,10 @@ pwHCalc <- function(af, sHarm, pw) {
     .Call('diveRsity_pwHCalc', PACKAGE = 'diveRsity', af, sHarm, pw)
 }
 
+pwHt <- function(af, pw) {
+    .Call('diveRsity_pwHt', PACKAGE = 'diveRsity', af, pw)
+}
+
 pwWCcpp <- function(hsum1, af1, indtyp1, pw) {
     .Call('diveRsity_pwWCcpp', PACKAGE = 'diveRsity', hsum1, af1, indtyp1, pw)
 }

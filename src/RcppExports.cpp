@@ -54,6 +54,22 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// pwHt
+List pwHt(NumericMatrix af, IntegerMatrix pw);
+RcppExport SEXP diveRsity_pwHt(SEXP afSEXP, SEXP pwSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericMatrix >::type af(afSEXP );
+        Rcpp::traits::input_parameter< IntegerMatrix >::type pw(pwSEXP );
+        List __result = pwHt(af, pw);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // pwWCcpp
 List pwWCcpp(List hsum1, NumericMatrix af1, NumericVector indtyp1, IntegerMatrix pw);
 RcppExport SEXP diveRsity_pwWCcpp(SEXP hsum1SEXP, SEXP af1SEXP, SEXP indtyp1SEXP, SEXP pwSEXP) {

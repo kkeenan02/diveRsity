@@ -8,3 +8,5 @@ diveRsity.Rproj
 tests/
 src-i386/
 src-x64/
+*.o
+*.so
