@@ -14,21 +14,28 @@ The function will except both Arlequin (.arp) genotype and genepop (.gen/.txt) f
 }
 
 \usage{
-divMigrate(infile = NULL, stat = "d_jost")
+divMigrate(infile = NULL, nbs = 0, filter_threshold = 0, plot_col = "darkblue",
+           para = FALSE)
 }
 \arguments{
 
-\item{infile}{Should either be a character string of the input file name or pathway to the input file. This file should be in either the Arlequin genotype file format (.arp), or in the genepop file format.}
+\item{infile}{Input genepop file name or path.}
 
-\item{stat}{A character vector of the value \code{stat = 'gst'}, \code{stat = 'd_jost'} (default), or \code{stat = c('gst', 'd_jost')}. This argument specifies which statistic should be used to calculate relative migration between samples.}
+\item{nbs}{The number of bootstrap iteration to carry out for calculating mean relative migration and 95\% confidence intervals.}
+
+\item{filter_threshold}{The minimum relative migration value for which edges in the networks should be displayed.}
+
+\item{plot_col}{Defines the colour of edges in networks. Default is set to "\code{darkblue}".}
+
+\item{para}{A logical argument, specifying if multiple CPUs should be used when available.}
 
 }
 
 \value{
 
-\item{D_mig}{A pairwise matrix containing the normalized relative migration values for all population pairs, as determined by $D_{Jost}$ values}
+\item{relMig}{relative migration matrix}
 
-\item{Gst_mig}{A pairwise matrix containing the normalized relative migration values for all population pairs, as determined by $G_{ST}$ values}
+\item{bsRelMig}{If \code{nbs > 0} a relative migration matrix is calculated as the mean of bootstrap matrices.}
 
 }
 

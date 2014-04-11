@@ -5877,89 +5877,89 @@ arp2gen <- function(infile){
 # a presented in the paper 'Directional genetic differentiation and
 # asymmetric migration Lisa Sundqvist, Martin Zackrisson & David Kleinhans,
 # 2013, arXiv pre-print (http://arxiv.org/abs/1304.0118)'
-#' @export
-divMigrate <- function(infile = NULL, stat = "d_jost"){
-  # check file format
-  cat("Caution! The method used in this function is still under development. \n")
-#   flForm <- strsplit(infile, split = "\\.")[[1]]
-#   ext <- flForm[[length(flForm)]]
-#   if(ext == "arp"){
-#     arp2gen(infile)
-#     cat("Arlequin file converted to genepop format!")
-#     infile <- paste(flForm[1], ".gen", sep = "")
+#' #@export
+# divMigrate <- function(infile = NULL, stat = "d_jost"){
+#   # check file format
+#   cat("Caution! The method used in this function is still under development. \n")
+# #   flForm <- strsplit(infile, split = "\\.")[[1]]
+# #   ext <- flForm[[length(flForm)]]
+# #   if(ext == "arp"){
+# #     arp2gen(infile)
+# #     cat("Arlequin file converted to genepop format!")
+# #     infile <- paste(flForm[1], ".gen", sep = "")
+# #   }
+#   dat <- fileReader(infile)
+#   rownames(dat) <- NULL
+#   dat <- as.matrix(dat)
+#   # determine genepop format
+#   p1 <- which(toupper(dat[,1]) == "POP")[1] + 1
+#   gp <- as.numeric(names(sort(-table(sapply(dat[p1, - 1], nchar)/2)))[1])
+#   dat <- as.data.frame(dat)
+#   rawData <- readGenepop(dat, gp = gp)
+#   npops <- rawData$npops
+#   nloci <- rawData$nloci
+#   # generate pairwise hypothetical matrices (use allele_freq)
+#   pw <- combn(npops, 2)
+#   # calculate ht and hs
+#   hths <- lapply(rawData$allele_freq, pwDivCalc, pw = pw, npops = npops)
+#   # seperate ht and hs matrices
+#   ht <- lapply(hths, "[[", 1)
+#   hs <- lapply(hths, "[[", 2)
+#   # tidy
+#   rm(hths)
+#   z <- gc()
+#   rm(z)
+#   # find the mean (use the Reduce function)
+#   ht_mean <- Reduce(`+`, ht)/nloci
+#   hs_mean <- Reduce(`+`, hs)/nloci
+#   # calculate Dst
+#   dst <- ht_mean - hs_mean
+#   # calculate gst
+#   gst <- dst/ht_mean
+#   gst[gst < 0.0 | is.na(gst)] <- 0
+#   # calculate D(Jost)
+#   d_jost <- (2*(dst))/(1-hs_mean)
+#   # calculate relative migration from d_jost
+#   d_mig <- (1 - d_jost)/d_jost
+#   # replace missing and negative values with 0
+#   d_mig[d_mig < 0 | is.na(d_mig)] <- 0
+#   dimnames(d_mig) <- list(rawData$pop_names,
+#                           rawData$pop_names)
+#   # standardize
+#   d_mig <- d_mig/max(d_mig, na.rm = TRUE)
+#   # test gst migration rate
+#   gst_mig <- 0.5 * ((1/gst) - 1)
+#   # fix inf
+#   gst_mig[is.infinite(gst_mig)] <- 0
+#   # standardise
+#   gst_mig <- gst_mig/max(gst_mig, na.rm = TRUE)
+#   # replace missing and negative values with 0
+#   gst_mig[gst_mig < 0 | is.na(gst_mig)] <- 0
+#   dimnames(gst_mig) <- list(rawData$pop_names,
+#                             rawData$pop_names)
+#   # test plot
+#   #library("qgraph")
+#   if(length(stat) == 2){
+#     par(mfrow = c(2, 1 ))
+#     qgraph(gst_mig, posCol = "black",
+#            nodeNames = rawData$pop_names)
+#     title(expression("G"["st"]))
+#     qgraph(d_mig, posCol = "black",
+#            nodeNames = rawData$pop_names)
+#     title(expression("D"["Jost"]))
+#     par(mfrow = c(1,1))
+#   } else if(stat == "gst"){
+#     qgraph(gst_mig, posCol = "black",
+#            nodeNames = rawData$pop_names)
+#     title(expression("G"["st"]))
+#   } else if(stat == "d_jost"){
+#     qgraph(d_mig, posCol = "black",
+#            nodeNames = rawData$pop_names)
+#     title(expression("D"["Jost"]))
 #   }
-  dat <- fileReader(infile)
-  rownames(dat) <- NULL
-  dat <- as.matrix(dat)
-  # determine genepop format
-  p1 <- which(toupper(dat[,1]) == "POP")[1] + 1
-  gp <- as.numeric(names(sort(-table(sapply(dat[p1, - 1], nchar)/2)))[1])
-  dat <- as.data.frame(dat)
-  rawData <- readGenepop(dat, gp = gp)
-  npops <- rawData$npops
-  nloci <- rawData$nloci
-  # generate pairwise hypothetical matrices (use allele_freq)
-  pw <- combn(npops, 2)
-  # calculate ht and hs
-  hths <- lapply(rawData$allele_freq, pwDivCalc, pw = pw, npops = npops)
-  # seperate ht and hs matrices
-  ht <- lapply(hths, "[[", 1)
-  hs <- lapply(hths, "[[", 2)
-  # tidy
-  rm(hths)
-  z <- gc()
-  rm(z)
-  # find the mean (use the Reduce function)
-  ht_mean <- Reduce(`+`, ht)/nloci
-  hs_mean <- Reduce(`+`, hs)/nloci
-  # calculate Dst
-  dst <- ht_mean - hs_mean
-  # calculate gst
-  gst <- dst/ht_mean
-  gst[gst < 0.0 | is.na(gst)] <- 0
-  # calculate D(Jost)
-  d_jost <- (2*(dst))/(1-hs_mean)
-  # calculate relative migration from d_jost
-  d_mig <- (1 - d_jost)/d_jost
-  # replace missing and negative values with 0
-  d_mig[d_mig < 0 | is.na(d_mig)] <- 0
-  dimnames(d_mig) <- list(rawData$pop_names,
-                          rawData$pop_names)
-  # standardize
-  d_mig <- d_mig/max(d_mig, na.rm = TRUE)
-  # test gst migration rate
-  gst_mig <- 0.5 * ((1/gst) - 1)
-  # fix inf
-  gst_mig[is.infinite(gst_mig)] <- 0
-  # standardise
-  gst_mig <- gst_mig/max(gst_mig, na.rm = TRUE)
-  # replace missing and negative values with 0
-  gst_mig[gst_mig < 0 | is.na(gst_mig)] <- 0
-  dimnames(gst_mig) <- list(rawData$pop_names,
-                            rawData$pop_names)
-  # test plot
-  #library("qgraph")
-  if(length(stat) == 2){
-    par(mfrow = c(2, 1 ))
-    qgraph(gst_mig, posCol = "black",
-           nodeNames = rawData$pop_names)
-    title(expression("G"["st"]))
-    qgraph(d_mig, posCol = "black",
-           nodeNames = rawData$pop_names)
-    title(expression("D"["Jost"]))
-    par(mfrow = c(1,1))
-  } else if(stat == "gst"){
-    qgraph(gst_mig, posCol = "black",
-           nodeNames = rawData$pop_names)
-    title(expression("G"["st"]))
-  } else if(stat == "d_jost"){
-    qgraph(d_mig, posCol = "black",
-           nodeNames = rawData$pop_names)
-    title(expression("D"["Jost"]))
-  }
-  list(D_mig =d_mig,
-       Gst_mig = gst_mig)
-}
+#   list(D_mig =d_mig,
+#        Gst_mig = gst_mig)
+# }
 ################################################################################
 # END - divMigrate
 ################################################################################
@@ -11093,6 +11093,292 @@ statCalc <- function(rsDat, idx = NULL, al, fst, bs = TRUE){
 ##########
 # END
 ##########
+#
+#
+#
+#
+# preamble ----
+
+#' divMigrate: an experimental function for detecting directional differentiation 
+#' A function to calculate pairwise directional differentiation
+#' a presented in the paper 'Directional genetic differentiation and
+#' asymmetric migration Lisa Sundqvist, Martin Zackrisson & David Kleinhans,
+#' 2013, arXiv pre-print (http://arxiv.org/abs/1304.0118)'
+#' @export
+
+# function definition ----
+divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
+                       plot_col = "darkblue", para = FALSE){
+  # preabmle ----
+  #nbs <- 1000
+  cat("Caution! The method used in this function is still under development. \n")
+  #infile <- paste(getwd(), "/test_folder/test_1_1_gen_converted.gen", sep = "")
+  
+  # read data ----
+  #data(Test_data, package = "diveRsity")
+  #Test_data[is.na(Test_data)] <- ""
+  #Test_data[Test_data == "0"] <- "000000"
+  #infile <- Test_data#"test_folder/test_1_1_gen_converted.gen"
+  dat <- rgp(infile)
+  npops <- length(dat$genos)
+  nloci <- length(dat$af)
+  
+  # generate pw combos ----
+  pw <- combn(npops, 2)
+  
+  # calculate ht and hs ----
+  #library(Rcpp) # comment out for package
+  #sourceCpp("src/pwHt.cpp") # comment out for package
+  hths <- lapply(dat$af, pwHt, pw = pw-1)
+  # seperate ht and hs matrices
+  ht <- lapply(hths, "[[", "ht")
+  hs <- lapply(hths, "[[", "hs")
+  
+  # Calculate D ----
+  # function for locus d
+  d <- function(ht, hs){
+    return(((ht-hs)/(1-hs))*2)
+  }
+  # locus d
+  dloc <- mapply(`d`, ht = ht, hs = hs, SIMPLIFY = "array")
+  # set any nan values to 1
+  dloc[is.nan(dloc)] <- 1
+  # calculate multilocus d
+  hrmD <- apply(dloc, c(1,2), function(x){
+    mn <- mean(x, na.rm = TRUE)
+    vr <- var(x, na.rm = TRUE)
+    return(1/((1/mn) + vr * (1/mn)^3))
+  })
+  # calculate migration
+  dMig <- (1 - hrmD) / hrmD
+  # fix infinities
+  dMig[is.infinite(dMig)] <- NA
+  # calculate relative migration
+  dRel <- dMig/max(dMig, na.rm = TRUE)
+  dRel[is.nan(dRel)] <- NA
+  # plotting network
+  dRelPlt <- dRel
+  dRelPlt[dRel < filter_threshold] <- 0
+  if(nbs != 0L){
+    par(mfrow = c(3,1))
+  }
+  qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                 legend = TRUE, posCol = plot_col, 
+                 edge.labels = round(dRelPlt, 2), mar = c(2,2,5,5))
+  title(paste("\n Relative migration network (Filter threshold = ", 
+              filter_threshold, ")", sep = ""))
+  pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
+  qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                 legend = TRUE, posCol = plot_col, 
+                 edge.labels = round(dRelPlt, 2), mar = c(2,2,5,5))
+  title(paste("\n Relative migration network (Filter threshold = ", 
+              filter_threshold, ")", sep = ""))
+  if(nbs == 0){
+    dev.off() 
+  }
+  # Bootstrapping ----
+  
+  if(nbs != 0L){
+    #do work
+    # generate bootstrap indexes ----
+    ps <- sapply(dat$indnms, length)
+    idx <- lapply(1:nbs, function(i){
+      lapply(ps, function(x){
+        return(sample(x, size = x, replace = TRUE))
+      })
+    })
+    
+    # calculate bootstrap D ----
+    # load bs function
+    #source("R/bsFun.R")
+    # run bootstrap function
+    if(para){
+      library(parallel)
+      cl <- makeCluster(detectCores())
+      clusterExport(cl, c("bsFun", "dat", "pw"), envir = environment())
+      bsD <- parSapply(cl, idx, function(x){
+        return(bsFun(genos = dat$genos, idx = x, af = dat$af, pw = pw))
+      }, simplify = "array")
+      stopCluster(cl)
+    } else {
+      bsD <- sapply(idx, function(x){
+        return(bsFun(genos = dat$genos, idx = x, af = dat$af, pw = pw))
+      }, simplify = "array")
+    }
+    
+    # correct bias ----
+    #index <- expand.grid(1:length(ps), 1:length(ps))
+    #index <- index[!index[,1] == index[,2],]
+    #bc <- apply(index, 1, function(i){
+    #  bsO <- bsD[i[1], i[2],]
+    #  act <- hrmD[i[1], i[2]]
+    #  mn <- mean(bsO, na.rm = TRUE) - act
+    #  bcN <- bsO - mn
+    #  UCI <- quantile(bcN, prob = 0.95)
+    #  LCI <- quantile(bcN, prob = 0.05)
+    #  out <- c(act, LCI, UCI)
+    #  names(out) <- c("ACT", "LCI", "UCI")
+    #  return(out)
+    #})
+    # function for significant difference determination
+    sigDiff <- function(x, y){
+      if(x[1] < y[1] && x[2] < y[1]){
+        return(TRUE)
+      } else {
+        return(FALSE)
+      }
+    }
+    # covert bc to 3d array
+    #newBc <- array(NA, dim = c(ncol(hrmD), ncol(hrmD), 3))
+    #for(i in 1:nrow(index)){
+    #  newBc[index[i,1], index[i,2], 1] <- bc[1,i]
+    #  newBc[index[i,1], index[i,2], 2] <- bc[2,i]
+    #  newBc[index[i,1], index[i,2], 3] <- bc[3,i]
+    #}
+    # bootstrap means
+    bsMean <- apply(bsD, c(1,2), mean, na.rm = TRUE)
+    sigMat <- matrix(NA, nrow = ncol(dRel), ncol(dRel))
+    for(i in 1:ncol(pw)){
+      p1 <- quantile(bsD[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
+      p2 <- quantile(bsD[pw[2,i], pw[1,i],], prob = c(0.025, 0.975))
+      sigMat[pw[2,i], pw[1,i]] <- sigDiff(p1, p2)
+      sigMat[pw[1,i], pw[2,i]] <- sigDiff(p2, p1)
+    }
+    
+    # test support for directional diff ----
+    weightMat <- matrix(NA, nrow = ncol(hrmD), ncol = ncol(hrmD))
+    for(i in 1:ncol(pw)){
+      p1 <- bsD[pw[1,i], pw[2,i],]
+      p2 <- bsD[pw[2,i], pw[1,i],]
+      weightMat[pw[2,i], pw[1,i]] <- round(sum(p1 < p2, 
+                                               na.rm = TRUE)/nbs, 1)
+      weightMat[pw[1,i], pw[2,i]] <- round(sum(p2 < p1, 
+                                               na.rm = TRUE)/nbs, 1)
+    }
+    weightMat[bsMean < filter_threshold] <- 0
+    bsMeanPlt <- bsMean
+    bsMeanPlt[bsMean < filter_threshold] <- 0
+    bsMeanSig <- bsMean
+    bsMeanSig[!sigMat] <- 0
+    qgraph::qgraph(bsMeanPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                   legend = TRUE, posCol = "blue", label.color = plot_col,
+                   edge.labels = round(bsMeanPlt, 2))
+    title(paste("Mean relative migration network (", nbs, 
+                " bootstraps)", sep = ""))
+    qgraph::qgraph(bsMeanSig, nodeNames = sapply(dat$indnms, "[", 1),
+                   legend = TRUE, posCol = "blue", label.color = plot_col,
+                   edge.labels = round(weightMat, 2))
+    title(paste("Significant relative migration network (", nbs, 
+                " bootstraps)", sep = ""))
+    dev.off()
+    qgraph::qgraph(bsMeanPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                   legend = TRUE, posCol = "blue", label.color = plot_col,
+                   edge.labels = round(bsMeanPlt, 2))
+    title(paste("Mean relative migration network (", nbs, 
+                " bootstraps)", sep = ""))
+    qgraph::qgraph(bsMeanSig, nodeNames = sapply(dat$indnms, "[", 1),
+                   legend = TRUE, posCol = "blue", label.color = plot_col,
+                   edge.labels = round(weightMat, 2))
+    title(paste("Significant relative migration network (", nbs, 
+                " bootstraps)", sep = ""))
+    bsMean[is.nan(bsMean)] <- NA
+  }
+  par(mfrow = c(1,1))
+  if(nbs != 0L){
+    list(relMig = dRel,
+         bsRelMig = bsMean)
+  } else {
+    list(relMig = dRel)
+  }
+}
+
+# code end ----
+#' Bootstrapping function for use with divMigrate
+#' 
+#' Kevin Keenan (2014)
+
+# Bootstrapping function definition ----
+bsFun <- function(genos, idx, af, pw){
+  
+  nl <- length(af)
+  
+  # sub-sample genos ----
+  sampleFun <- function(input, idx){
+    return(input[idx,,])
+  }
+  # sub-sample genos
+  genos <- mapply(sampleFun, input = genos, idx = idx,
+                  SIMPLIFY = FALSE)
+  
+  # calculate allele frequencies ----
+  sourceCpp("src/myTab.cpp")
+  
+  alf <- lapply(genos, function(x){
+    apply(x, 2, function(y){
+      if(all(is.na(y))){
+        return(NA)
+      } else {
+        y <- as.vector(na.omit(y))
+        nms <- unique(y)[order(unique(y))]
+        ot <- myTab(y)
+        names(ot) <- nms
+        return(ot)
+      }
+    })
+  })
+  
+  # organise allele frequencies
+  alf <- lapply(1:nl, function(i){
+    lapply(alf, "[[", i)
+  })
+  
+  alSort <- function(x, y){
+    idx <- lapply(x, function(z){
+      match(names(z), rownames(y))
+    })
+    for(i in 1:length(idx)){
+      y[idx[[i]], i] <- x[[i]]
+    }
+    return(y)
+  }
+  
+  # generate allele frequency output
+  af <- mapply(alSort, x = alf, y = af, SIMPLIFY = FALSE)
+  
+  # calculate hths from boostrapped allele frequencies ----
+  hths <- lapply(af, pwHt, pw = pw-1)
+  # seperate ht and hs matrices
+  ht <- lapply(hths, "[[", "ht")
+  hs <- lapply(hths, "[[", "hs")
+  
+  # Calculate locus Jost's D ----
+  
+  # function for locus d
+  d <- function(ht, hs){
+    return(((ht-hs)/(1-hs))*2)
+  }
+  # locus d
+  dloc <- mapply(`d`, ht = ht, hs = hs, SIMPLIFY = "array")
+  
+  # calculate the harmonic mean of Locus D ----
+  
+  # set any nan values to 1
+  dloc[is.nan(dloc)] <- 1
+  # calculate multilocus d
+  hrmD <- apply(dloc, c(1,2), function(x){
+    mn <- mean(x, na.rm = TRUE)
+    vr <- var(x, na.rm = TRUE)
+    return(1/((1/mn) + vr * (1/mn)^3))
+  })
+  
+  dMig <- (1 - hrmD) / hrmD
+  dMig[is.infinite(dMig)] <- NA
+  dRel <- dMig/max(dMig, na.rm = TRUE)
+  #rnkMat <- dMig
+  #rnkMat[] <- rank(dRel, na.last = "keep")
+  return(dRel)
+}
+# Function definition end ----
 ################################################################################
 #################################     END ALL       ############################
 ################################################################################
