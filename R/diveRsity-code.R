@@ -11160,7 +11160,7 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
   dRelPlt <- dRel
   dRelPlt[dRel < filter_threshold] <- 0
   if(nbs != 0L){
-    par(mfrow = c(3,1))
+    par(mfrow = c(2,1))
   }
   qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                  legend = TRUE, posCol = plot_col, 
@@ -11179,7 +11179,6 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
   # Bootstrapping ----
   
   if(nbs != 0L){
-    #do work
     # generate bootstrap indexes ----
     ps <- sapply(dat$indnms, length)
     idx <- lapply(1:nbs, function(i){
@@ -11236,7 +11235,7 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
     #  newBc[index[i,1], index[i,2], 3] <- bc[3,i]
     #}
     # bootstrap means
-    bsMean <- apply(bsD, c(1,2), mean, na.rm = TRUE)
+    #bsMean <- apply(bsD, c(1,2), mean, na.rm = TRUE)
     sigMat <- matrix(NA, nrow = ncol(dRel), ncol(dRel))
     for(i in 1:ncol(pw)){
       p1 <- quantile(bsD[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
@@ -11246,47 +11245,46 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
     }
     
     # test support for directional diff ----
-    weightMat <- matrix(NA, nrow = ncol(hrmD), ncol = ncol(hrmD))
-    for(i in 1:ncol(pw)){
-      p1 <- bsD[pw[1,i], pw[2,i],]
-      p2 <- bsD[pw[2,i], pw[1,i],]
-      weightMat[pw[2,i], pw[1,i]] <- round(sum(p1 < p2, 
-                                               na.rm = TRUE)/nbs, 1)
-      weightMat[pw[1,i], pw[2,i]] <- round(sum(p2 < p1, 
-                                               na.rm = TRUE)/nbs, 1)
-    }
-    weightMat[bsMean < filter_threshold] <- 0
-    bsMeanPlt <- bsMean
-    bsMeanPlt[bsMean < filter_threshold] <- 0
-    bsMeanSig <- bsMean
-    bsMeanSig[!sigMat] <- 0
-    qgraph::qgraph(bsMeanPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                   legend = TRUE, posCol = "blue", label.color = plot_col,
-                   edge.labels = round(bsMeanPlt, 2))
-    title(paste("Mean relative migration network (", nbs, 
-                " bootstraps)", sep = ""))
-    qgraph::qgraph(bsMeanSig, nodeNames = sapply(dat$indnms, "[", 1),
-                   legend = TRUE, posCol = "blue", label.color = plot_col,
+    #weightMat <- matrix(NA, nrow = ncol(hrmD), ncol = ncol(hrmD))
+    #for(i in 1:ncol(pw)){
+    #  p1 <- bsD[pw[1,i], pw[2,i],]
+    #  p2 <- bsD[pw[2,i], pw[1,i],]
+    #  weightMat[pw[2,i], pw[1,i]] <- round(sum(p1 < p2, 
+    #                                           na.rm = TRUE)/nbs, 1)
+    #  weightMat[pw[1,i], pw[2,i]] <- round(sum(p2 < p1, 
+    #                                           na.rm = TRUE)/nbs, 1)
+    #}
+    #weightMat[bsMean < filter_threshold] <- 0
+    #bsMeanPlt <- bsMean
+    #bsMeanPlt[bsMean < filter_threshold] <- 0
+    #bsMeanSig <- dRel
+    dRelPlt[!sigMat] <- 0
+    #qgraph::qgraph(bsMeanPlt, nodeNames = sapply(dat$indnms, "[", 1),
+    #               legend = TRUE, posCol = "blue", label.color = plot_col,
+    #               edge.labels = round(bsMeanPlt, 2))
+    #title(paste("Mean relative migration network (", nbs, 
+    #            " bootstraps)", sep = ""))
+    qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                   legend = TRUE, posCol = plot_col, label.color = plot_col,
                    edge.labels = round(dRelPlt, 2))
     title(paste("Significant relative migration network (", nbs, 
                 " bootstraps)", sep = ""))
     dev.off()
-    qgraph::qgraph(bsMeanPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                   legend = TRUE, posCol = "blue", label.color = plot_col,
-                   edge.labels = round(bsMeanPlt, 2))
-    title(paste("Mean relative migration network (", nbs, 
-                " bootstraps)", sep = ""))
-    qgraph::qgraph(bsMeanSig, nodeNames = sapply(dat$indnms, "[", 1),
-                   legend = TRUE, posCol = "blue", label.color = plot_col,
+    #qgraph::qgraph(bsMeanPlt, nodeNames = sapply(dat$indnms, "[", 1),
+    #               legend = TRUE, posCol = "blue", label.color = plot_col,
+    #               edge.labels = round(bsMeanPlt, 2))
+    #title(paste("Mean relative migration network (", nbs, 
+    #            " bootstraps)", sep = ""))
+    qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                   legend = TRUE, posCol = plot_col, label.color = plot_col,
                    edge.labels = round(dRelPlt, 2))
     title(paste("Significant relative migration network (", nbs, 
                 " bootstraps)", sep = ""))
-    bsMean[is.nan(bsMean)] <- NA
   }
   par(mfrow = c(1,1))
   if(nbs != 0L){
     list(relMig = dRel,
-         bsRelMig = bsMean)
+         relMigSig = dRelPlt)
   } else {
     list(relMig = dRel)
   }
