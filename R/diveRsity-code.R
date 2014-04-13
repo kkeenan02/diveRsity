@@ -11158,19 +11158,19 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
   dRel[is.nan(dRel)] <- NA
   # plotting network
   dRelPlt <- dRel
-  dRelPlt[dRel < filter_threshold] <- 0
+  dRelPlt[dRelPlt < filter_threshold] <- 0
   if(nbs != 0L){
     par(mfrow = c(2,1))
   }
   qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                  legend = TRUE, posCol = plot_col, 
-                 edge.labels = round(dRelPlt, 2), mar = c(2,2,5,5))
+                 edge.labels = TRUE, mar = c(2,2,5,5))
   title(paste("\n Relative migration network (Filter threshold = ", 
               filter_threshold, ")", sep = ""))
   pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
   qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                  legend = TRUE, posCol = plot_col, 
-                 edge.labels = round(dRelPlt, 2), mar = c(2,2,5,5))
+                 edge.labels = TRUE, mar = c(2,2,5,5))
   title(paste("\n Relative migration network (Filter threshold = ", 
               filter_threshold, ")", sep = ""))
   if(nbs == 0){
@@ -11266,7 +11266,7 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
     #            " bootstraps)", sep = ""))
     qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                    legend = TRUE, posCol = plot_col, label.color = plot_col,
-                   edge.labels = round(dRelPlt, 2))
+                   edge.labels = TRUE)
     title(paste("Significant relative migration network (", nbs, 
                 " bootstraps)", sep = ""))
     dev.off()
@@ -11277,7 +11277,7 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
     #            " bootstraps)", sep = ""))
     qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                    legend = TRUE, posCol = plot_col, label.color = plot_col,
-                   edge.labels = round(dRelPlt, 2))
+                   edge.labels = TRUE)
     title(paste("Significant relative migration network (", nbs, 
                 " bootstraps)", sep = ""))
   }
