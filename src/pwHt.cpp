@@ -41,13 +41,13 @@ List pwHt(NumericMatrix af, IntegerMatrix pw) {
     NumericVector af2 = (f + af(_,p2))/2.0;
     NumericVector aff1 = pow(af1, 2.0);
     NumericVector aff2 = pow(af2, 2.0);
-    ht(p2, p1) = 1.0 - sum(aff1);
-    ht(p1, p2) = 1.0 - sum(aff2);
+    ht(p1, p2) = 1.0 - sum(aff1);
+    ht(p2, p1) = 1.0 - sum(aff2);
     // calulate hs's
     NumericVector af1sq = (pow(f, 2.0) + pow(af(_,p1), 2.0))/2.0;
     NumericVector af2sq = (pow(f, 2.0) + pow(af(_,p2), 2.0))/2.0;
-    hs(p2,p1) = 1.0 - sum(af1sq);
-    hs(p1,p2) = 1.0 - sum(af2sq);
+    hs(p1,p2) = 1.0 - sum(af1sq);
+    hs(p2,p1) = 1.0 - sum(af2sq);
   }
   return List::create(
     _["ht"] = ht,
