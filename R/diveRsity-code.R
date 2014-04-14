@@ -11107,8 +11107,8 @@ statCalc <- function(rsDat, idx = NULL, al, fst, bs = TRUE){
 #' @export
 
 # function definition ----
-divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
-                       plot_col = "darkblue", para = FALSE){
+divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0, 
+                       plot = FALSE, plot_col = "darkblue", para = FALSE){
   # preabmle ----
   #nbs <- 1000
   cat("Caution! The method used in this function is still under development. \n")
@@ -11159,22 +11159,24 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
   # plotting network
   dRelPlt <- dRel
   dRelPlt[dRelPlt < filter_threshold] <- 0
-  if(nbs != 0L){
+  if(nbs != 0L && plot){
     par(mfrow = c(2,1))
   }
-  qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                 legend = TRUE, posCol = plot_col, 
-                 edge.labels = TRUE, mar = c(2,2,5,5))
-  title(paste("\n Relative migration network (Filter threshold = ", 
-              filter_threshold, ")", sep = ""))
-  pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
-  qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                 legend = TRUE, posCol = plot_col, 
-                 edge.labels = TRUE, mar = c(2,2,5,5))
-  title(paste("\n Relative migration network (Filter threshold = ", 
-              filter_threshold, ")", sep = ""))
-  if(nbs == 0){
-    dev.off() 
+  if(plot){
+    qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                   legend = TRUE, posCol = plot_col, 
+                   edge.labels = TRUE, mar = c(2,2,5,5))
+    title(paste("\n Relative migration network (Filter threshold = ", 
+                filter_threshold, ")", sep = ""))
+    pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
+    qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                   legend = TRUE, posCol = plot_col, 
+                   edge.labels = TRUE, mar = c(2,2,5,5))
+    title(paste("\n Relative migration network (Filter threshold = ", 
+                filter_threshold, ")", sep = ""))
+    if(nbs == 0){
+      dev.off() 
+    } 
   }
   # Bootstrapping ----
   
@@ -11264,24 +11266,27 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
     #               edge.labels = round(bsMeanPlt, 2))
     #title(paste("Mean relative migration network (", nbs, 
     #            " bootstraps)", sep = ""))
-    qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                   legend = TRUE, posCol = plot_col, label.color = plot_col,
-                   edge.labels = TRUE)
-    title(paste("Significant relative migration network (", nbs, 
-                " bootstraps)", sep = ""))
-    dev.off()
-    #qgraph::qgraph(bsMeanPlt, nodeNames = sapply(dat$indnms, "[", 1),
-    #               legend = TRUE, posCol = "blue", label.color = plot_col,
-    #               edge.labels = round(bsMeanPlt, 2))
-    #title(paste("Mean relative migration network (", nbs, 
-    #            " bootstraps)", sep = ""))
-    qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                   legend = TRUE, posCol = plot_col, label.color = plot_col,
-                   edge.labels = TRUE)
-    title(paste("Significant relative migration network (", nbs, 
-                " bootstraps)", sep = ""))
+    if(plot){
+      qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, label.color = plot_col,
+                     edge.labels = TRUE)
+      title(paste("Significant relative migration network (", nbs, 
+                  " bootstraps)", sep = ""))
+      dev.off()
+      #qgraph::qgraph(bsMeanPlt, nodeNames = sapply(dat$indnms, "[", 1),
+      #               legend = TRUE, posCol = "blue", label.color = plot_col,
+      #               edge.labels = round(bsMeanPlt, 2))
+      #title(paste("Mean relative migration network (", nbs, 
+      #            " bootstraps)", sep = ""))
+      qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, label.color = plot_col,
+                     edge.labels = TRUE)
+      title(paste("Significant relative migration network (", nbs, 
+                  " bootstraps)", sep = ""))
+    }
+    par(mfrow = c(1,1))
   }
-  par(mfrow = c(1,1))
+  
   if(nbs != 0L){
     list(relMig = dRel,
          relMigSig = dRelPlt)
