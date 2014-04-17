@@ -9451,11 +9451,13 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   }
   
   # create resample indexes
-  idx <- lapply(1:bs, function(i){
-    lapply(1:np, function(j){
-      sample(ps[j], size = ps[j], replace = TRUE)
-    })
-  })
+  if(bs != 0L){
+    idx <- lapply(1:bs, function(i){
+      lapply(1:np, function(j){
+        sample(ps[j], size = ps[j], replace = TRUE)
+      })
+    }) 
+  }
   
   #' ### Calculate point estimates (locus and global)
   #' Calculate gst, Gst, Fst and D for loci (across samples) and 
