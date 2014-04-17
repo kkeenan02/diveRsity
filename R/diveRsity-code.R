@@ -10862,6 +10862,7 @@ rgp <- function(infile){
     return(strsplit(x, split = "\\s+")[[1]][1])
   }))
   # npops
+  popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
   npops <- length(popLoc)
   no_col <- popLoc[1] - 1
   nloci <- no_col - 1
