@@ -10837,6 +10837,7 @@ rgp <- function(infile){
     dat <- sapply(dat, function(x){
       return(sub("\\s+$", "", x))
     })
+    names(dat) <- NULL
   }
   popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
   if(popLoc[1] == 3){
@@ -10864,14 +10865,14 @@ rgp <- function(infile){
   # npops
   popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
   npops <- length(popLoc)
-  no_col <- popLoc[1] - 1
-  nloci <- no_col - 1
+  no_col <- length(locs)+1
+  nloci <- length(locs)
   # get genotypes
   strt <- popLoc + 1
   ends <- c(popLoc[-1] - 1, length(dat))
   genoRet <- function(strt, ends, x){
     out <- strsplit(x[strt:ends], split = "\\s+")
-    x <- do.call("rbind", out)
+    x <- do.call("rbind", c(out, deparse.level = 0))
     if(round(mean(nchar(x[,2]))) == 1L){
       x[,1] <- paste(x[,1], x[,2], sep = "")
       x <- x[,(-2)]
@@ -10903,17 +10904,23 @@ rgp <- function(infile){
   # calculate allele frequencies, obs alleles, popSizes
   # define function
   statFun <- function(x, cl = NULL){
-    #       if(!is.null(cl)){
-    #         tab <- parLapply(cl, 1:dim(x)[2], function(i){return(table(x[,i,]))})
-    #       } else {
-    tab <- lapply(1:dim(x)[2], function(i){return(table(x[,i,]))})
+    # if(!is.null(cl)){
+    # tab <- parLapply(cl, 1:dim(x)[2], function(i){return(table(x[,i,]))})
+    # } else {
+    #tab <- lapply(1:dim(x)[2], function(i){return(table(x[,i,]))})
     #}
     popSizes <- apply(x, 2, function(y){
       length(na.omit(y[,1])) * 2
     })
-    af <- mapply(`/`, tab, popSizes, SIMPLIFY = FALSE)
+    af <- lapply(1:dim(x)[2], function(i){
+      y <- as.vector(na.omit(x[,i,]))
+      nms <- unique(y)[order(unique(y))]
+      ot <- myTab(y)
+      names(ot) <- nms
+      return(ot)
+    })
     popSizes <- popSizes/2
-    list(af = af, obs = tab, ps = popSizes)
+    list(af = af, ps = popSizes)
   }
   # rearrange data by loci
   check <- function(args){
@@ -10922,7 +10929,8 @@ rgp <- function(infile){
     nchars <- mean(nchar(names(args[[1]])))
     pad <- paste("%0", nchars, "g", sep = "")
     rnames <- sprintf(pad, 
-                      unique(sort(as.numeric(unlist(lapply(args, names))))))
+                      unique(sort(as.numeric(unlist(lapply(args,
+                                                           names))))))
     
     out <- matrix(0, nrow = length(rnames), ncol = npops)
     rownames(out) <- as.character(rnames)
@@ -10935,28 +10943,32 @@ rgp <- function(infile){
   obsAllSize <- lapply(genos, statFun)
   # get individual stats
   af <- lapply(obsAllSize, function(x){
-    return(x$af)
+    out <- x$af
+    x$af <- NULL
+    return(out)
   })
-  obs <- lapply(obsAllSize, function(x){
-    return(x$obs)
-  })
+  #obs <- lapply(obsAllSize, function(x){
+  #  return(x$obs)
+  #})
   ps <- lapply(obsAllSize, function(x){
-    return(x$ps)
+    out <- x$ps
+    x$ps <- NULL
+    return(out)
   })
   af <- lapply(1:(nloci), function(i){
     return(lapply(af, "[[", i))
   })
-  obs <- lapply(1:(nloci), function(i){
-    return(lapply(obs, "[[", i))
-  })
+  #obs <- lapply(1:(nloci), function(i){
+  #  return(lapply(obs, "[[", i))
+  #})
   ps <- lapply(1:(nloci), function(i){
     return(sapply(ps, "[", i))
   })
   af <- lapply(af, check)
   # names(af) <- locs
-  obs <- lapply(obs, check)
+  #obs <- lapply(obs, check)
   gc()
-  list(af = af, obs = obs, genos = genos, ps = ps, gp = gp,
+  list(af = af, genos = genos, ps = ps, gp = gp,
        indnms = indNames, locs = locs)
 }
 ################################################################################
