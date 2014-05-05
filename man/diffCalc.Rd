@@ -38,17 +38,17 @@ diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE,
 
 If \code{outfile} is given as a character string, all results will be written to text files. The files will be written to a directory under the current working directory. The number of files written depends on the options choose. As well as this a list object is returned to the R workspace, containing the following results:
 
-\item{std_stats}{A \code{data.frame}, containing locus estimates for Gst, G'st, D (and Weir and Cockerham's F-statistics, if \code{fst = TRUE}). The last row of this dataframe contains the global estimate for each statistic across all samples and loci.}
+\item{std_stats}{A \code{data.frame}, containing locus estimates for Gst, G'st, G''st, D (and Weir and Cockerham's F-statistics, if \code{fst = TRUE}). The last row of this dataframe contains the global estimate for each statistic across all samples and loci.}
 
 \item{global_bs}{If \code{bs_locus = TRUE}, this object is returned. It is a \code{dataframe} containing global estimates and lower and upper 95\% CIs for all relevant statistics.}
 
-\item{bs_locus}{If \code{bs_locus = TRUE}, this object is returned. It is a list of either 3 or 6 dataframes the number of which depend on \code{fst}. Each dataframe contains the locus statistics estimate across all samples along with lower and upper 95\% confidence limits.}
+\item{bs_locus}{If \code{bs_locus = TRUE}, this object is returned. It is a list of either 4 or 7 dataframes the number of which depend on \code{fst}. Each dataframe contains the locus statistics estimate across all samples along with lower and upper 95\% confidence limits.}
 
 \item{pw_locus}{If \code{pairwise = TRUE}, this list of dataframes is returned. The list contains a dataframe for each relevant statistics, where rows correspond to loci and columns correspond to all possible pairwise combinations of samples. If \code{outfile} is provided, these results are also written to file.}
 
 \item{pairwise}{If \code{pairwise = TRUE}, this object is returned. It is a list of either 3 or 4 matrices (depending on the value of \code{fst}) containing pairwise estimate of relevant statistics.}
 
-\item{bs_pairwise}{A list of either 3 or 4 (depending on the value of \code{fst}) containing pairwise estimates and lower and upper 95\% confidence intervals for all relevant statistics.}
+\item{bs_pairwise}{A list of either 4 or 5 (depending on the value of \code{fst}) containing pairwise estimates and lower and upper 95\% confidence intervals for all relevant statistics.}
 }
 
 \references{
@@ -66,6 +66,8 @@ Jost, L., ``G ST and its relatives do not measure differentiation,'' Molec-
 ular Ecology, vol. 17, no. 18, pp. 4015-4026, (2008).
 
 Manly, F.J., ``Randomization, bootstrap and Monte Carlo methods in biology'', Chapman and Hall, London, 1997.
+
+Meirmans, P.G., and Hedrick, P.W., (2011), Assessing population structure: Fst and related measures., Molecular Ecology, Vol. 11, pp5-18. doi: 10.1111/j.755-0998.2010.02927.x
 
 Nei, M. and Chesser, R., ``Estimation of fixation indices and gene diver-
 sities,'' Ann. Hum. Genet, vol. 47, no. Pt 3, pp. 253-259, (1983).
