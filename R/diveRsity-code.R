@@ -11232,18 +11232,25 @@ statCalc <- function(rsDat, idx = NULL, al, fst, bs = TRUE){
 #' @export
 
 # function definition ----
-divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0, 
-                       plot = FALSE, plot_col = "darkblue", para = FALSE){
+divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
+                       filter_threshold = 0, plot = FALSE, 
+                       plot_col = "darkblue", para = FALSE){
   # preabmle ----
   #nbs <- 1000
-  cat("Caution! The method used in this function is still under development. \n")
-  #infile <- paste(getwd(), "/test_folder/test_1_1_gen_converted.gen", sep = "")
-  
+  #cat("The method used in this function is still under development. \n")
   # read data ----
+  #pwHt <- diveRsity:::pwHt
+  #rgp <- diveRsity:::rgp
+  #nbs <- 0
+  #stat = "all"
+  #filter_threshold <- 0.5
+  #plot = TRUE
+  #plot_col <- "darkblue"
+  #para = FALSE
   #data(Test_data, package = "diveRsity")
   #Test_data[is.na(Test_data)] <- ""
   #Test_data[Test_data == "0"] <- "000000"
-  #infile <- Test_data#"test_folder/test_1_1_gen_converted.gen"
+  #infile <- Test_data
   dat <- rgp(infile)
   npops <- length(dat$genos)
   nloci <- length(dat$af)
@@ -11261,44 +11268,155 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
   
   # Calculate D ----
   # function for locus d
-  d <- function(ht, hs){
-    return(((ht-hs)/(1-hs))*2)
+  if(stat == "d" || stat == "all" || stat == "Nm"){
+    d <- function(ht, hs){
+      return(((ht-hs)/(1-hs))*2)
+    } 
   }
-  # locus d
-  dloc <- mapply(`d`, ht = ht, hs = hs, SIMPLIFY = "array")
-  # set any nan values to 1
-  dloc[is.nan(dloc)] <- 1
-  # calculate multilocus d
-  hrmD <- apply(dloc, c(1,2), function(x){
-    mn <- mean(x, na.rm = TRUE)
-    vr <- var(x, na.rm = TRUE)
-    return(1/((1/mn) + vr * (1/mn)^3))
-  })
-  # calculate migration
-  dMig <- (1 - hrmD) / hrmD
-  # fix infinities
-  dMig[is.infinite(dMig)] <- NA
-  # calculate relative migration
-  dRel <- dMig/max(dMig, na.rm = TRUE)
-  dRel[is.nan(dRel)] <- NA
-  # plotting network
-  dRelPlt <- dRel
-  dRelPlt[dRelPlt < filter_threshold] <- 0
-  if(nbs != 0L && plot){
-    par(mfrow = c(2,1))
+  # Gst function
+  if(stat == "gst" || stat == "all" || stat == "Nm"){
+    g <- function(ht, hs){
+      ot <- (ht - hs)/ht
+      diag(ot) <- 0
+      return(ot)
+    }
+  }
+  # Nm estimator (Alcala et al 2014)
+  if(stat == "Nm" || stat == "all"){
+    Nm <- function(g, d, n){
+      t1 <- (1-g)/g
+      t2 <- ((n-1)/n)^2
+      t3 <- ((1-d)/(1-((n-1)/n)*d))
+      return(0.25*t1*t2*t3)
+    }
+  }
+  
+  # D calculations ----
+  if(stat == "d" || stat == "all" || stat == "Nm"){
+    dloc <- mapply(`d`, ht = ht, hs = hs, SIMPLIFY = "array")
+    dloc[is.nan(dloc)] <- 1
+    hrmD <- apply(dloc, c(1,2), function(x){
+      mn <- mean(x, na.rm = TRUE)
+      vr <- var(x, na.rm = TRUE)
+      return(1/((1/mn) + vr * (1/mn)^3))
+    })
+    dMig <- (1 - hrmD) / hrmD
+    # fix infinities
+    dMig[is.infinite(dMig)] <- NA
+    # calculate relative migration
+    dRel <- dMig/max(dMig, na.rm = TRUE)
+    dRel[is.nan(dRel)] <- NA
+  }
+  
+  # Gst calculations ----
+  if(stat == "gst" || stat == "all" || stat == "Nm"){
+    prehrmHs <- lapply(hs, function(x){
+      return(1/x)
+    })
+    prehrmHt <- lapply(ht, function(x){
+      return(1/x)
+    })
+    hrmhs <- nloci/Reduce(`+`, prehrmHs)
+    hrmht <- nloci/Reduce(`+`, prehrmHt)
+    hrmGst <- g(hrmht, hrmhs)
+    # calculate migrations from Gst
+    gMig <- ((1/hrmGst) - 1)/4
+    gMig[is.infinite(gMig)] <- NA
+    gRel <- gMig/max(gMig, na.rm = TRUE)
+  }
+  
+  # Nm calculations ----
+  if(stat == "all" || stat == "Nm"){
+    nm <- Nm(hrmGst, hrmD, 2)
+    diag(nm) <- NA
+    nmRel <- nm/max(nm, na.rm = TRUE)
   }
   if(plot){
-    qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                   legend = TRUE, posCol = plot_col, 
-                   edge.labels = TRUE, mar = c(2,2,5,5))
-    title(paste("\n Relative migration network (Filter threshold = ", 
-                filter_threshold, ")", sep = ""))
-    pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
-    qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                   legend = TRUE, posCol = plot_col, 
-                   edge.labels = TRUE, mar = c(2,2,5,5))
-    title(paste("\n Relative migration network (Filter threshold = ", 
-                filter_threshold, ")", sep = ""))
+    # plotting network
+    if(stat == "d" || stat == "all" || stat == "Nm"){
+      dRelPlt <- dRel
+      dRelPlt[dRelPlt < filter_threshold] <- 0
+    }
+    if(stat == "gst" || stat == "all" || stat == "Nm"){
+      gRelPlt <- gRel
+      gRelPlt[gRelPlt < filter_threshold] <- 0
+    }
+    if(stat == "all" || stat == "Nm"){
+      nmRelPlt <- nmRel
+      nmRelPlt[nmRelPlt < filter_threshold] <- 0
+    }
+    if(nbs != 0L && plot){
+      par(mfrow = c(2,1))
+    }
+    if(stat == "d"){
+      qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; D)", sep = ""))
+      pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
+      qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; D)", sep = ""))
+    } else if(stat == "gst"){
+      qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; Gst)", sep = ""))
+      pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
+      qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; Gst)", sep = ""))
+    } else if(stat == "Nm"){
+      qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; Nm)", sep = ""))
+      pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
+      qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; Nm)", sep = ""))
+    } else if(stat == "all"){
+      qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; D)", sep = ""))
+      qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; Gst)", sep = ""))
+      qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; Nm)", sep = ""))
+      pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
+      qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; D)", sep = ""))
+      qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; Gst)", sep = ""))
+      qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                     legend = TRUE, posCol = plot_col, 
+                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+      title(paste("\n Relative migration network \n (Filter threshold = ", 
+                  filter_threshold, "; Nm)", sep = ""))
+    }
     if(nbs == 0){
       dev.off() 
     } 
@@ -11321,31 +11439,31 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
     if(para){
       library(parallel)
       cl <- makeCluster(detectCores())
-      clusterExport(cl, c("bsFun", "dat", "pw"), envir = environment())
-      bsD <- parSapply(cl, idx, function(x){
-        return(bsFun(genos = dat$genos, idx = x, af = dat$af, pw = pw))
-      }, simplify = "array")
+      clusterExport(cl, c("bsFun", "dat", "pw", "stat"), 
+                    envir = environment())
+      bsStats <- parLapply(cl, idx, function(x){
+        return(bsFun(genos = dat$genos, idx = x, af = dat$af, pw = pw,
+                     stat = stat))
+      })
       stopCluster(cl)
     } else {
-      bsD <- sapply(idx, function(x){
-        return(bsFun(genos = dat$genos, idx = x, af = dat$af, pw = pw))
-      }, simplify = "array")
+      bsStat <- lapply(idx, function(x){
+        return(bsFun(genos = dat$genos, idx = x, af = dat$af, pw = pw,
+                     stat = stat))
+      })
     }
     
-    # correct bias ----
-    #index <- expand.grid(1:length(ps), 1:length(ps))
-    #index <- index[!index[,1] == index[,2],]
-    #bc <- apply(index, 1, function(i){
-    #  bsO <- bsD[i[1], i[2],]
-    #  act <- hrmD[i[1], i[2]]
-    #  mn <- mean(bsO, na.rm = TRUE) - act
-    #  bcN <- bsO - mn
-    #  UCI <- quantile(bcN, prob = 0.95)
-    #  LCI <- quantile(bcN, prob = 0.05)
-    #  out <- c(act, LCI, UCI)
-    #  names(out) <- c("ACT", "LCI", "UCI")
-    #  return(out)
-    #})
+    # convert stats to arrays
+    if(stat == "d" || stat == "all"){
+      bsD <- sapply(bsStat, "[[", "dRel", simplify = "array")
+    }
+    if(stat == "gst" || stat == "all"){
+      bsG <- sapply(bsStat, "[[", "gRel", simplify = "array")
+    }
+    if(stat == "Nm" || stat == "all"){
+      bsNm <- sapply(bsStat, "[[", "nmRel", simplify = "array")
+    }
+    
     # function for significant difference determination
     sigDiff <- function(x, y){
       if(x[1] < y[1] && x[2] < y[1]){
@@ -11354,69 +11472,168 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
         return(FALSE)
       }
     }
-    # covert bc to 3d array
-    #newBc <- array(NA, dim = c(ncol(hrmD), ncol(hrmD), 3))
-    #for(i in 1:nrow(index)){
-    #  newBc[index[i,1], index[i,2], 1] <- bc[1,i]
-    #  newBc[index[i,1], index[i,2], 2] <- bc[2,i]
-    #  newBc[index[i,1], index[i,2], 3] <- bc[3,i]
-    #}
-    # bootstrap means
-    #bsMean <- apply(bsD, c(1,2), mean, na.rm = TRUE)
-    sigMat <- matrix(NA, nrow = ncol(dRel), ncol(dRel))
-    for(i in 1:ncol(pw)){
-      p1 <- quantile(bsD[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
-      p2 <- quantile(bsD[pw[2,i], pw[1,i],], prob = c(0.025, 0.975))
-      sigMat[pw[2,i], pw[1,i]] <- sigDiff(p1, p2)
-      sigMat[pw[1,i], pw[2,i]] <- sigDiff(p2, p1)
+    if(stat == "d" || stat == "all"){
+      sigMatD <- matrix(NA, nrow = ncol(dRel), ncol(dRel))
+      for(i in 1:ncol(pw)){
+        p1 <- quantile(bsD[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
+        p2 <- quantile(bsD[pw[2,i], pw[1,i],], prob = c(0.025, 0.975))
+        sigMatD[pw[2,i], pw[1,i]] <- sigDiff(p1, p2)
+        sigMatD[pw[1,i], pw[2,i]] <- sigDiff(p2, p1)
+      }
+      dRelPlt[!sigMatD] <- 0
     }
-    
-    # test support for directional diff ----
-    #weightMat <- matrix(NA, nrow = ncol(hrmD), ncol = ncol(hrmD))
-    #for(i in 1:ncol(pw)){
-    #  p1 <- bsD[pw[1,i], pw[2,i],]
-    #  p2 <- bsD[pw[2,i], pw[1,i],]
-    #  weightMat[pw[2,i], pw[1,i]] <- round(sum(p1 < p2, 
-    #                                           na.rm = TRUE)/nbs, 1)
-    #  weightMat[pw[1,i], pw[2,i]] <- round(sum(p2 < p1, 
-    #                                           na.rm = TRUE)/nbs, 1)
-    #}
-    #weightMat[bsMean < filter_threshold] <- 0
-    #bsMeanPlt <- bsMean
-    #bsMeanPlt[bsMean < filter_threshold] <- 0
-    #bsMeanSig <- dRel
-    dRelPlt[!sigMat] <- 0
-    #qgraph::qgraph(bsMeanPlt, nodeNames = sapply(dat$indnms, "[", 1),
-    #               legend = TRUE, posCol = "blue", label.color = plot_col,
-    #               edge.labels = round(bsMeanPlt, 2))
-    #title(paste("Mean relative migration network (", nbs, 
-    #            " bootstraps)", sep = ""))
+    if(stat == "gst" || stat == "all"){
+      sigMatG <- matrix(NA, nrow = ncol(gRel), ncol(gRel))
+      for(i in 1:ncol(pw)){
+        p1 <- quantile(bsG[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
+        p2 <- quantile(bsG[pw[2,i], pw[1,i],], prob = c(0.025, 0.975))
+        sigMatG[pw[2,i], pw[1,i]] <- sigDiff(p1, p2)
+        sigMatG[pw[1,i], pw[2,i]] <- sigDiff(p2, p1)
+      }
+      gRelPlt[!sigMatG] <- 0
+    }
+    if(stat == "Nm" || stat == "all"){
+      sigMatNm <- matrix(NA, nrow = ncol(nmRel), ncol(nmRel))
+      for(i in 1:ncol(pw)){
+        p1 <- quantile(bsNm[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
+        p2 <- quantile(bsNm[pw[2,i], pw[1,i],], prob = c(0.025, 0.975))
+        sigMatNm[pw[2,i], pw[1,i]] <- sigDiff(p1, p2)
+        sigMatNm[pw[1,i], pw[2,i]] <- sigDiff(p2, p1)
+      }
+      nmRelPlt[!sigMatNm] <- 0
+    }
+    # plotting
     if(plot){
-      qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                     legend = TRUE, posCol = plot_col, label.color = plot_col,
-                     edge.labels = TRUE)
-      title(paste("Significant relative migration network (", nbs, 
-                  " bootstraps)", sep = ""))
-      dev.off()
-      #qgraph::qgraph(bsMeanPlt, nodeNames = sapply(dat$indnms, "[", 1),
-      #               legend = TRUE, posCol = "blue", label.color = plot_col,
-      #               edge.labels = round(bsMeanPlt, 2))
-      #title(paste("Mean relative migration network (", nbs, 
-      #            " bootstraps)", sep = ""))
-      qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                     legend = TRUE, posCol = plot_col, label.color = plot_col,
-                     edge.labels = TRUE)
-      title(paste("Significant relative migration network (", nbs, 
-                  " bootstraps)", sep = ""))
+      # plots to file
+      if(stat == "d"){
+        qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; D method)", sep = ""))
+        dev.off()
+      }
+      if(stat == "gst"){
+        qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; Gst method)", sep = ""))
+        dev.off()
+      }
+      if(stat == "Nm"){
+        qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; Nm method)", sep = ""))
+        dev.off()
+      }
+      if(stat == "all"){
+        qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; D method)", sep = ""))
+        
+        qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps)", sep = ""))
+        qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; Nm method)", sep = ""))
+        dev.off()
+      }
+      # standard plots
+      if(stat == "d"){
+        qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; D method)", sep = ""))
+      }
+      if(stat == "gst"){
+        qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; Gst method)", sep = ""))
+      }
+      if(stat == "Nm"){
+        qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; Nm method)", sep = ""))
+      }
+      if(stat == "all"){
+        qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; D method)", sep = ""))
+        
+        qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; Gst Method)", sep = ""))
+        qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       label.color = plot_col,
+                       edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
+        title(paste("Significant relative migration network \n (", nbs, 
+                    " bootstraps; Nm method)", sep = ""))
+      }
     }
     par(mfrow = c(1,1))
   }
   
   if(nbs != 0L){
-    list(relMig = dRel,
-         relMigSig = dRelPlt)
+    if(stat == "d"){
+      list(dRelMig = dRel,
+           dRelMigSig = dRelPlt)
+    } else if(stat == "gst"){
+      list(gRelMig = gRel,
+           gRelMigSig = gRelPlt)
+    } else if(stat == "Nm"){
+      list(nmRelMig = nmRel,
+           nmRelMigSig = nmRelPlt)
+    } else if(stat == "all"){
+      list(dRelMig = dRel,
+           dRelMigSig = dRelPlt,
+           gRelMig = gRel,
+           gRelMigSig = gRelPlt,
+           nmRelMig = nmRel,
+           nmRelMigSig = nmRelPlt)
+    }
   } else {
-    list(relMig = dRel)
+    if(stat == "d"){
+      list(dRelMig = dRel)
+    } else if(stat == "gst"){
+      list(gRelMig = gRel)
+    } else if(stat == "Nm"){
+      list(nmRelMig = nmRel)
+    } else if(stat == "all"){
+      list(dRelMig = dRel,
+           gRelMig = gRel,
+           nmRelMig = nmRel)
+    }
   }
 }
 
@@ -11426,10 +11643,8 @@ divMigrate <- function(infile = NULL, nbs = 0, filter_threshold = 0,
 #' Kevin Keenan (2014)
 
 # Bootstrapping function definition ----
-bsFun <- function(genos, idx, af, pw){
-  
+bsFun <- function(genos, idx, af, pw, stat){
   nl <- length(af)
-  
   # sub-sample genos ----
   sampleFun <- function(input, idx){
     return(input[idx,,])
@@ -11437,10 +11652,8 @@ bsFun <- function(genos, idx, af, pw){
   # sub-sample genos
   genos <- mapply(sampleFun, input = genos, idx = idx,
                   SIMPLIFY = FALSE)
-  
   # calculate allele frequencies ----
   #sourceCpp("src/myTab.cpp")
-  
   alf <- lapply(genos, function(x){
     apply(x, 2, function(y){
       if(all(is.na(y))){
@@ -11454,12 +11667,10 @@ bsFun <- function(genos, idx, af, pw){
       }
     })
   })
-  
   # organise allele frequencies
   alf <- lapply(1:nl, function(i){
     lapply(alf, "[[", i)
   })
-  
   alSort <- function(x, y){
     idx <- lapply(x, function(z){
       match(names(z), rownames(y))
@@ -11469,42 +11680,79 @@ bsFun <- function(genos, idx, af, pw){
     }
     return(y)
   }
-  
   # generate allele frequency output
   af <- mapply(alSort, x = alf, y = af, SIMPLIFY = FALSE)
-  
   # calculate hths from boostrapped allele frequencies ----
   hths <- lapply(af, pwHt, pw = pw-1)
   # seperate ht and hs matrices
   ht <- lapply(hths, "[[", "ht")
   hs <- lapply(hths, "[[", "hs")
   
-  # Calculate locus Jost's D ----
-  
-  # function for locus d
-  d <- function(ht, hs){
-    return(((ht-hs)/(1-hs))*2)
+  # D calculations ----
+  if(stat == "d" || stat == "all" || stat == "Nm"){
+    d <- function(ht, hs){
+      return(((ht-hs)/(1-hs))*2)
+    }
+    # locus d
+    dloc <- mapply(`d`, ht = ht, hs = hs, SIMPLIFY = "array")
+    # calculate the harmonic mean of Locus D ----
+    # set any nan values to 1
+    dloc[is.nan(dloc)] <- 1
+    # calculate multilocus d
+    hrmD <- apply(dloc, c(1,2), function(x){
+      mn <- mean(x, na.rm = TRUE)
+      vr <- var(x, na.rm = TRUE)
+      return(1/((1/mn) + vr * (1/mn)^3))
+    })
+    dMig <- (1 - hrmD) / hrmD
+    dMig[is.infinite(dMig)] <- NA
+    dRel <- dMig/max(dMig, na.rm = TRUE)
+    diag(dRel) <- NA
   }
-  # locus d
-  dloc <- mapply(`d`, ht = ht, hs = hs, SIMPLIFY = "array")
   
-  # calculate the harmonic mean of Locus D ----
+  # Gst calculations ----
+  if(stat == "gst" || stat == "all" || stat == "Nm"){
+    g <- function(ht, hs){
+      ot <- (ht - hs)/ht
+      diag(ot) <- 0
+      return(ot)
+    }
+    prehrmHs <- lapply(hs, function(x){
+      return(1/x)
+    })
+    prehrmHt <- lapply(ht, function(x){
+      return(1/x)
+    })
+    hrmhs <- nl/Reduce(`+`, prehrmHs)
+    hrmht <- nl/Reduce(`+`, prehrmHt)
+    hrmGst <- g(hrmht, hrmhs)
+    # calculate migrations from Gst
+    gMig <- ((1/hrmGst) - 1)/4
+    gMig[is.infinite(gMig)] <- NA
+    gRel <- gMig/max(gMig, na.rm = TRUE)
+  }
   
-  # set any nan values to 1
-  dloc[is.nan(dloc)] <- 1
-  # calculate multilocus d
-  hrmD <- apply(dloc, c(1,2), function(x){
-    mn <- mean(x, na.rm = TRUE)
-    vr <- var(x, na.rm = TRUE)
-    return(1/((1/mn) + vr * (1/mn)^3))
-  })
-  
-  dMig <- (1 - hrmD) / hrmD
-  dMig[is.infinite(dMig)] <- NA
-  dRel <- dMig/max(dMig, na.rm = TRUE)
-  #rnkMat <- dMig
-  #rnkMat[] <- rank(dRel, na.last = "keep")
-  return(dRel)
+  # Nm calculations ----
+  if(stat == "gst" || stat == "all" || stat == "Nm"){
+    Nm <- function(g, d, n){
+      t1 <- (1-g)/g
+      t2 <- ((n-1)/n)^2
+      t3 <- ((1-d)/(1-((n-1)/n)*d))
+      return(0.25*t1*t2*t3)
+    }
+    nm <- Nm(hrmGst, hrmD, 2)
+    diag(nm) <- NA
+    nmRel <- nm/max(nm, na.rm = TRUE)
+  }
+  if(stat == "d"){
+    list(dRel = dRel)
+  } else if(stat == "gst"){
+    list(gRel = gRel)
+  } else if(stat == "Nm"){
+    list(nmRel = nmRel)
+  } else if(stat == "all"){
+    list(dRel = dRel, gRel = gRel, nmRel = nmRel)
+  }
 }
 # Function definition end ----
 ################################################################################

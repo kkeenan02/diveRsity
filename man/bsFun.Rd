@@ -7,7 +7,7 @@ divMigrate bootstrap routine
 divMigrate bootstrap routine
 }
 \usage{
-bsFun(genos, idx, af, pw)
+bsFun(genos, idx, af, pw, stat)
 }
 
 \arguments{
@@ -15,6 +15,7 @@ bsFun(genos, idx, af, pw)
   \item{idx}{A list of bootstrap indeces}
   \item{af}{A list of allele frequency matrices}
   \item{pw}{Pairwise combination integer matrix}
+  \item{stat}{Indicates the statisitcs to be calculated}
 }
 \value{
   \item{dRel}{A matrix containing relative migration values}
