@@ -11728,8 +11728,16 @@ bsFun <- function(genos, idx, af, pw, stat){
     prehrmHs <- lapply(hs, function(x){
       return(1/x)
     })
+    prehrmHs <- lapply(prehrmHs, function(x){
+      x[is.infinite(x)] <- NA
+      return(x)
+    })
     prehrmHt <- lapply(ht, function(x){
       return(1/x)
+    })
+    prehrmHt <- lapply(prehrmHt, function(x){
+      x[is.infinite(x)] <- NA
+      return(x)
     })
     hrmhs <- nl/Reduce(`+`, prehrmHs)
     hrmht <- nl/Reduce(`+`, prehrmHt)
