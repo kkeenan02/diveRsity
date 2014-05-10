@@ -11313,8 +11313,16 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
     prehrmHs <- lapply(hs, function(x){
       return(1/x)
     })
+    prehrmHs <- lapply(prehrmHs, function(x){
+      x[is.infinite(x)] <- NA
+      return(x)
+    })
     prehrmHt <- lapply(ht, function(x){
       return(1/x)
+    })
+    prehrmHt <- lapply(prehrmHt, function(x){
+      x[is.infinite(x)] <- NA
+      return(x)
     })
     hrmhs <- nloci/Reduce(`+`, prehrmHs)
     hrmht <- nloci/Reduce(`+`, prehrmHt)
