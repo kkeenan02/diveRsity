@@ -11730,7 +11730,7 @@ bsFun <- function(genos, idx, af, pw, stat){
   }
   
   # Nm calculations ----
-  if(stat == "gst" || stat == "all" || stat == "Nm"){
+  if(stat == "Nm" || stat == "all"){
     Nm <- function(g, d, n){
       t1 <- (1-g)/g
       t2 <- ((n-1)/n)^2
