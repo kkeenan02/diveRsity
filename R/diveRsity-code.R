@@ -11239,18 +11239,18 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
   #nbs <- 1000
   #cat("The method used in this function is still under development. \n")
   # read data ----
-  #pwHt <- diveRsity:::pwHt
-  #rgp <- diveRsity:::rgp
-  #nbs <- 0
-  #stat = "all"
-  #filter_threshold <- 0.5
-  #plot = TRUE
-  #plot_col <- "darkblue"
-  #para = FALSE
+  pwHt <- diveRsity:::pwHt
+  rgp <- diveRsity:::rgp
+  nbs <- 0
+  stat = "all"
+  filter_threshold <- 0.5
+  plot_network = TRUE
+  plot_col <- "darkblue"
+  para = FALSE
   #data(Test_data, package = "diveRsity")
   #Test_data[is.na(Test_data)] <- ""
   #Test_data[Test_data == "0"] <- "000000"
-  #infile <- Test_data
+  infile <- "Sgenepop.txt"
   dat <- rgp(infile)
   npops <- length(dat$genos)
   nloci <- length(dat$af)
@@ -11361,7 +11361,8 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ", 
                   filter_threshold, "; D)", sep = ""))
-    } else if(stat == "gst"){
+    }
+    if(stat == "gst"){
       qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                      legend = TRUE, posCol = plot_col, 
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
@@ -11373,7 +11374,8 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ", 
                   filter_threshold, "; Gst)", sep = ""))
-    } else if(stat == "Nm"){
+    }
+    if(stat == "Nm"){
       qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                      legend = TRUE, posCol = plot_col, 
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
@@ -11385,7 +11387,8 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ", 
                   filter_threshold, "; Nm)", sep = ""))
-    } else if(stat == "all"){
+    }
+    if(stat == "all"){
       qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                      legend = TRUE, posCol = plot_col, 
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
@@ -11418,7 +11421,7 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
       title(paste("\n Relative migration network \n (Filter threshold = ", 
                   filter_threshold, "; Nm)", sep = ""))
     }
-    if(nbs == 0){
+    if(nbs == 0L){
       dev.off() 
     } 
   }
