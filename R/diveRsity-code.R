@@ -11346,9 +11346,7 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
       nmRelPlt <- nmRel
       nmRelPlt[nmRelPlt < filter_threshold] <- 0
     }
-    if(nbs != 0L && plot_network){
-      par(mfrow = c(3,1))
-    }
+
     if(stat == "d"){
       qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                      legend = TRUE, posCol = plot_col, 
@@ -11605,7 +11603,6 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                     " bootstraps; Nm method)", sep = ""))
       }
     }
-    par(mfrow = c(1,1))
   }
   
   if(nbs != 0L){
