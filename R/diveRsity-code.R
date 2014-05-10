@@ -11239,14 +11239,14 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
   #nbs <- 1000
   #cat("The method used in this function is still under development. \n")
   # read data ----
-  pwHt <- diveRsity:::pwHt
-  rgp <- diveRsity:::rgp
-  nbs <- 0
-  stat = "all"
-  filter_threshold <- 0.5
-  plot_network = TRUE
-  plot_col <- "darkblue"
-  para = FALSE
+  #pwHt <- diveRsity:::pwHt
+  #rgp <- diveRsity:::rgp
+  #nbs <- 0
+  #stat = "all"
+  #filter_threshold <- 0.5
+  #plot_network = TRUE
+  #plot_col <- "darkblue"
+  #para = FALSE
   #data(Test_data, package = "diveRsity")
   #Test_data[is.na(Test_data)] <- ""
   #Test_data[Test_data == "0"] <- "000000"
