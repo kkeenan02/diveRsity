@@ -11310,23 +11310,16 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
   
   # Gst calculations ----
   if(stat == "gst" || stat == "all" || stat == "Nm"){
-    prehrmHs <- lapply(hs, function(x){
-      return(1/x)
-    })
-    prehrmHs <- lapply(prehrmHs, function(x){
-      x[is.infinite(x)] <- NA
-      return(x)
-    })
-    prehrmHt <- lapply(ht, function(x){
-      return(1/x)
-    })
-    prehrmHt <- lapply(prehrmHt, function(x){
-      x[is.infinite(x)] <- NA
-      return(x)
-    })
-    hrmhs <- nloci/Reduce(`+`, prehrmHs)
-    hrmht <- nloci/Reduce(`+`, prehrmHt)
-    hrmGst <- g(hrmht, hrmhs)
+    g <- function(ht, hs){
+      ot <- (ht - hs)/ht
+      diag(ot) <- 0
+      return(ot)
+    }
+    hsAr <- array(unlist(hs), dim = c(npops, npops, nloci))
+    mnHs <- apply(hsAr, c(1,2), mean, na.rm = TRUE)
+    htAr <- array(unlist(ht), dim = c(npops, npops, nloci))
+    mnHt <- apply(htAr, c(1,2), mean, na.rm = TRUE)
+    hrmGst <- g(mnHt, mnHs)
     # calculate migrations from Gst
     gMig <- ((1/hrmGst) - 1)/4
     gMig[is.infinite(gMig)] <- NA
@@ -11725,23 +11718,11 @@ bsFun <- function(genos, idx, af, pw, stat){
       diag(ot) <- 0
       return(ot)
     }
-    prehrmHs <- lapply(hs, function(x){
-      return(1/x)
-    })
-    prehrmHs <- lapply(prehrmHs, function(x){
-      x[is.infinite(x)] <- NA
-      return(x)
-    })
-    prehrmHt <- lapply(ht, function(x){
-      return(1/x)
-    })
-    prehrmHt <- lapply(prehrmHt, function(x){
-      x[is.infinite(x)] <- NA
-      return(x)
-    })
-    hrmhs <- nl/Reduce(`+`, prehrmHs)
-    hrmht <- nl/Reduce(`+`, prehrmHt)
-    hrmGst <- g(hrmht, hrmhs)
+    hsAr <- array(unlist(hs), dim = c(npops, npops, nloci))
+    mnHs <- apply(hsAr, c(1,2), mean, na.rm = TRUE)
+    htAr <- array(unlist(ht), dim = c(npops, npops, nloci))
+    mnHt <- apply(htAr, c(1,2), mean, na.rm = TRUE)
+    hrmGst <- g(mnHt, mnHs)
     # calculate migrations from Gst
     gMig <- ((1/hrmGst) - 1)/4
     gMig[is.infinite(gMig)] <- NA
