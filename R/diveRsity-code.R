@@ -11442,7 +11442,7 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
       cl <- makeCluster(detectCores())
       clusterExport(cl, c("bsFun", "dat", "pw", "stat"), 
                     envir = environment())
-      bsStats <- parLapply(cl, idx, function(x){
+      bsStat <- parLapply(cl, idx, function(x){
         return(bsFun(genos = dat$genos, idx = x, af = dat$af, pw = pw,
                      stat = stat))
       })
