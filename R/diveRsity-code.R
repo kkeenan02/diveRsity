@@ -11710,7 +11710,7 @@ bsFun <- function(genos, idx, af, pw, stat){
     dRel <- dMig/max(dMig, na.rm = TRUE)
     diag(dRel) <- NA
   }
-  npops <- ncol(dRel)
+  npops <- ncol(hs[[1]])
   # Gst calculations ----
   if(stat == "gst" || stat == "all" || stat == "Nm"){
     g <- function(ht, hs){
