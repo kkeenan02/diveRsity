@@ -11233,7 +11233,7 @@ statCalc <- function(rsDat, idx = NULL, al, fst, bs = TRUE){
 
 # function definition ----
 divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
-                       filter_threshold = 0, plot = FALSE, 
+                       filter_threshold = 0, plot_network = FALSE, 
                        plot_col = "darkblue", para = FALSE){
   # preabmle ----
   #nbs <- 1000
@@ -11332,7 +11332,7 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
     diag(nm) <- NA
     nmRel <- nm/max(nm, na.rm = TRUE)
   }
-  if(plot){
+  if(plot_network){
     # plotting network
     if(stat == "d" || stat == "all" || stat == "Nm"){
       dRelPlt <- dRel
@@ -11346,8 +11346,8 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
       nmRelPlt <- nmRel
       nmRelPlt[nmRelPlt < filter_threshold] <- 0
     }
-    if(nbs != 0L && plot){
-      par(mfrow = c(2,1))
+    if(nbs != 0L && plot_network){
+      par(mfrow = c(3,1))
     }
     if(stat == "d"){
       qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11504,7 +11504,7 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
       nmRelPlt[!sigMatNm] <- 0
     }
     # plotting
-    if(plot){
+    if(plot_network){
       # plots to file
       if(stat == "d"){
         qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
