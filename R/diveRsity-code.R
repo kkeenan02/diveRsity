@@ -11718,9 +11718,9 @@ bsFun <- function(genos, idx, af, pw, stat){
       diag(ot) <- 0
       return(ot)
     }
-    hsAr <- array(unlist(hs), dim = c(npops, npops, nloci))
+    hsAr <- array(unlist(hs), dim = c(npops, npops, nl))
     mnHs <- apply(hsAr, c(1,2), mean, na.rm = TRUE)
-    htAr <- array(unlist(ht), dim = c(npops, npops, nloci))
+    htAr <- array(unlist(ht), dim = c(npops, npops, nl))
     mnHt <- apply(htAr, c(1,2), mean, na.rm = TRUE)
     hrmGst <- g(mnHt, mnHs)
     # calculate migrations from Gst
