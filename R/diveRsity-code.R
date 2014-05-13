@@ -11250,7 +11250,7 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
   #data(Test_data, package = "diveRsity")
   #Test_data[is.na(Test_data)] <- ""
   #Test_data[Test_data == "0"] <- "000000"
-  infile <- "Sgenepop.txt"
+  #infile <- "Sgenepop.txt"
   dat <- rgp(infile)
   npops <- length(dat$genos)
   nloci <- length(dat$af)
