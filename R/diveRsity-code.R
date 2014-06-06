@@ -2,7 +2,7 @@
 NULL
 ################################################################################
 ################################################################################
-##                              diveRsity v1.9.5                              ##  
+##                              diveRsity v1.9.7                              ##  
 ##                            by Kevin Keenan QUB                             ##  
 ##            An R package for the calculation of differentiation             ##
 ##              statistics and locus informativeness statistics               ##  
@@ -11232,7 +11232,7 @@ statCalc <- function(rsDat, idx = NULL, al, fst, bs = TRUE){
 #' @export
 
 # function definition ----
-divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
+divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        filter_threshold = 0, plot_network = FALSE, 
                        plot_col = "darkblue", para = FALSE){
   # preabmle ----
@@ -11254,6 +11254,11 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
   dat <- rgp(infile)
   npops <- length(dat$genos)
   nloci <- length(dat$af)
+  if(!is.null(outfile)){
+    dir.create(path = paste(getwd(), "/", outfile, "-[divMigrate]", "/", 
+                            sep = ""))
+    of <- paste(getwd(), "/", outfile, "-[divMigrate]", "/", sep = "")
+  }
   
   # generate pw combos ----
   pw <- combn(npops, 2)
@@ -11353,12 +11358,14 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ", 
                   filter_threshold, "; D)", sep = ""))
-      pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
-      qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                     legend = TRUE, posCol = plot_col, 
-                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
-      title(paste("\n Relative migration network \n (Filter threshold = ", 
-                  filter_threshold, "; D)", sep = ""))
+      if(!is.null(outfile)){
+        pdf(paste(of, "Relative_migration.pdf", sep = ""), paper = "a4r")
+        qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+        title(paste("\n Relative migration network \n (Filter threshold = ", 
+                    filter_threshold, "; D)", sep = ""))
+      }
     }
     if(stat == "gst"){
       qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11366,12 +11373,14 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ", 
                   filter_threshold, "; Gst)", sep = ""))
-      pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
-      qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                     legend = TRUE, posCol = plot_col, 
-                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
-      title(paste("\n Relative migration network \n (Filter threshold = ", 
-                  filter_threshold, "; Gst)", sep = ""))
+      if(!is.null(outfile)){
+        pdf(paste(of, "Relative_migration.pdf", sep = ""), paper = "a4r")
+        qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+        title(paste("\n Relative migration network \n (Filter threshold = ", 
+                    filter_threshold, "; Gst)", sep = ""))
+      }
     }
     if(stat == "Nm"){
       qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11379,12 +11388,14 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ", 
                   filter_threshold, "; Nm)", sep = ""))
-      pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
-      qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                     legend = TRUE, posCol = plot_col, 
-                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
-      title(paste("\n Relative migration network \n (Filter threshold = ", 
-                  filter_threshold, "; Nm)", sep = ""))
+      if(!is.null(outfile)){
+        pdf(paste(of, "Relative_migration.pdf", sep = ""), paper = "a4r")
+        qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+        title(paste("\n Relative migration network \n (Filter threshold = ", 
+                    filter_threshold, "; Nm)", sep = ""))
+      }
     }
     if(stat == "all"){
       qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11402,24 +11413,26 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ", 
                   filter_threshold, "; Nm)", sep = ""))
-      pdf("Relative_migration-[divMigrate].pdf", paper = "a4r")
-      qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                     legend = TRUE, posCol = plot_col, 
-                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
-      title(paste("\n Relative migration network \n (Filter threshold = ", 
-                  filter_threshold, "; D)", sep = ""))
-      qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                     legend = TRUE, posCol = plot_col, 
-                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
-      title(paste("\n Relative migration network \n (Filter threshold = ", 
-                  filter_threshold, "; Gst)", sep = ""))
-      qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
-                     legend = TRUE, posCol = plot_col, 
-                     edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
-      title(paste("\n Relative migration network \n (Filter threshold = ", 
-                  filter_threshold, "; Nm)", sep = ""))
+      if(!is.null(outfile)){
+        pdf(paste(of, "Relative_migration.pdf", sep = ""), paper = "a4r")
+        qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+        title(paste("\n Relative migration network \n (Filter threshold = ", 
+                    filter_threshold, "; D)", sep = ""))
+        qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+        title(paste("\n Relative migration network \n (Filter threshold = ", 
+                    filter_threshold, "; Gst)", sep = ""))
+        qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
+                       legend = TRUE, posCol = plot_col, 
+                       edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
+        title(paste("\n Relative migration network \n (Filter threshold = ", 
+                    filter_threshold, "; Nm)", sep = ""))
+      }
     }
-    if(nbs == 0L){
+    if(nbs == 0L && !is.null(outfile)){
       dev.off() 
     } 
   }
@@ -11507,7 +11520,7 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
     # plotting
     if(plot_network){
       # plots to file
-      if(stat == "d"){
+      if(stat == "d" && !is.null(outfile)){
         qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
@@ -11516,7 +11529,7 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                     " bootstraps; D method)", sep = ""))
         dev.off()
       }
-      if(stat == "gst"){
+      if(stat == "gst" && !is.null(outfile)){
         qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
@@ -11525,7 +11538,7 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                     " bootstraps; Gst method)", sep = ""))
         dev.off()
       }
-      if(stat == "Nm"){
+      if(stat == "Nm" && !is.null(outfile)){
         qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
@@ -11534,7 +11547,7 @@ divMigrate <- function(infile = NULL, nbs = 0, stat = "all",
                     " bootstraps; Nm method)", sep = ""))
         dev.off()
       }
-      if(stat == "all"){
+      if(stat == "all" && !is.null(outfile)){
         qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
