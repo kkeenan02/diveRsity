@@ -14,12 +14,14 @@ The function will except both Arlequin (.arp) genotype and genepop (.gen/.txt) f
 }
 
 \usage{
-divMigrate(infile = NULL, nbs = 0, stat = "all", filter_threshold = 0, 
-           plot = FALSE, plot_col = "darkblue", para = FALSE)
+divMigrate(infile = NULL, outfile = NULL, nbs = 0, stat = "all", filter_threshold = 0, 
+           plot_network = FALSE, plot_col = "darkblue", para = FALSE)
 }
 \arguments{
 
 \item{infile}{Input genepop file name or path.}
+
+\item{outfile}{String prefix to be added to the results directory. If left \code{NULL}, no networks will be written to file.}
 
 \item{nbs}{The number of bootstrap iteration to carry out for calculating mean relative migration and 95\% confidence intervals.}
 
@@ -27,7 +29,7 @@ divMigrate(infile = NULL, nbs = 0, stat = "all", filter_threshold = 0,
 
 \item{filter_threshold}{The minimum relative migration value for which edges in the networks should be displayed.}
 
-\item{plot}{A logical argument, specifying whether migration results should be plotted in a network.}
+\item{plot_network}{A logical argument, specifying whether migration results should be plotted in a network.}
 
 \item{plot_col}{Defines the colour of edges in networks. Default is set to "\code{darkblue}".}
 
