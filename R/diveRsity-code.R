@@ -11755,13 +11755,13 @@ bsFun <- function(genos, idx, af, pw, stat){
     nmRel <- nm/max(nm, na.rm = TRUE)
   }
   if(stat == "d"){
-    list(dRel = dRel)
+    list(dRel = dMig)
   } else if(stat == "gst"){
-    list(gRel = gRel)
+    list(gRel = gMig)
   } else if(stat == "Nm"){
-    list(nmRel = nmRel)
+    list(nmRel = nm)
   } else if(stat == "all"){
-    list(dRel = dRel, gRel = gRel, nmRel = nmRel)
+    list(dRel = dMig, gRel = gMig, nmRel = nm)
   }
 }
 # Function definition end ----
