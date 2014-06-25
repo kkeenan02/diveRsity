@@ -24,7 +24,7 @@ To install the latest development version of ```diveRsity```, you will need some
 
 First, follow the instructions specific to your operating system at the following page:
 
-https://www.rstudio.com/ide/docs/packages/prerequisites
+http://www.rstudio.com/products/rpackages/devtools/
 
 Next, the package ```devtools``` is required as follows:
 
