@@ -10945,7 +10945,10 @@ rgp <- function(infile){
     #dat <- c(paste(colnames(infile), collapse = "\t"), dat)
   } else {
     dat <- fastScan(infile)
-    # strip whitespace from the end of lines
+    # strip whitespace from the beginning an end of lines
+    dat <- sapply(dat, function(x){
+      sub("^\\s+", "", x)
+    })
     dat <- sapply(dat, function(x){
       return(sub("\\s+$", "", x))
     })

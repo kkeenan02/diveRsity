@@ -23,3 +23,8 @@ v1.9.7
 -----------
 
 Alcala et al, 2014 Nm estimation is added to `divMigrate` as a option to calculation relative migration. Gst is also added.
+
+v1.9.8
+------------
+Bug fixed in 'rgp' function to correctly deal with leading whitespace in sample
+names.
