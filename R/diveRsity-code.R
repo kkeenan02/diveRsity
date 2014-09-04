@@ -2,7 +2,7 @@
 NULL
 ################################################################################
 ################################################################################
-##                              diveRsity v1.9.8                              ##  
+##                              diveRsity v1.9.8.1                            ##  
 ##                            by Kevin Keenan QUB                             ##  
 ##            An R package for the calculation of differentiation             ##
 ##              statistics and locus informativeness statistics               ##  
@@ -11038,11 +11038,10 @@ rgp <- function(infile){
     list(af = af, ps = popSizes)
   }
   # rearrange data by loci
-  check <- function(args){
+  check <- function(args, gp){
     #args <- list(...)
     npops <- length(args)
-    nchars <- mean(nchar(names(args[[1]])))
-    pad <- paste("%0", nchars, "g", sep = "")
+    pad <- paste("%0", gp, "g", sep = "")
     rnames <- sprintf(pad, 
                       unique(sort(as.numeric(unlist(lapply(args,
                                                            names))))))
@@ -11079,7 +11078,7 @@ rgp <- function(infile){
   ps <- lapply(1:(nloci), function(i){
     return(sapply(ps, "[", i))
   })
-  af <- lapply(af, check)
+  af <- lapply(af, check, gp = gp)
   # names(af) <- locs
   #obs <- lapply(obs, check)
   gc()

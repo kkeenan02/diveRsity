@@ -28,3 +28,48 @@ v1.9.8
 ------------
 Bug fixed in 'rgp' function to correctly deal with leading whitespace in sample
 names.
+
+v1.9.8.1
+------------
+Bug fixed in check function within rgp to ensure allele names were recorded correctly.
+
+### Original
+
+```
+ check <- function(args){
+    #args <- list(...)
+    npops <- length(args)
+    nchars <- mean(nchar(names(args[[1]])))
+    pad <- paste("%0", nchars, "g", sep = "")
+    rnames <- sprintf(pad, 
+                      unique(sort(as.numeric(unlist(lapply(args,
+                                                           names))))))
+    
+    out <- matrix(0, nrow = length(rnames), ncol = npops)
+    rownames(out) <- as.character(rnames)
+    for(i in 1:npops){
+      out[match(names(args[[i]]), rownames(out)),i] <- as.numeric(args[[i]])
+    }
+    return(out)
+  }
+```
+
+### Fixed code
+
+```
+ check <- function(args, gp){
+    #args <- list(...)
+    npops <- length(args)
+    pad <- paste("%0", gp, "g", sep = "")
+    rnames <- sprintf(pad, 
+                      unique(sort(as.numeric(unlist(lapply(args,
+                                                           names))))))
+    
+    out <- matrix(0, nrow = length(rnames), ncol = npops)
+    rownames(out) <- as.character(rnames)
+    for(i in 1:npops){
+      out[match(names(args[[i]]), rownames(out)),i] <- as.numeric(args[[i]])
+    }
+    return(out)
+  }
+```
