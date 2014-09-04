@@ -35,7 +35,7 @@ Bug fixed in check function within rgp to ensure allele names were recorded corr
 
 ### Original
 
-```
+```r
  check <- function(args){
     #args <- list(...)
     npops <- length(args)
@@ -56,7 +56,7 @@ Bug fixed in check function within rgp to ensure allele names were recorded corr
 
 ### Fixed code
 
-```
+```r
  check <- function(args, gp){
     #args <- list(...)
     npops <- length(args)
@@ -73,3 +73,18 @@ Bug fixed in check function within rgp to ensure allele names were recorded corr
     return(out)
   }
 ```
+
+v1.9.8.2
+-----------
+Multilocus gst and nm values for directional migration were not behaving as expected, when
+dealing with 100% missing data. The below code was added to indicate loci with 100% missing data:
+
+```r
+  # fix allele frequencies
+  dat$af <- lapply(dat$af, function(x){
+    cs <- colSums(x)
+    x[,cs == 0] <- NA
+    return(x)
+  })
+```
+These loci can now be identified in 'pwHt' and NA returned, instead of NaN, as was previously occuring. This previous behaviour resulted in NaN values derived from 100% missing data being treated in the same way as NaN values drived from two population samples not sharing any alleles, which was obviously incorrect.

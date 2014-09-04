@@ -32,22 +32,29 @@ List pwHt(NumericMatrix af, IntegerMatrix pw) {
   for(int i = 0; i < n; ++i){
     int p1 = pw(0,i);
     int p2 = pw(1,i);
-    NumericVector ppreg = sqrt((af(_,p1) * af(_,p2)));
-    double preg = sum(ppreg);
-    double g = pow(preg, -1.0);
-    NumericVector f = g * ppreg;
-    // calculate ht's
-    NumericVector af1 = (f + af(_,p1))/2.0;
-    NumericVector af2 = (f + af(_,p2))/2.0;
-    NumericVector aff1 = pow(af1, 2.0);
-    NumericVector aff2 = pow(af2, 2.0);
-    ht(p1, p2) = 1.0 - sum(aff1);
-    ht(p2, p1) = 1.0 - sum(aff2);
-    // calulate hs's
-    NumericVector af1sq = (pow(f, 2.0) + pow(af(_,p1), 2.0))/2.0;
-    NumericVector af2sq = (pow(f, 2.0) + pow(af(_,p2), 2.0))/2.0;
-    hs(p1,p2) = 1.0 - sum(af1sq);
-    hs(p2,p1) = 1.0 - sum(af2sq);
+    if(R_IsNA(af(0,p1)) || R_IsNA(af(0,p2))){
+      ht(p1,p2) = NA_REAL; // added to account for 100% missing genotypes
+      ht(p2,p1) = NA_REAL;
+      hs(p1,p2) = NA_REAL;
+      hs(p2,p1) = NA_REAL;
+    } else {
+      NumericVector ppreg = sqrt((af(_,p1) * af(_,p2)));
+      double preg = sum(ppreg);
+      double g = pow(preg, -1.0);
+      NumericVector f = g * ppreg;
+      // calculate ht's
+      NumericVector af1 = (f + af(_,p1))/2.0;
+      NumericVector af2 = (f + af(_,p2))/2.0;
+      NumericVector aff1 = pow(af1, 2.0);
+      NumericVector aff2 = pow(af2, 2.0);
+      ht(p1, p2) = 1.0 - sum(aff1);
+      ht(p2, p1) = 1.0 - sum(aff2);
+      // calulate hs's
+      NumericVector af1sq = (pow(f, 2.0) + pow(af(_,p1), 2.0))/2.0;
+      NumericVector af2sq = (pow(f, 2.0) + pow(af(_,p2), 2.0))/2.0;
+      hs(p1,p2) = 1.0 - sum(af1sq);
+      hs(p2,p1) = 1.0 - sum(af2sq);
+    }
   }
   return List::create(
     _["ht"] = ht,

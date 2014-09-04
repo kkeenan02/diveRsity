@@ -2,7 +2,7 @@
 NULL
 ################################################################################
 ################################################################################
-##                              diveRsity v1.9.8.1                            ##  
+##                              diveRsity v1.9.8.2                            ##  
 ##                            by Kevin Keenan QUB                             ##  
 ##            An R package for the calculation of differentiation             ##
 ##              statistics and locus informativeness statistics               ##  
@@ -11224,6 +11224,10 @@ statCalc <- function(rsDat, idx = NULL, al, fst, bs = TRUE){
 #
 #
 #
+#' divMigrate-Fix
+#' 
+#' Kevin Keenan
+#' 
 # preamble ----
 
 #' divMigrate: an experimental function for detecting directional differentiation 
@@ -11238,9 +11242,11 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        filter_threshold = 0, plot_network = FALSE, 
                        plot_col = "darkblue", para = FALSE){
   # preabmle ----
-  #nbs <- 1000
+  #nbs <- 10
   #cat("The method used in this function is still under development. \n")
   # read data ----
+  #source("bsFun-fix.R")
+  #Rcpp::sourceCpp("pwHt-fix.cpp")
   #pwHt <- diveRsity:::pwHt
   #rgp <- diveRsity:::rgp
   #nbs <- 0
@@ -11249,13 +11255,20 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
   #plot_network = TRUE
   #plot_col <- "darkblue"
   #para = FALSE
+  #infile <- "YOSEonly.gen"
   #data(Test_data, package = "diveRsity")
   #Test_data[is.na(Test_data)] <- ""
   #Test_data[Test_data == "0"] <- "000000"
-  #infile <- "Sgenepop.txt"
   dat <- rgp(infile)
   npops <- length(dat$genos)
   nloci <- length(dat$af)
+  # fix allele frequencies
+  dat$af <- lapply(dat$af, function(x){
+    cs <- colSums(x)
+    x[,cs == 0] <- NA
+    return(x)
+  })
+  
   if(!is.null(outfile)){
     dir.create(path = paste(getwd(), "/", outfile, "-[divMigrate]", "/", 
                             sep = ""))
@@ -11272,7 +11285,9 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
   # seperate ht and hs matrices
   ht <- lapply(hths, "[[", "ht")
   hs <- lapply(hths, "[[", "hs")
-  
+  # replace NaN with NA
+  #ht <- lapply(ht, function(x){ x[is.nan(x)] <- NA; return(x)})
+  #hs <- lapply(hs, function(x){ x[is.nan(x)] <- NA; return(x)})
   # Calculate D ----
   # function for locus d
   if(stat == "d" || stat == "all" || stat == "Nm"){
@@ -11353,7 +11368,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
       nmRelPlt <- nmRel
       nmRelPlt[nmRelPlt < filter_threshold] <- 0
     }
-
+    
     if(stat == "d"){
       qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                      legend = TRUE, posCol = plot_col, 
