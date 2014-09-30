@@ -5279,6 +5279,10 @@ bigDivPart <- function(infile = NULL, outfile = NULL, WC_Fst = FALSE,
   fastScan <- function(fname) {
     s <- file.info(fname)$size
     buf <- readChar(fname, s, useBytes = TRUE)
+    # replace Mac encoded line endings
+    if(grep("\r", buf) == 1L){
+      buf <- gsub("\r", "\n", buf)
+    }
     return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
   }
   dat <- fastScan(fname = infile)
@@ -5725,11 +5729,14 @@ arp2gen <- function(infile){
   tstfile <- paste(flForm[1], ".gen", sep = "")
   # define a fastscan function
   if(!file.exists(tstfile)){
-    fastScan <- function(fname){
-      s <- file.info(fname)$size 
-      buf <-  readChar(fname, s, useBytes = TRUE)
-      return(strsplit(buf, "\n", fixed = TRUE, 
-                      useBytes = TRUE)[[1]])
+    fastScan <- function(fname) {
+      s <- file.info(fname)$size
+      buf <- readChar(fname, s, useBytes = TRUE)
+      # replace Mac encoded line endings
+      if(grep("\r", buf) == 1L){
+        buf <- gsub("\r", "\n", buf)
+      }
+      return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
     }
     
     # scan infile
@@ -9062,6 +9069,10 @@ polyIn <- function(infile = NULL, pairwise = FALSE, parallel = FALSE){
     fastScan <- function(fname) {
       s <- file.info(fname)$size
       buf <- readChar(fname, s, useBytes = TRUE)
+      # replace Mac encoded line endings
+      if(grep("\r", buf) == 1L){
+        buf <- gsub("\r", "\n", buf)
+      }
       return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
     }
     dat <- fastScan(infile)
@@ -9231,6 +9242,10 @@ snp2gp <- function(infile, prefix_length = 2){
   fastScan <- function(fname) {
     s <- file.info(fname)$size
     buf <- readChar(fname, s, useBytes = TRUE)
+    # replace Mac encoded line endings
+    if(grep("\r", buf) == 1L){
+      buf <- gsub("\r", "\n", buf)
+    }
     return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
   }
   if(is.list(infile)){
@@ -10934,6 +10949,10 @@ rgp <- function(infile){
   fastScan <- function(fname) {
     s <- file.info(fname)$size
     buf <- readChar(fname, s, useBytes = TRUE)
+    # replace Mac encoded line endings
+    if(grep("\r", buf) == 1L){
+      buf <- gsub("\r", "\n", buf)
+    }
     return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
   }
   if(is.list(infile)){
