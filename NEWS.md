@@ -88,3 +88,32 @@ dealing with 100% missing data. The below code was added to indicate loci with 1
   })
 ```
 These loci can now be identified in 'pwHt' and NA returned, instead of NaN, as was previously occuring. This previous behaviour resulted in NaN values derived from 100% missing data being treated in the same way as NaN values drived from two population samples not sharing any alleles, which was obviously incorrect.
+
+v1.9.8.3
+----------
+Fixed a bug in the fastScan function which did not recognise "\r" as a line ending.
+
+#### Original
+
+```r
+ fastScan <- function(fname) {
+    s <- file.info(fname)$size
+    buf <- readChar(fname, s, useBytes = TRUE)
+    return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
+  }
+```
+
+##### Fixed
+```r
+  fastScan <- function(fname) {
+    s <- file.info(fname)$size
+    buf <- readChar(fname, s, useBytes = TRUE)
+    # replace Mac encoded line endings
+    if(grep("\r", buf) == 1L){
+      buf <- gsub("\r", "\n", buf)
+    }
+    return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
+  }
+```
+
+This new version of the function checks to see if "\r" is a character present in the file, then replaces these with "\n" so that the downstream functions work normally.
