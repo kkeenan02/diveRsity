@@ -5282,6 +5282,7 @@ bigDivPart <- function(infile = NULL, outfile = NULL, WC_Fst = FALSE,
     # replace Mac encoded line endings
     if(grep("\r", buf) == 1L){
       buf <- gsub("\r", "\n", buf)
+      buf <- gsub("\n\n", "\n", buf)
     }
     return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
   }
@@ -5735,6 +5736,7 @@ arp2gen <- function(infile){
       # replace Mac encoded line endings
       if(grep("\r", buf) == 1L){
         buf <- gsub("\r", "\n", buf)
+        buf <- gsub("\n\n", "\n", buf)
       }
       return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
     }
@@ -8992,57 +8994,77 @@ writeBoot <- function(infile = NULL, outfile = NULL, gp = 3, bootstraps = 0,
 ################################################################################
 #' @export
 gpSampler <- function(infile = NULL, samp_size = 10, outfile = NULL){
-  dat <- fileReader(infile)
-  rownames(dat) <- NULL
-  dat <- as.matrix(dat)
-  # determine genepop format
-  p1 <- which(toupper(dat[,1]) == "POP")[1] + 1
-  gp <- as.numeric(names(sort(-table(sapply(dat[p1, - 1], nchar)/2)))[1])
-  dat <- as.data.frame(dat)
-  rawData <- readGenepop(dat, gp = gp)  
-  # resample
-  if (length(samp_size) == 1){
-    samp_size <- rep(samp_size, rawData$npops)
-  }
-  idx <- lapply(seq_along(samp_size), function(i){
-    sample(samp_size[i], size = samp_size[i], replace = FALSE)
-  })
-  pop_list <- lapply(seq_along(idx), function(i){
-    samp <- rawData$pop_list[[i]][idx[[i]], ]
-    blnk <- rep("\t", ncol(samp))
-    return(rbind(blnk, samp))
-  })
-  
-  ind_vectors <- lapply(seq_len(rawData$npops), function(i){
-    return(c("POP", paste(rep("pop_", samp_size[i]), i, "_", 
-                          1:samp_size[i], ",", sep = "")))
-  })
-  pre_data <- matrix(rep("\t", ((rawData$nloci + 1) * (rawData$nloci + 1))),
-                     ncol = (rawData$nloci + 1))
-  pre_data[1, ] <- c("Title", rep("\t", rawData$nloci))
-  for(i in 2:(rawData$nloci+1)){
-    pre_data[i,1] <- rawData$loci_names[(i-1)]
-  }
-  # add pop to ind_vectors and pop_list
-  popOut <- do.call("rbind", pop_list)
-  indVect <- do.call("c", ind_vectors)
-  output <- rbind(pre_data, cbind(indVect, popOut))
-  rownames(output) <- NULL
-  if(gp == 3){
-    output[is.na(output)] <- "000000"
-  } else {
-    output[is.na(output)] <- "0000"
-  }
-  #bs_data_file<-data.frame(bs_data_file)
-  out <- file(paste(outfile,".gen",sep=""), "w")
-  for(i in 1:nrow(output)){
-    if(i == nrow(output)){
-      cat(output[i,], file = out,  sep="\t")
-    } else {
-      cat(output[i,], "\n", file = out,  sep="\t") 
+  fastScan <- function(infile) {
+    s <- file.info(infile)$size
+    buf <- readChar(infile, s, useBytes = TRUE)
+    # replace Mac encoded line endings
+    if(grep("\r", buf) == 1L){
+      buf <- gsub("\r", "\n", buf)
+      buf <- gsub("\n\n", "\n", buf)
     }
+    return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
   }
-  close(out)
+  dat <- fastScan(infile)
+  # strip whitespace from the beginning an end of lines
+  dat <- sapply(dat, function(x){
+    sub("^\\s+", "", x)
+  })
+  dat <- sapply(dat, function(x){
+    return(sub("\\s+$", "", x))
+  })
+  names(dat) <- NULL
+  popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
+  if(popLoc[1] == 3){
+    if(length(strsplit(dat[4], split = "\\s+")[[1]][-1]) > 1){
+      locs <- strsplit(dat[2], split = "\\s+")[[1]]
+      if(length(locs) == 1){
+        locs <- strsplit(dat[2], split = ",")[[1]]
+      }
+      locs <- as.character(sapply(locs, function(x){
+        x <- strsplit(x, split = "")[[1]]
+        if(is.element(",", x)){
+          x <- x[-(which(x == ","))]
+        }
+        return(paste(x, collapse = ""))
+      }))
+      dat <- c(dat[1], locs, dat[-(1:2)])
+    }
+  } else {
+    locs <- as.character(dat[2:(popLoc[1]-1)])
+  }
+  # strip whitespace from locus names
+  locs <- as.character(sapply(locs, function(x){
+    return(strsplit(x, split = "\\s+")[[1]][1])
+  }))
+  # npops
+  popLoc <- grep("^([[:space:]]*)pop([[:space:]]*)$", tolower(dat))
+  npops <- length(popLoc)
+  no_col <- length(locs)+1
+  nloci <- length(locs)
+  # get genotypes
+  strt <- popLoc + 1
+  ends <- c(popLoc[-1] - 1, length(dat))
+  # generate a list of pop data
+  popDat <- function(dat, strt, nd){
+    return(dat[strt:nd])
+  }
+  pop_dat <- mapply(popDat, strt = strt, nd = ends, MoreArgs = list(dat = dat),
+                    SIMPLIFY = FALSE)
+  # function for sampling strings
+  smplR <- function(x, n){
+    id <- sample(length(x), n, replace = FALSE)
+    return(x[id])
+  }
+  # resample data
+  out <- lapply(pop_dat, smplR, n = samp_size)
+  # construct the new output
+  out <- lapply(out, function(x){
+    c("POP", x)
+  })
+  out <- do.call("c", out)
+  out <- c(paste("gpSampler n=", samp_size, sep = ""), locs, out)
+  out <- paste(out, collapse = "\n")
+  writeLines(out, outfile)
 }
 ################################################################################
 # gpSampler                                                                    #
@@ -9072,6 +9094,7 @@ polyIn <- function(infile = NULL, pairwise = FALSE, parallel = FALSE){
       # replace Mac encoded line endings
       if(grep("\r", buf) == 1L){
         buf <- gsub("\r", "\n", buf)
+        buf <- gsub("\n\n", "\n", buf)
       }
       return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
     }
@@ -9245,6 +9268,7 @@ snp2gp <- function(infile, prefix_length = 2){
     # replace Mac encoded line endings
     if(grep("\r", buf) == 1L){
       buf <- gsub("\r", "\n", buf)
+      buf <- gsub("\n\n", "\n", buf)
     }
     return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
   }
@@ -10952,6 +10976,7 @@ rgp <- function(infile){
     # replace Mac encoded line endings
     if(grep("\r", buf) == 1L){
       buf <- gsub("\r", "\n", buf)
+      buf <- gsub("\n\n", "\n", buf)
     }
     return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
   }

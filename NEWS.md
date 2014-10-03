@@ -117,3 +117,22 @@ Fixed a bug in the fastScan function which did not recognise "\r" as a line endi
 ```
 
 This new version of the function checks to see if "\r" is a character present in the file, then replaces these with "\n" so that the downstream functions work normally.
+
+v1.9.8.4
+----------
+
+Speed up gpSampler function by keeping data as charater strings, since this is the only data structure required.
+
+Also adds a bug fix to `fastScan` function. Some files (e.g. EASYPOP output .gen files) have "\r\n" file endings. when replacing "\r" with "\n" in these files, lines ended with "\n\n" meaning blank lines between each real line. The code below fixes this:
+
+```r
+fastScan <- function(fname) {
+  s <- file.info(fname)$size
+  buf <- readChar(fname, s, useBytes = TRUE)
+  # replace Mac encoded line endings
+  if(grep("\r", buf) == 1L){
+    buf <- gsub("\r", "\n", buf)
+    buf <- gsub("\n\n", "\n", buf)
+  }
+  return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
+}
