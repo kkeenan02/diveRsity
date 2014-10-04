@@ -136,3 +136,10 @@ fastScan <- function(fname) {
   }
   return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
 }
+```
+
+
+v1.9.8.5
+---------
+
+Fixes a memory leak by managing parallel cluster in a more appropriate way.
