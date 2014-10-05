@@ -10225,9 +10225,9 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     # END
     #################################
     # stop cluster
-    if(para){
-      stopCluster(cl) 
-    }
+    #if(para){
+    #  stopCluster(cl) 
+    #}
   }
   
   
