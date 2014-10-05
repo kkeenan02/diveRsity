@@ -5,6 +5,22 @@
 
 using namespace Rcpp;
 
+// diffCalcHarm
+NumericVector diffCalcHarm(NumericVector idt, NumericMatrix pw);
+RcppExport SEXP diveRsity_diffCalcHarm(SEXP idtSEXP, SEXP pwSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericVector >::type idt(idtSEXP );
+        Rcpp::traits::input_parameter< NumericMatrix >::type pw(pwSEXP );
+        NumericVector __result = diffCalcHarm(idt, pw);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // glbWCcpp
 List glbWCcpp(IntegerVector hsum, NumericMatrix af, NumericVector indtyp);
 RcppExport SEXP diveRsity_glbWCcpp(SEXP hsumSEXP, SEXP afSEXP, SEXP indtypSEXP) {
