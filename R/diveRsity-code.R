@@ -9455,12 +9455,13 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   #' # Calculate the harmonic sample size for pair of populations
   #' 
   #' __Kevin Keenan__ (2014)
-  diffCalcHarm <- function(idt, pw){
-    ps <- apply(pw, 2, function(x){
-      return((0.5*((idt[x[1]]^-1) + idt[x[2]]^-1))^-1)
-    })
-    return(ps)    
-  }
+  #' As of 04/10/14 implemented as a C++ function
+  #diffCalcHarm <- function(idt, pw){
+  #  ps <- apply(pw, 2, function(x){
+  #    return((0.5*((idt[x[1]]^-1) + idt[x[2]]^-1))^-1)
+  #  })
+  #  return(ps)    
+  #}
   #   #data(Test_data, package = "diveRsity")
   #   #Test_data[is.na(Test_data)] <- ""
   #   #Test_data[Test_data == "0"] <- "000000"
@@ -9693,57 +9694,31 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     #####################################
     # Low memory overhead (Takes 12.1 sec for 1000 bs or "pw_test.gen")
     if(fst){
-      if(para){
-        cl <- makeCluster(ncor)
-        clusterExport(cl, c("glbWCcpp", "tabMerge"), 
-                      envir = environment())
-        bsVarC <- parLapply(cl, bsDat, function(x){
-          hsum <- lapply(x$hsum, tabMerge)
-          stat <- mapply("glbWCcpp", hsum = hsum, af = x$alOut, 
-                         indtyp = x$indtyp, SIMPLIFY = FALSE)
-          bsFst <- sapply(stat, function(x){
-            return(x$a/(x$a+x$b+x$c))
-          })
-          bsFit <- sapply(stat, function(x){
-            return(1 - (x$c/(x$a + x$b + x$c)))
-          })
-          bsFis <- sapply(stat, function(x){
-            return(1 - (x$c/(x$b + x$c)))
-          })
-          glba <- mean(sapply(stat, "[[", "a"), na.rm = TRUE)
-          glbb <- mean(sapply(stat, "[[", "b"), na.rm = TRUE)
-          glbc <- mean(sapply(stat, "[[", "cdat"), na.rm = TRUE)
-          glbst <- glba/(glba + glbb + glbc)
-          glbit <- 1 - (glbc/(glba + glbb + glbc))
-          glbis <- 1 - (glbc/(glbb + glbc))
-          list(bsFstLoc = bsFst, bsFitLoc = bsFit, bsFisLoc = bsFis, 
-               bsFstAll = glbst, bsFitAll = glbit, bsFisAll = glbis)
+      
+      bsVarC <- lapply(bsDat, function(x){
+        hsum <- lapply(x$hsum, tabMerge)
+        stat <- mapply(glbWCcpp, hsum = hsum, af = x$alOut, 
+                       indtyp = x$indtyp, SIMPLIFY = FALSE)
+        bsFst <- sapply(stat, function(y){
+          return(y$a / (y$a + y$b + y$c))
         })
-        stopCluster(cl)
-      } else {
-        bsVarC <- lapply(bsDat, function(x){
-          hsum <- lapply(x$hsum, tabMerge)
-          stat <- mapply(glbWCcpp, hsum = hsum, af = x$alOut, 
-                         indtyp = x$indtyp, SIMPLIFY = FALSE)
-          bsFst <- sapply(stat, function(y){
-            return(y$a / (y$a + y$b + y$c))
-          })
-          bsFit <- sapply(stat, function(y){
-            return(1 - (y$c / (y$a + y$b + y$c)))
-          })
-          bsFis <- sapply(stat, function(y){
-            return(1 - (y$c / (y$b + y$c)))
-          })
-          glba <- mean(sapply(stat, "[[", "a"), na.rm = TRUE)
-          glbb <- mean(sapply(stat, "[[", "b"), na.rm = TRUE)
-          glbc <- mean(sapply(stat, "[[", "c"), na.rm = TRUE)
-          glbst <- glba/(glba + glbb + glbc)
-          glbit <- 1 - (glbc/(glba + glbb + glbc))
-          glbis <- 1 - (glbc/(glbb + glbc))
-          list(bsFstLoc = bsFst, bsFitLoc = bsFit, bsFisLoc = bsFis, 
-               bsFstAll = glbst, bsFitAll = glbit, bsFisAll = glbis)
+        bsFit <- sapply(stat, function(y){
+          return(1 - (y$c / (y$a + y$b + y$c)))
         })
-      }
+        bsFis <- sapply(stat, function(y){
+          return(1 - (y$c / (y$b + y$c)))
+        })
+        glba <- mean(sapply(stat, "[[", "a"), na.rm = TRUE)
+        glbb <- mean(sapply(stat, "[[", "b"), na.rm = TRUE)
+        glbc <- mean(sapply(stat, "[[", "c"), na.rm = TRUE)
+        glbst <- glba/(glba + glbb + glbc)
+        glbit <- 1 - (glbc/(glba + glbb + glbc))
+        glbis <- 1 - (glbc/(glbb + glbc))
+        list(bsFstLoc = bsFst, bsFitLoc = bsFit, bsFisLoc = bsFis, 
+             bsFstAll = glbst, bsFitAll = glbit, bsFisAll = glbis)
+      })
+
+
       # Extract bootstrap statistics
       bsFstL <- sapply(bsVarC, "[[", "bsFstLoc")
       bsFisL <- sapply(bsVarC, "[[", "bsFisLoc")
@@ -9804,59 +9779,31 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     # Very low memory over head (takes 1.6 sec for 1000 boostraps using 
     # "pw_test.gen")
     # Calculate stats
-    if(para){
-      cl <- makeCluster(ncor)
-      clusterExport(cl, c("varFunc", "dCalc", "gstCalc", "GstCalc"),
-                    envir = environment())
-      hetVar <- parLapply(cl, bsDat, function(x){
-        stat <- mapply("varFunc", af = x$alOut, sHarm = x$nHarm, 
-                       SIMPLIFY = FALSE)
-        ht <- sapply(stat, "[[", "htEst")
-        hs <- sapply(stat, "[[", "hsEst")
-        n <- ncol(x$alOut[[1]])
-        bsDLoc <- dCalc(ht = ht, hs = hs, n = n)
-        mnD <- mean(bsDLoc, na.rm = TRUE)
-        varD <- var(bsDLoc, na.rm = TRUE)
-        bsDAll <- 1/((1/mnD) + varD * (1/mnD)^3)
-        bsgLoc <- gstCalc(ht = ht, hs = hs)
-        bsgAll <- gstCalc(ht = mean(ht, na.rm = TRUE), 
-                          hs = mean(hs, na.rm = TRUE))
-        bsGLoc <- GstCalc(ht = ht, hs = hs, n = n)
-        bsGAll <- GstCalc(ht = mean(ht, na.rm = TRUE),
+    # Parallel is not worth the memory overhead.
+    hetVar <- lapply(bsDat, function(x){
+      stat <- mapply("varFunc", af = x$alOut, sHarm = x$nHarm, 
+                     SIMPLIFY = FALSE)
+      ht <- sapply(stat, "[[", "htEst")
+      hs <- sapply(stat, "[[", "hsEst")
+      n <- ncol(x$alOut[[1]])
+      bsDLoc <- dCalc(ht = ht, hs = hs, n = n)
+      mnD <- mean(bsDLoc, na.rm = TRUE)
+      varD <- var(bsDLoc, na.rm = TRUE)
+      bsDAll <- 1/((1/mnD) + varD * (1/mnD)^3)
+      bsgLoc <- gstCalc(ht = ht, hs = hs)
+      bsgAll <- gstCalc(ht = mean(ht, na.rm = TRUE), 
+                        hs = mean(hs, na.rm = TRUE))
+      bsGLoc <- GstCalc(ht = ht, hs = hs, n = n)
+      bsGAll <- GstCalc(ht = mean(ht, na.rm = TRUE),
+                        hs = mean(hs, na.rm = TRUE), n = n)
+      bsGGLoc <- GgstCalc(ht = ht, hs = hs, n = n)
+      bsGGAll <- GgstCalc(ht = mean(ht, na.rm = TRUE),
                           hs = mean(hs, na.rm = TRUE), n = n)
-        bsGGLoc <- GgstCalc(ht = ht, hs = hs, n = n)
-        bsGGAll <- GgstCalc(ht = mean(ht, na.rm = TRUE),
-                            hs = mean(hs, na.rm = TRUE), n = n)
-        list(bsDLoc = bsDLoc, bsgLoc = bsgLoc, bsGLoc = bsGLoc, 
-             bsDAll = bsDAll, bsgAll = bsgAll, bsGAll = bsGAll,
-             bsGGLoc = bsGGLoc, bsGGAll = bsGGAll)
-      })
-      stopCluster(cl)
-    } else {
-      hetVar <- lapply(bsDat, function(x){
-        stat <- mapply("varFunc", af = x$alOut, sHarm = x$nHarm, 
-                       SIMPLIFY = FALSE)
-        ht <- sapply(stat, "[[", "htEst")
-        hs <- sapply(stat, "[[", "hsEst")
-        n <- ncol(x$alOut[[1]])
-        bsDLoc <- dCalc(ht = ht, hs = hs, n = n)
-        mnD <- mean(bsDLoc, na.rm = TRUE)
-        varD <- var(bsDLoc, na.rm = TRUE)
-        bsDAll <- 1/((1/mnD) + varD * (1/mnD)^3)
-        bsgLoc <- gstCalc(ht = ht, hs = hs)
-        bsgAll <- gstCalc(ht = mean(ht, na.rm = TRUE), 
-                          hs = mean(hs, na.rm = TRUE))
-        bsGLoc <- GstCalc(ht = ht, hs = hs, n = n)
-        bsGAll <- GstCalc(ht = mean(ht, na.rm = TRUE),
-                          hs = mean(hs, na.rm = TRUE), n = n)
-        bsGGLoc <- GgstCalc(ht = ht, hs = hs, n = n)
-        bsGGAll <- GgstCalc(ht = mean(ht, na.rm = TRUE),
-                            hs = mean(hs, na.rm = TRUE), n = n)
-        list(bsDLoc = bsDLoc, bsgLoc = bsgLoc, bsGLoc = bsGLoc, 
-             bsDAll = bsDAll, bsgAll = bsgAll, bsGAll = bsGAll,
-             bsGGLoc = bsGGLoc, bsGGAll = bsGGAll)
-      })
-    }
+      list(bsDLoc = bsDLoc, bsgLoc = bsgLoc, bsGLoc = bsGLoc, 
+           bsDAll = bsDAll, bsgAll = bsgAll, bsGAll = bsGAll,
+           bsGGLoc = bsGGLoc, bsGGAll = bsGGAll)
+    })
+
     
     # Extract bootstrap statistics
     bsDL <- sapply(hetVar, "[[", "bsDLoc")
@@ -9932,9 +9879,6 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
                            actual = c(gGlb, GGlb, GGGlb, dGlb),
                            lower = glbLCI, upper = glbUCI, row.names = NULL) 
     }
-    if(para){
-      stopCluster(cl)
-    }
   }
   
   
@@ -9956,7 +9900,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     # Calculate non-bootstrap parameters
     
     # calculate harmonic sample sizes from preStats
-    preNharm <- lapply(preStats$indtyp, diffCalcHarm, pw = pw)
+    preNharm <- lapply(preStats$indtyp, diffCalcHarm, pw = pw-1)
     # add to preStats
     preStats$sHarm <- preNharm
     # calculate heterozygosities
@@ -10035,19 +9979,9 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   
   if(bs_pairwise){
     # calculate harmonic sample sizes (list[bs]:list[loc]:vector[pw])
-    # low memory overhead (takes 2.7 sec for 1000 bs using "pw_test.gen")
-    if(para){
-      cl <- makeCluster(ncor)
-      clusterExport(cl, c("diffCalcHarm", "pw"), envir = environment())
-      sHarm <- parLapply(cl, indtyp, function(x){
-        lapply(x, diffCalcHarm, pw = pw)
-      })
-      stopCluster(cl)
-    } else {
-      sHarm <- lapply(indtyp, function(x){
-        lapply(x, diffCalcHarm, pw = pw)
-      })
-    }
+    sHarm <- lapply(indtyp, function(x){
+      lapply(x, diffCalcHarm, pw = pw-1)
+    })
     rm(indtyp)
     # combine sHarm with bsDat
     listAdd <- function(bsDat, sHarm){
@@ -10060,27 +9994,11 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     rm(sHarm)
     
     # calculate data
-    if(para){
-      cl <- makeCluster(ncor)
-      clusterExport(cl, c("pw", "pwHCalc"), envir = environment())
-      hths <- parLapply(cl, bsDat, function(x){
-        lapply(1:length(x$alOut), function(i){
-          pwHCalc(x$alOut[[i]], sHarm = x$sHarm[[i]], pw = pw-1)
-        })
-        # mapply(pwHetCalc, af = x$alOut, sHarm = x$sHarm, 
-        #       MoreArgs = list(pw = pw), SIMPLIFY = FALSE)
-        #gc()
+    hths <- lapply(bsDat, function(x){
+      lapply(1:length(x$alOut), function(i){
+        pwHCalc(x$alOut[[i]], sHarm = x$sHarm[[i]], pw = pw-1)
       })
-      stopCluster(cl)
-    } else {
-      hths <- lapply(bsDat, function(x){
-        lapply(1:length(x$alOut), function(i){
-          pwHCalc(x$alOut[[i]], sHarm = x$sHarm[[i]], pw = pw-1)
-        })
-        # mapply(pwHetCalc, af = x$alOut, sHarm = x$sHarm, 
-        #       MoreArgs = list(pw = pw), SIMPLIFY = FALSE)
-      })
-    }
+    })
     
     # convert hths to stat focus
     hths <- lapply(hths, function(x){
@@ -10097,21 +10015,22 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       return(mapply(dCalc, ht = x$htEst, hs = x$hsEst, SIMPLIFY = TRUE))
     }, simplify = "array")
     # overall d bootstraps
-    if(para){
-      cl <- makeCluster(ncor)
-      pwDAllbs <- parApply(cl, pwDLocbs, c(1,3), function(x){
-        mn <- mean(x, na.rm = TRUE)
-        vr <- var(x, na.rm = TRUE)
-        return(1/((1/mn)+vr*(1/mn)^3))  
-      })
-      stopCluster(cl)
-    } else {
-      pwDAllbs <- apply(pwDLocbs, c(1,3), function(x){
-        mn <- mean(x, na.rm = TRUE)
-        vr <- var(x, na.rm = TRUE)
-        return(1/((1/mn)+vr*(1/mn)^3))  
-      })
-    }
+    # Silence para since the benefits are minimal
+    #if(para){
+    #  cl <- makeCluster(ncor)
+    #  pwDAllbs <- parApply(cl, pwDLocbs, c(1,3), function(x){
+    #    mn <- mean(x, na.rm = TRUE)
+    #    vr <- var(x, na.rm = TRUE)
+    #    return(1/((1/mn)+vr*(1/mn)^3))  
+    #  })
+    #  stopCluster(cl)
+    #} else {
+    pwDAllbs <- apply(pwDLocbs, c(1,3), function(x){
+      mn <- mean(x, na.rm = TRUE)
+      vr <- var(x, na.rm = TRUE)
+      return(1/((1/mn)+vr*(1/mn)^3))  
+    })
+    #}
     rm(pwDLocbs)
     
     # calculate locus estimtor
@@ -10143,7 +10062,8 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       return(GgstCalc(ht, hs))
     }, simplify = "array")
     
-    #' ### Calculate Weir & Cockerham variance components 
+    #' ### Calculate Weir & Cockerham variance components (v. slow, try to 
+    #' write a C++ tabMerge function)
     if(fst){
       # Calculate bootstrap statistics
       if(para){
