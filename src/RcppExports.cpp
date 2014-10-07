@@ -105,14 +105,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // tabMerge
-NumericVector tabMerge(List ip);
-RcppExport SEXP diveRsity_tabMerge(SEXP ipSEXP) {
+NumericVector tabMerge(List hsum);
+RcppExport SEXP diveRsity_tabMerge(SEXP hsumSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< List >::type ip(ipSEXP );
-        NumericVector __result = tabMerge(ip);
+        Rcpp::traits::input_parameter< List >::type hsum(hsumSEXP );
+        NumericVector __result = tabMerge(hsum);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
