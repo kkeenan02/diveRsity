@@ -143,3 +143,8 @@ v1.9.8.5
 ---------
 
 Fixes a memory leak by managing parallel cluster in a more appropriate way.
+
+v1.9.8.6
+---------
+
+Added a faster C++ verison of tabMerge function

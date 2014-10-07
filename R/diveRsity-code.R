@@ -9520,20 +9520,20 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   preStats <- statCalc(rsDat = ip$genos, al = ip$af, fst = fst, bs = FALSE)
   # identify loci with unscored samples and fix for glbWCcpp
   #lapply
-  # tabMerge
-  tabMerge <- function(...){
-    ip <- unlist(list(...))
-    idx <- names(ip) != "NA"
-    ip <- ip[idx]
-    out <- sapply(split(ip, names(ip)), sum)
-    if(length(out) == 0L){
-      ot <- NA
-      names(ot) <- "NA"
-      return(ot)
-    } else {
-      return(out)
-    }
-  }
+  # tabMerge [ silence in place of C++ version]
+  #tabMerge <- function(...){
+  #  ip <- unlist(list(...))
+  #  idx <- names(ip) != "NA"
+  #  ip <- ip[idx]
+  #  out <- sapply(split(ip, names(ip)), sum)
+  #  if(length(out) == 0L){
+  #    ot <- NA
+  #    names(ot) <- "NA"
+  #    return(ot)
+  #  } else {
+  #    return(out)
+  #  }
+  #}
   if(fst){
     # locus variance components (working)
     hsum <- lapply(preStats$hsum, tabMerge)
