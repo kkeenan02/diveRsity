@@ -21,16 +21,16 @@ pwHt <- function(af, pw) {
     .Call('diveRsity_pwHt', PACKAGE = 'diveRsity', af, pw)
 }
 
+pwTabMerge <- function(hsum, pw) {
+    .Call('diveRsity_pwTabMerge', PACKAGE = 'diveRsity', hsum, pw)
+}
+
 pwWCcpp <- function(hsum1, af1, indtyp1, pw) {
     .Call('diveRsity_pwWCcpp', PACKAGE = 'diveRsity', hsum1, af1, indtyp1, pw)
 }
 
 tabMerge <- function(hsum) {
     .Call('diveRsity_tabMerge', PACKAGE = 'diveRsity', hsum)
-}
-
-tabMergePw <- function(hsum, pw) {
-    .Call('diveRsity_tabMergePw', PACKAGE = 'diveRsity', hsum, pw)
 }
 
 varFunc <- function(af, sHarm) {

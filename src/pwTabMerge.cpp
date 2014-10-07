@@ -4,7 +4,7 @@ using namespace Rcpp;
 // A c++ implementation of the tabMerge function
 
 // [[Rcpp::export]]
-List tabMergePw(List hsum, NumericMatrix pw) {
+List pwTabMerge(List hsum, NumericMatrix pw) {
     
     int n = pw.ncol() ;
     

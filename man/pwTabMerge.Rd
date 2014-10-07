@@ -1,9 +1,9 @@
-\name{tabMergePw}
-\alias{tabMergePw}
+\name{pwTabMerge}
+\alias{pwTabMerge}
 \title{C++ level function for generating pairwise hsums for fst calculation}
 \description{C++ level function for generating pairwise hsums for fst calculation}
 \usage{
-tabMergePw(hsum, pw)
+pwTabMerge(hsum, pw)
 }
 \arguments{
   \item{hsum}{locus hsum values from statCalc function}

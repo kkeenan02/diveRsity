@@ -86,6 +86,22 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// pwTabMerge
+List pwTabMerge(List hsum, NumericMatrix pw);
+RcppExport SEXP diveRsity_pwTabMerge(SEXP hsumSEXP, SEXP pwSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< List >::type hsum(hsumSEXP );
+        Rcpp::traits::input_parameter< NumericMatrix >::type pw(pwSEXP );
+        List __result = pwTabMerge(hsum, pw);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // pwWCcpp
 List pwWCcpp(List hsum1, NumericMatrix af1, NumericVector indtyp1, IntegerMatrix pw);
 RcppExport SEXP diveRsity_pwWCcpp(SEXP hsum1SEXP, SEXP af1SEXP, SEXP indtyp1SEXP, SEXP pwSEXP) {
@@ -113,22 +129,6 @@ BEGIN_RCPP
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< List >::type hsum(hsumSEXP );
         NumericVector __result = tabMerge(hsum);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// tabMergePw
-List tabMergePw(List hsum, NumericMatrix pw);
-RcppExport SEXP diveRsity_tabMergePw(SEXP hsumSEXP, SEXP pwSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< List >::type hsum(hsumSEXP );
-        Rcpp::traits::input_parameter< NumericMatrix >::type pw(pwSEXP );
-        List __result = tabMergePw(hsum, pw);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
