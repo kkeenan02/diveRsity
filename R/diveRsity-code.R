@@ -10064,14 +10064,10 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     if(fst){
       # Calculate bootstrap statistics
       if(para){
-        cl <- makeCluster(ncor)
-        # replace hsum with pairwise version
-        clusterExport(cl, c("pw", "pwTabMerge"), envir = environment())
-        bsDat <- parLapply(cl, bsDat, function(x){
+        bsDat <- lapply(bsDat, function(x){
           x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
           list(hsum = x$hsum, indtyp = x$indtyp, alOut = x$alOut)
         })
-        stopCluster(cl)
         # Calculate pairwise Fst
         cl <- makeCluster(ncor)
         clusterExport(cl, c("pw", "pwWCcpp"), envir = environment())
