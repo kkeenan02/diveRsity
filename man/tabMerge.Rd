@@ -3,7 +3,7 @@
 \title{C++ level function for combining pw hsums}
 \description{C++ level function for combining pw hsums}
 \usage{
-varFunc(hsum)
+tabMerge(hsum)
 }
 \arguments{
   \item{hsum}{hsum}

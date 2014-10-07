@@ -25,6 +25,10 @@ pwWCcpp <- function(hsum1, af1, indtyp1, pw) {
     .Call('diveRsity_pwWCcpp', PACKAGE = 'diveRsity', hsum1, af1, indtyp1, pw)
 }
 
+tabMerge <- function(ip) {
+    .Call('diveRsity_tabMerge', PACKAGE = 'diveRsity', ip)
+}
+
 varFunc <- function(af, sHarm) {
     .Call('diveRsity_varFunc', PACKAGE = 'diveRsity', af, sHarm)
 }

@@ -104,6 +104,21 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// tabMerge
+NumericVector tabMerge(List ip);
+RcppExport SEXP diveRsity_tabMerge(SEXP ipSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< List >::type ip(ipSEXP );
+        NumericVector __result = tabMerge(ip);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // varFunc
 List varFunc(NumericMatrix af, double sHarm);
 RcppExport SEXP diveRsity_varFunc(SEXP afSEXP, SEXP sHarmSEXP) {
