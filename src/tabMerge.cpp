@@ -4,14 +4,14 @@ using namespace Rcpp;
 // A c++ implementation of the tabMerge function
 
 // [[Rcpp::export]]
-NumericVector tabMerge(List ip) {
+NumericVector tabMerge(List hsum) {
     
     RCPP_UNORDERED_MAP<std::string,double> out ;
     
-    int n = ip.size() ;
+    int n = hsum.size() ;
     
     for(int i = 0; i < n; i++){
-      NumericVector x = ip[i] ;
+      NumericVector x = hsum[i] ;
       CharacterVector names = x.attr("names") ;
       int m = x.size() ;
       
