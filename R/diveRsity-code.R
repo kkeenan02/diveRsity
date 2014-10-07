@@ -9520,7 +9520,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   preStats <- statCalc(rsDat = ip$genos, al = ip$af, fst = fst, bs = FALSE)
   # identify loci with unscored samples and fix for glbWCcpp
   #lapply
-  # tabMerge [ silence in place of C++ version]
+  # tabMerge [ silenced in place of C++ version, since 04/10/14 ]
   #tabMerge <- function(...){
   #  ip <- unlist(list(...))
   #  idx <- names(ip) != "NA"

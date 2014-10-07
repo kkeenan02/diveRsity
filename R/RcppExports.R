@@ -29,6 +29,10 @@ tabMerge <- function(hsum) {
     .Call('diveRsity_tabMerge', PACKAGE = 'diveRsity', hsum)
 }
 
+tabMergePw <- function(hsum, pw) {
+    .Call('diveRsity_tabMergePw', PACKAGE = 'diveRsity', hsum, pw)
+}
+
 varFunc <- function(af, sHarm) {
     .Call('diveRsity_varFunc', PACKAGE = 'diveRsity', af, sHarm)
 }

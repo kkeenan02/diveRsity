@@ -119,6 +119,22 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// tabMergePw
+List tabMergePw(List hsum, NumericMatrix pw);
+RcppExport SEXP diveRsity_tabMergePw(SEXP hsumSEXP, SEXP pwSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< List >::type hsum(hsumSEXP );
+        Rcpp::traits::input_parameter< NumericMatrix >::type pw(pwSEXP );
+        List __result = tabMergePw(hsum, pw);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // varFunc
 List varFunc(NumericMatrix af, double sHarm);
 RcppExport SEXP diveRsity_varFunc(SEXP afSEXP, SEXP sHarmSEXP) {
