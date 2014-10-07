@@ -9946,10 +9946,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       # theta
       # calculate standard statistics (non-bootstrap)
       hsum <- lapply(preStats$hsum, function(x){
-        op <- lapply(1:ncol(pw), function(i){
-          return(tabMerge(x[pw[,i]]))
-        })
-        return(op)
+        pwTabMerge(x, pw-1)
       })
       pwVar <- mapply("pwWCcpp", hsum1 = hsum, af1 = preStats$alOut,
                       indtyp1 = preStats$indtyp, MoreArgs = list(pw = pw-1),
@@ -10068,28 +10065,29 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       # Calculate bootstrap statistics
       if(para){
         cl <- makeCluster(ncor)
-        clusterExport(cl, c("pw", "pwWCcpp", "tabMerge"), envir = environment())
+        # replace hsum with pairwise version
+        clusterExport(cl, c("pw", "pwTabMerge"), envir = environment())
+        bsDat <- parLapply(cl, bsDat, function(x){
+          x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
+          list(hsum = x$hsum, indtyp = x$indtyp, alOut = x$alOut)
+        })
+        stopCluster(cl)
+        # Calculate pairwise Fst
+        cl <- makeCluster(ncor)
+        clusterExport(cl, c("pw", "pwWCcpp"), envir = environment())
         wcVar <- parLapply(cl, bsDat, function(x){
-          hsum <- lapply(x$hsum, function(y){
-            op <- lapply(1:ncol(pw), function(i){
-              return(tabMerge(y[pw[,i]]))
-            })
-            return(op)
-          })
-          return(mapply("pwWCcpp", hsum1 = hsum, indtyp1 = x$indtyp, 
+          return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp, 
                         af1 = x$alOut, MoreArgs = list(pw = pw-1), 
                         SIMPLIFY = FALSE))
         })
         stopCluster(cl)
       } else {
+        bsDat <- lapply(bsDat, function(x){
+          x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
+          list(hsum = x$hsum, indtyp = x$indtyp, alOut = x$alOut)
+        })
         wcVar <- lapply(bsDat, function(x){
-          hsum <- lapply(x$hsum, function(y){
-            op <- lapply(1:ncol(pw), function(i){
-              return(tabMerge(y[pw[,i]]))
-            })
-            return(op)
-          })
-          return(mapply("pwWCcpp", hsum1 = hsum, indtyp1 = x$indtyp, 
+          return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp, 
                         af1 = x$alOut, MoreArgs = list(pw = pw-1), 
                         SIMPLIFY = FALSE))
         })
