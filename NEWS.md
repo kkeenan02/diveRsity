@@ -148,3 +148,8 @@ v1.9.8.6
 ---------
 
 Added a faster C++ verison of tabMerge function
+
+v1.9.8.7
+--------
+
+Added a faster C++ version of tabMergePw for pairwise hsum calculation.
