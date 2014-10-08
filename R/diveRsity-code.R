@@ -10063,31 +10063,17 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     #' write a C++ tabMerge function)
     if(fst){
       # Calculate bootstrap statistics
-      if(para){
-        bsDat <- lapply(bsDat, function(x){
+      bsDat <- lapply(bsDat, function(x){
           x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
           list(hsum = x$hsum, indtyp = x$indtyp, alOut = x$alOut)
         })
         # Calculate pairwise Fst
-        cl <- makeCluster(ncor)
-        clusterExport(cl, c("pw", "pwWCcpp"), envir = environment())
-        wcVar <- parLapply(cl, bsDat, function(x){
-          return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp, 
-                        af1 = x$alOut, MoreArgs = list(pw = pw-1), 
-                        SIMPLIFY = FALSE))
-        })
-        stopCluster(cl)
-      } else {
-        bsDat <- lapply(bsDat, function(x){
-          x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
-          list(hsum = x$hsum, indtyp = x$indtyp, alOut = x$alOut)
-        })
+
         wcVar <- lapply(bsDat, function(x){
           return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp, 
                         af1 = x$alOut, MoreArgs = list(pw = pw-1), 
                         SIMPLIFY = FALSE))
         })
-      }
       
       # Calculate bootstrap theta
       #       pwFstLocbs <- sapply(wcVar, function(x){
