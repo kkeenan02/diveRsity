@@ -10062,14 +10062,30 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     #' ### Calculate Weir & Cockerham variance components (v. slow, try to 
     #' write a C++ tabMerge function)
     if(fst){
-      # Calculate bootstrap F-statistics
-      wcVar <- lapply(bsDat, function(x){
-        x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
-        # Calculate pairwise Fst
-        return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp, 
-                      af1 = x$alOut, MoreArgs = list(pw = pw-1), 
-                      SIMPLIFY = FALSE))
-      })
+      if(para){
+        cl <- makeCluster(ncor)
+        clusterExport(cl, c("pwTabMerge", "pwWCcpp", "pw"), envir = environment())
+        # Calculate bootstrap F-statistics
+        wcVar <- parLapply(cl, bsDat, function(x){
+          x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
+          # Calculate pairwise Fst
+          return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp, 
+                        af1 = x$alOut, MoreArgs = list(pw = pw-1), 
+                        SIMPLIFY = FALSE))
+        })
+        stopCluster(cl)
+        for(i in 1:5){gc()}
+      } else {
+        # Calculate bootstrap F-statistics
+        wcVar <- lapply(bsDat, function(x){
+          x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
+          # Calculate pairwise Fst
+          return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp, 
+                        af1 = x$alOut, MoreArgs = list(pw = pw-1), 
+                        SIMPLIFY = FALSE))
+        })
+        for(i in 1:5){gc()}
+      }
       
       # Calculate bootstrap theta
       #       pwFstLocbs <- sapply(wcVar, function(x){
