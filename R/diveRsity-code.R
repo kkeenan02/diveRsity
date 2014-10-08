@@ -10062,18 +10062,14 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     #' ### Calculate Weir & Cockerham variance components (v. slow, try to 
     #' write a C++ tabMerge function)
     if(fst){
-      # Calculate bootstrap statistics
-      bsDat <- lapply(bsDat, function(x){
-          x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
-          list(hsum = x$hsum, indtyp = x$indtyp, alOut = x$alOut)
-        })
+      # Calculate bootstrap F-statistics
+      wcVar <- lapply(bsDat, function(x){
+        x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
         # Calculate pairwise Fst
-
-        wcVar <- lapply(bsDat, function(x){
-          return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp, 
-                        af1 = x$alOut, MoreArgs = list(pw = pw-1), 
-                        SIMPLIFY = FALSE))
-        })
+        return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp, 
+                      af1 = x$alOut, MoreArgs = list(pw = pw-1), 
+                      SIMPLIFY = FALSE))
+      })
       
       # Calculate bootstrap theta
       #       pwFstLocbs <- sapply(wcVar, function(x){
