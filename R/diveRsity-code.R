@@ -10029,7 +10029,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     pwDAllbs <- apply(pwDLocbs, c(1,3), function(x){
       mn <- mean(x, na.rm = TRUE)
       vr <- var(x, na.rm = TRUE)
-      return(1/((1/mn)+vr*(1/mn)^3))  
+      1/((1/mnD)+((vrD*((1/mnD)^3))))  
     })
     #}
     rm(pwDLocbs)
