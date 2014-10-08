@@ -153,3 +153,8 @@ v1.9.8.7
 --------
 
 Added a faster C++ version of tabMergePw for pairwise hsum calculation.
+
+v1.9.8.8
+--------
+
+Fixes a bug in pairwise D (Jost, 2008) calculation.

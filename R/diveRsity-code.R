@@ -9462,20 +9462,24 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   #  })
   #  return(ps)    
   #}
-  #   #data(Test_data, package = "diveRsity")
-  #   #Test_data[is.na(Test_data)] <- ""
-  #   #Test_data[Test_data == "0"] <- "000000"
-  #   source("R/diffCalcbCor.R")
-  #   source("R/diffCalcHarm.R")
-  #   source("R/misc.R")
-  #   infile <- "speed-tests/MyData.gen"#Test_data
-  #   outfile <- "test"
-  #   fst = TRUE
-  #   pairwise = TRUE
-  #   bs_locus = TRUE
-  #   bs_pairwise = TRUE
-  #   boots = 10
-  #   para = FALSE
+  #infile <- "Test_data.gen"#Test_data
+  #outfile <- NULL
+  #fst = TRUE
+  #pairwise = TRUE
+  #bs_locus = TRUE
+  #bs_pairwise = TRUE
+  #boots = 100
+  #para = TRUE
+  #rgp <- diveRsity:::rgp
+  #statCalc <- diveRsity:::statCalc
+  #glbWCcpp <- diveRsity:::glbWCcpp
+  #varFunc <- diveRsity:::varFunc
+  #myTab <- diveRsity:::myTab
+  #pwHCalc <- diveRsity:::pwHCalc
+  #pwWCcpp <- diveRsity:::pwWCcpp
+  #diffCalcHarm <- diveRsity:::diffCalcHarm
+  #tabMerge <- diveRsity:::tabMerge
+  #pwTabMerge <- diveRsity:::pwTabMerge
   
   
   bs <- boots
@@ -9717,8 +9721,8 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
         list(bsFstLoc = bsFst, bsFitLoc = bsFit, bsFisLoc = bsFis, 
              bsFstAll = glbst, bsFitAll = glbit, bsFisAll = glbis)
       })
-
-
+      
+      
       # Extract bootstrap statistics
       bsFstL <- sapply(bsVarC, "[[", "bsFstLoc")
       bsFisL <- sapply(bsVarC, "[[", "bsFisLoc")
@@ -9803,7 +9807,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
            bsDAll = bsDAll, bsgAll = bsgAll, bsGAll = bsGAll,
            bsGGLoc = bsGGLoc, bsGGAll = bsGGAll)
     })
-
+    
     
     # Extract bootstrap statistics
     bsDL <- sapply(hetVar, "[[", "bsDLoc")
@@ -9926,8 +9930,8 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     pwDLoc <- mapply(dCalc, ht = nbshths$htEst, hs = nbshths$hsEst)
     pwDall <- apply(pwDLoc, 1, function(x){
       mnD <- mean(x, na.rm = TRUE)
-      vrD <- mean(x, na.rm = TRUE)
-      return(1/((1/mnD) + vrD * (1/mnD)*3))
+      vrD <- var(x, na.rm = TRUE)
+      1/((1/mnD)+((vrD*((1/mnD)^3))))
     })
     
     # gst
