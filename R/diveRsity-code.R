@@ -5280,7 +5280,7 @@ bigDivPart <- function(infile = NULL, outfile = NULL, WC_Fst = FALSE,
     s <- file.info(fname)$size
     buf <- readChar(fname, s, useBytes = TRUE)
     # replace Mac encoded line endings
-    if(grep("\r", buf) == 1L){
+    if(length(grep("\r", buf)) != 0L){
       buf <- gsub("\r", "\n", buf)
       buf <- gsub("\n\n", "\n", buf)
     }
@@ -5734,7 +5734,7 @@ arp2gen <- function(infile){
       s <- file.info(fname)$size
       buf <- readChar(fname, s, useBytes = TRUE)
       # replace Mac encoded line endings
-      if(grep("\r", buf) == 1L){
+      if(length(grep("\r", buf)) != 0L){
         buf <- gsub("\r", "\n", buf)
         buf <- gsub("\n\n", "\n", buf)
       }
@@ -8998,7 +8998,7 @@ gpSampler <- function(infile = NULL, samp_size = 10, outfile = NULL){
     s <- file.info(infile)$size
     buf <- readChar(infile, s, useBytes = TRUE)
     # replace Mac encoded line endings
-    if(grep("\r", buf) == 1L){
+    if(length(grep("\r", buf)) != 0L){
       buf <- gsub("\r", "\n", buf)
       buf <- gsub("\n\n", "\n", buf)
     }
@@ -9092,7 +9092,7 @@ polyIn <- function(infile = NULL, pairwise = FALSE, parallel = FALSE){
       s <- file.info(fname)$size
       buf <- readChar(fname, s, useBytes = TRUE)
       # replace Mac encoded line endings
-      if(grep("\r", buf) == 1L){
+      if(length(grep("\r", buf)) != 0L){
         buf <- gsub("\r", "\n", buf)
         buf <- gsub("\n\n", "\n", buf)
       }
@@ -9266,7 +9266,7 @@ snp2gp <- function(infile, prefix_length = 2){
     s <- file.info(fname)$size
     buf <- readChar(fname, s, useBytes = TRUE)
     # replace Mac encoded line endings
-    if(grep("\r", buf) == 1L){
+    if(length(grep("\r", buf)) != 0L){
       buf <- gsub("\r", "\n", buf)
       buf <- gsub("\n\n", "\n", buf)
     }
@@ -10875,7 +10875,7 @@ rgp <- function(infile){
     s <- file.info(fname)$size
     buf <- readChar(fname, s, useBytes = TRUE)
     # replace Mac encoded line endings
-    if(grep("\r", buf) == 1L){
+    if(length(grep("\r", buf)) != 0L){
       buf <- gsub("\r", "\n", buf)
       buf <- gsub("\n\n", "\n", buf)
     }
