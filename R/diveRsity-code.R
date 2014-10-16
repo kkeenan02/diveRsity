@@ -10610,6 +10610,15 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
   #source("rgp.R")
   #source("inFunc.R")
   # calculate basic information
+  #infile <- "Dataset_test.gen"
+  #outfile = "tst"#NULL
+  #pairwise = TRUE
+  #xlsx = FALSE
+  #bootstraps = 10
+  #parallel = T
+  #rgp <- diveRsity:::rgp
+  #inFunc <- source("inFunc.R")$value
+  
   alf <- rgp(infile)
   locs <- alf$locs
   pnms <- sapply(alf$indnms, function(x){return(x[1])})
@@ -10619,7 +10628,7 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
   })
   names(af) <- locs
   if(pairwise){
-    inStatPW <- lapply(af, inFunc, pw = TRUE) 
+    inStatPW <- lapply(af, inFunc, pw = TRUE)
   }
   inStatGLB <- lapply(af, inFunc, pw = FALSE)
   ####-- Global bootstrap --####
@@ -10755,62 +10764,64 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
   ####-- Write the data to file --####
   
   # Set up directory
-  outDir <- paste(getwd(), "/", outfile, "-[inCalc]/", sep = "")
-  if(!file.exists(outDir)){
-    dir.create(path = outDir, showWarnings = FALSE)
-  }
-  if(xlsx){
-    if(!is.element("xlsx",installed.packages()[,1])){
-      stop("The 'xlsx' package must be installed. Writing to text...")
+  if(!is.null(outfile)){
+    outDir <- paste(getwd(), "/", outfile, "-[inCalc]/", sep = "")
+    if(!file.exists(outDir)){
+      dir.create(path = outDir, showWarnings = FALSE)
     }
-    require("xlsx")
-    outF <- paste(outDir, "outfile-[in.Calc].xlsx", sep = "")
-    write.xlsx(glbDat, file = outF, sheetName = "Global In", 
-               col.names = TRUE, row.names = FALSE, append = FALSE)
-    if(pairwise){
-      write.xlsx(pwDat, file = outF, sheetName = "Pairwise In", 
-                 col.names = TRUE, row.names = FALSE, append = TRUE)
-    }
-    if(!is.null(bootstraps)){
-      write.xlsx(lowCI, file = outF, sheetName = "Lower CI (PW)", 
-                 col.names = TRUE, row.names = FALSE, append = TRUE)
-      write.xlsx(upCI, file = outF, sheetName = "Upper CI (PW)", 
-                 col.names = TRUE, row.names = FALSE, append = TRUE)
-    }
-  } else {
-    rn <- paste(colnames(glbDat), collapse = "\t")
-    glbDatOut <- apply(glbDat, 1, paste, collapse = "\t")
-    glbDatOut <- c(rn, glbDatOut)
-    of1 <- paste(outDir, "Global-[in.Calc].txt", sep = "")
-    fl1 <- file(of1, "w")
-    for(i in 1:length(glbDatOut)){
-      cat(glbDatOut[i], sep = "\n", file = fl1)
-    }
-    close(fl1)
-    if(pairwise){
-      pwDatOut <- apply(pwDat, 1, paste, collapse = "\t")
-      pwDatOut <- c(row1, pwDatOut)
-      of2 <- paste(outDir, "pairwise-[in.Calc].txt", sep = "")
-      fl2 <- file(of2, "w")
-      for(i in 1:length(pwDatOut)){
-        cat(pwDatOut[i], sep = "\n", file = fl2)
+    if(xlsx){
+      if(!is.element("xlsx",installed.packages()[,1])){
+        stop("The 'xlsx' package must be installed. Writing to text...")
       }
-      close(fl2)
-    }
-    if(!is.null(bootstraps) && pairwise){
-      of3 <- paste(outDir, "Lower_CI-[in.Calc].txt", sep = "")
-      fl3 <- file(of3, "w")
-      of4 <- paste(outDir, "Upper_CI-[in.Calc].txt", sep = "")
-      fl4 <- file(of4, "w")
-      lowCIout <- c(row1, apply(lowCI, 1, paste, collapse = "\t"))
-      upCIout <- c(row1, apply(upCI, 1, paste, collapse = "\t"))
-      for(i in 1:length(lowCIout)){
-        cat(lowCIout[i], sep = "\n", file = fl3)
-        cat(upCIout[i], sep = "\n", file = fl4)
+      require("xlsx")
+      outF <- paste(outDir, "outfile-[in.Calc].xlsx", sep = "")
+      write.xlsx(glbDat, file = outF, sheetName = "Global In", 
+                 col.names = TRUE, row.names = FALSE, append = FALSE)
+      if(pairwise){
+        write.xlsx(pwDat, file = outF, sheetName = "Pairwise In", 
+                   col.names = TRUE, row.names = FALSE, append = TRUE)
       }
-      close(fl3)
-      close(fl4)
-    }
+      if(!is.null(bootstraps)){
+        write.xlsx(lowCI, file = outF, sheetName = "Lower CI (PW)", 
+                   col.names = TRUE, row.names = FALSE, append = TRUE)
+        write.xlsx(upCI, file = outF, sheetName = "Upper CI (PW)", 
+                   col.names = TRUE, row.names = FALSE, append = TRUE)
+      }
+    } else {
+      rn <- paste(colnames(glbDat), collapse = "\t")
+      glbDatOut <- apply(glbDat, 1, paste, collapse = "\t")
+      glbDatOut <- c(rn, glbDatOut)
+      of1 <- paste(outDir, "Global-[in.Calc].txt", sep = "")
+      fl1 <- file(of1, "w")
+      for(i in 1:length(glbDatOut)){
+        cat(glbDatOut[i], sep = "\n", file = fl1)
+      }
+      close(fl1)
+      if(pairwise){
+        pwDatOut <- apply(pwDat, 1, paste, collapse = "\t")
+        pwDatOut <- c(row1, pwDatOut)
+        of2 <- paste(outDir, "pairwise-[in.Calc].txt", sep = "")
+        fl2 <- file(of2, "w")
+        for(i in 1:length(pwDatOut)){
+          cat(pwDatOut[i], sep = "\n", file = fl2)
+        }
+        close(fl2)
+      }
+      if(!is.null(bootstraps) && pairwise){
+        of3 <- paste(outDir, "Lower_CI-[in.Calc].txt", sep = "")
+        fl3 <- file(of3, "w")
+        of4 <- paste(outDir, "Upper_CI-[in.Calc].txt", sep = "")
+        fl4 <- file(of4, "w")
+        lowCIout <- c(row1, apply(lowCI, 1, paste, collapse = "\t"))
+        upCIout <- c(row1, apply(upCI, 1, paste, collapse = "\t"))
+        for(i in 1:length(lowCIout)){
+          cat(lowCIout[i], sep = "\n", file = fl3)
+          cat(upCIout[i], sep = "\n", file = fl4)
+        }
+        close(fl3)
+        close(fl4)
+      }
+    } 
   }
   ####-- Function outputs --####
   if(!pairwise && is.null(bootstraps)){
@@ -10830,6 +10841,9 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
 #' actual inCalc sub-funciton
 #' 
 #' Kevin Keenan 2014
+#' actual inCalc sub-funciton
+#' 
+#' Kevin Keenan 2014
 inFunc <- function(af, pw = FALSE){
   if(pw){
     combs <- combn(ncol(af), 2)
@@ -10839,7 +10853,7 @@ inFunc <- function(af, pw = FALSE){
     np <- length(unique(c(combs[1,], combs[2,])))
     out <- apply(combs, 2, function(x){
       y <- af[,x]
-      y <- y[rowSums(y) != 0,]
+      #y <- y[rowSums(y) != 0,]
       inOut <- apply(y, 1, function(z){
         p_j <- sum(z)/length(z)
         trm1 <- (-p_j*(log(p_j)))
@@ -10848,7 +10862,7 @@ inFunc <- function(af, pw = FALSE){
         trm2 <- sum(z/(length(z))*lgx) 
         return(trm1 + trm2)
       })
-      return(sum(inOut))
+      return(sum(inOut, na.rm = TRUE))
     })
     return(out)
   } else {
