@@ -11210,7 +11210,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
   #pwHt <- diveRsity:::pwHt
   #rgp <- diveRsity:::rgp
   #nbs <- 500
-  #stat = "all"
+  #stat = "d"
   #filter_threshold <- 0
   #plot_network = TRUE
   #plot_col <- "darkblue"
@@ -11345,6 +11345,10 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ",
                   filter_threshold, "; D)", sep = ""))
+      # record plots for web app
+      if(app){
+        Dplt <- recordPlot()
+      }
       if(!is.null(outfile)){
         pdf(paste(of, "Relative_migration.pdf", sep = ""), paper = "a4r")
         qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11360,6 +11364,10 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ",
                   filter_threshold, "; Gst)", sep = ""))
+      # record plots for web app
+      if(app){
+        Gplt <- recordPlot()
+      }
       if(!is.null(outfile)){
         pdf(paste(of, "Relative_migration.pdf", sep = ""), paper = "a4r")
         qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11375,6 +11383,10 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ",
                   filter_threshold, "; Nm)", sep = ""))
+      # record plots for web app
+      if(app){
+        Nmplt <- recordPlot()
+      }
       if(!is.null(outfile)){
         pdf(paste(of, "Relative_migration.pdf", sep = ""), paper = "a4r")
         qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11390,16 +11402,28 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ",
                   filter_threshold, "; D)", sep = ""))
+      # record plots for web app
+      if(app){
+        Dplt <- recordPlot()
+      }
       qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                      legend = TRUE, posCol = plot_col,
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ",
                   filter_threshold, "; Gst)", sep = ""))
+      # record plots for web app
+      if(app){
+        Gplt <- recordPlot()
+      }
       qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                      legend = TRUE, posCol = plot_col,
                      edge.labels = TRUE, mar = c(2,2,5,5), curve = 2.5)
       title(paste("\n Relative migration network \n (Filter threshold = ",
                   filter_threshold, "; Nm)", sep = ""))
+      # record plots for web app
+      if(app){
+        Nmplt <- recordPlot()
+      }
       if(!is.null(outfile)){
         pdf(paste(of, "Relative_migration.pdf", sep = ""), paper = "a4r")
         qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11564,6 +11588,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
         title(paste("Significant relative migration network \n (", nbs,
                     " bootstraps; D method)", sep = ""))
+        Dplt_bs <- recordPlot()
       }
       if(stat == "gst"){
         qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11572,6 +11597,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
         title(paste("Significant relative migration network \n (", nbs,
                     " bootstraps; Gst method)", sep = ""))
+        Gplt_bs <- recordPlot()
       }
       if(stat == "Nm"){
         qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11580,6 +11606,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
         title(paste("Significant relative migration network \n (", nbs,
                     " bootstraps; Nm method)", sep = ""))
+        Nmplt_bs <- recordPlot()
       }
       if(stat == "all"){
         qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11588,19 +11615,30 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
         title(paste("Significant relative migration network \n (", nbs,
                     " bootstraps; D method)", sep = ""))
-        
+        # record plots for web app
+        if(app){
+          Dplt <- recordPlot()
+        }
         qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                        legend = TRUE, posCol = plot_col,
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
         title(paste("Significant relative migration network \n (", nbs,
                     " bootstraps; Gst Method)", sep = ""))
+        # record plots for web app
+        if(app){
+          Gplt <- recordPlot()
+        }
         qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                        legend = TRUE, posCol = plot_col,
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
         title(paste("Significant relative migration network \n (", nbs,
                     " bootstraps; Nm method)", sep = ""))
+        # record plots for web app
+        if(app){
+          Nmplt <- recordPlot()
+        }
       }
     }
   }
@@ -11612,21 +11650,39 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
         dRel <- round(dRel, 3)
         dRel[sigMatD] <- paste(dRel[sigMatD], "*")
       }
-      list(D = dRel)
+      if(plot_network){
+        list(D = dRel,
+             Dplt_bs = Dplt_bs,
+             Dplt = Dplt)
+      } else{
+        list(D = dRel)
+      }
     } else if(stat == "gst"){
       sigMatG[is.na(sigMatG)] <- FALSE
       if(any(sigMatG)){
         gRel <- round(gRel, 3)
         gRel[sigMatG] <- paste(gRel[sigMatG], "*")
       }
-      list(Gst = gRel)
+      if(plot_network){
+        list(Gst = gRel,
+             Gplt_bs = Gplt_bs,
+             Gplt = Gplt)
+      } else {
+        list(Gst = gRel)
+      }
     } else if(stat == "Nm"){
       sigMatNm[is.na(sigMatNm)] <- FALSE
       if(any(sigMatNm)){
         nmRel <- round(nmRel, 3)
         nmRel[sigMatNm] <- paste(nmRel[sigMatNm], "*")
       }
-      list(Nm = nmRel)
+      if(plot_network){
+        list(Nm = nmRel,
+             Nmplt_bs = Nmplt_bs,
+             Nmplt = Nmplt)
+      } else {
+        list(Nm = nmRel)
+      }
     }
   } else if(nbs != 0L){
     if(stat == "d"){
@@ -11648,18 +11704,43 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
     }
   } else {
     if(stat == "d"){
-      list(D = round(dRel, 3))
+      if(app & plot_network){
+        list(D = round(dRel, 3),
+             Dplt = Dplt)
+      } else {
+        list(D = round(dRel, 3))
+      }
     } else if(stat == "gst"){
-      list(Gst = round(gRel, 3))
+      if(app & plot_network){
+        list(Gst = round(gRel, 3),
+             Gplt = Gplt)
+      } else {
+        list(Gst = round(gRel, 3))
+      }
     } else if(stat == "Nm"){
-      list(Nm = round(nmRel, 3))
+      if(app & plot_network){
+        list(Nm = round(nmRel, 3),
+             Nmplt = Nmplt)
+      } else {
+        list(Nm = round(nmRel, 3))
+      }
     } else if(stat == "all"){
-      list(D = round(dRel, 3),
-           Gst = round(gRel, 3),
-           Nm = round(nmRel, 3))
+      if(app & plot_network){
+        list(D = round(dRel, 3),
+             Gst = round(gRel, 3),
+             Nm = round(nmRel, 3),
+             Dplt = Dplt,
+             Gplt = Gplt,
+             Nmplt = Nmplt)
+      } else {
+        list(D = round(dRel, 3),
+             Gst = round(gRel, 3),
+             Nm = round(nmRel, 3))
+      }
     }
   }
 }
+
 
 
 # code end ----
