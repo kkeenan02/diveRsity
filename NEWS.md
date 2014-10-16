@@ -168,3 +168,8 @@ y <- y[rowSums(y) != 0,]
 ```
 
 By deleting this line, the code downstream generates `NAN` values, which are now summed using `na.rm = TRUE`.
+
+v1.9.9.0
+--------
+
+Added updates for divMigrate-online.
