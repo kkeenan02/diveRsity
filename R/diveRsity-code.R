@@ -11648,7 +11648,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
       sigMatD[is.na(sigMatD)] <- FALSE
       if(any(sigMatD)){
         dRel <- round(dRel, 3)
-        dRel[sigMatD] <- paste(dRel[sigMatD], "*")
+        dRel[sigMatD] <- paste(dRel[sigMatD], "*", sep = "")
       }
       if(plot_network){
         list(D = dRel,
@@ -11661,7 +11661,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
       sigMatG[is.na(sigMatG)] <- FALSE
       if(any(sigMatG)){
         gRel <- round(gRel, 3)
-        gRel[sigMatG] <- paste(gRel[sigMatG], "*")
+        gRel[sigMatG] <- paste(gRel[sigMatG], "*", sep = "")
       }
       if(plot_network){
         list(Gst = gRel,
@@ -11674,14 +11674,14 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
       sigMatNm[is.na(sigMatNm)] <- FALSE
       if(any(sigMatNm)){
         nmRel <- round(nmRel, 3)
-        nmRel[sigMatNm] <- paste(nmRel[sigMatNm], "*")
+        nmRel[sigMatNm] <- paste(nmRel[sigMatNm], "*", sep = "")
       }
       if(plot_network){
-        list(Nm = nmRel,
+        list(Nm = round(nmRel, 3),
              Nmplt_bs = Nmplt_bs,
              Nmplt = Nmplt)
       } else {
-        list(Nm = nmRel)
+        list(Nm = round(nmRel, 3))
       }
     }
   } else if(nbs != 0L){
