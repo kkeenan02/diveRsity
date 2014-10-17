@@ -11206,18 +11206,18 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
   # read data ----
   #source("bsFun-fix.R")
   #Rcpp::sourceCpp("pwHt-fix.cpp")
-  bsFun <- diveRsity:::bsFun
-  pwHt <- diveRsity:::pwHt
-  rgp <- diveRsity:::rgp
-  nbs <- 500
-  stat = "Nm"
-  filter_threshold <- 0
-  plot_network = TRUE
-  plot_col <- "darkblue"
-  para = FALSE
-  infile <- "Inoue_et_al_2013.gen"#"YOSEonly.gen"
-  outfile <- NULL
-  app = TRUE
+  #bsFun <- diveRsity:::bsFun
+  #pwHt <- diveRsity:::pwHt
+  #rgp <- diveRsity:::rgp
+  #nbs <- 500
+  #stat = "Nm"
+  #filter_threshold <- 0
+  #plot_network = TRUE
+  #plot_col <- "darkblue"
+  #para = FALSE
+  #infile <- "Inoue_et_al_2013.gen"#"YOSEonly.gen"
+  #outfile <- NULL
+  #app = TRUE
   #data(Test_data, package = "diveRsity")
   #Test_data[is.na(Test_data)] <- ""
   #Test_data[Test_data == "0"] <- "000000"
