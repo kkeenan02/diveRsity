@@ -11206,17 +11206,18 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
   # read data ----
   #source("bsFun-fix.R")
   #Rcpp::sourceCpp("pwHt-fix.cpp")
-  #bsFun <- diveRsity:::bsFun
-  #pwHt <- diveRsity:::pwHt
-  #rgp <- diveRsity:::rgp
-  #nbs <- 500
-  #stat = "d"
-  #filter_threshold <- 0
-  #plot_network = TRUE
-  #plot_col <- "darkblue"
-  #para = FALSE
-  #infile <- "Inoue_et_al_2013.gen"#"YOSEonly.gen"
-  #outfile <- NULL
+  bsFun <- diveRsity:::bsFun
+  pwHt <- diveRsity:::pwHt
+  rgp <- diveRsity:::rgp
+  nbs <- 500
+  stat = "Nm"
+  filter_threshold <- 0
+  plot_network = TRUE
+  plot_col <- "darkblue"
+  para = FALSE
+  infile <- "Inoue_et_al_2013.gen"#"YOSEonly.gen"
+  outfile <- NULL
+  app = TRUE
   #data(Test_data, package = "diveRsity")
   #Test_data[is.na(Test_data)] <- ""
   #Test_data[Test_data == "0"] <- "000000"
@@ -11588,7 +11589,9 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
         title(paste("Significant relative migration network \n (", nbs,
                     " bootstraps; D method)", sep = ""))
-        Dplt_bs <- recordPlot()
+        if(app){
+          Dplt_bs <- recordPlot()
+        }
       }
       if(stat == "gst"){
         qgraph::qgraph(gRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11597,7 +11600,9 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
         title(paste("Significant relative migration network \n (", nbs,
                     " bootstraps; Gst method)", sep = ""))
-        Gplt_bs <- recordPlot()
+        if(app){
+          Gplt_bs <- recordPlot()
+        }
       }
       if(stat == "Nm"){
         qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11606,7 +11611,9 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
         title(paste("Significant relative migration network \n (", nbs,
                     " bootstraps; Nm method)", sep = ""))
-        Nmplt_bs <- recordPlot()
+        if(app){
+          Nmplt_bs <- recordPlot()
+        }
       }
       if(stat == "all"){
         qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
@@ -11677,14 +11684,14 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
         nmRel[sigMatNm] <- paste(nmRel[sigMatNm], "*", sep = "")
       }
       if(plot_network){
-        list(Nm = round(nmRel, 3),
+        list(Nm = nmRel,
              Nmplt_bs = Nmplt_bs,
              Nmplt = Nmplt)
       } else {
         list(Nm = round(nmRel, 3))
       }
     }
-  } else if(nbs != 0L){
+  } else if(nbs != 0L & !app){
     if(stat == "d"){
       list(D = round(dRel, 3),
            D_bs = round(dRelPlt, 3))
