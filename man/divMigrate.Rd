@@ -16,7 +16,7 @@ The function will except both Arlequin (.arp) genotype and genepop (.gen/.txt) f
 \usage{
 divMigrate(infile = NULL, outfile = NULL, nbs = 0, stat = "all", 
            filter_threshold = 0, plot_network = FALSE, 
-           plot_col = "darkblue", para = FALSE, app = FALSE)
+           plot_col = "darkblue", para = FALSE)
 }
 \arguments{
 
@@ -35,8 +35,6 @@ divMigrate(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
 \item{plot_col}{Defines the colour of edges in networks. Default is set to "\code{darkblue}".}
 
 \item{para}{A logical argument, specifying if multiple CPUs should be used when available.}
-
-\item{app}{A logical argument for use with the online web app. Setting the argument to TRUE result in output matrix modifications. Not for general use.}
 
 }
 
