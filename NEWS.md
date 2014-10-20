@@ -158,3 +158,18 @@ v1.9.8.8
 --------
 
 Fixes a bug in pairwise D (Jost, 2008) calculation.
+
+v1.9.8.9
+--------
+Fixes a bug in pairwise in calculations in `inFunc`. The following line of code resulted in a vector for pairwise populations that were fixed for the same allele, when a matrix was expected by downstream code.
+
+```r
+y <- y[rowSums(y) != 0,]
+```
+
+By deleting this line, the code downstream generates `NAN` values, which are now summed using `na.rm = TRUE`.
+
+v1.9.9.0
+--------
+
+Added updates for divMigrate-online.
