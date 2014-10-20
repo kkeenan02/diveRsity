@@ -205,13 +205,13 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "d",
   if(nbs != 0L){
     if(stat == "d"){
       list(D = round(dRel, 3),
-           D_bs = round(dRelbs, 3))
+           D_sig = sigMatD)
     } else if(stat == "gst"){
       list(Gst = round(gRel, 3),
-           Gst_bs = round(gRelbs, 3))
+           G_sig = sigMatG)
     } else if(stat == "Nm"){
       list(Nm = round(nmRel, 3),
-           Nm_bs = round(nmRelbs, 3))
+           Nm_sig = sigMatNm)
     }
   } else if(nbs == 0L){
     if(stat == "d"){
