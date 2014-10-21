@@ -1,6 +1,6 @@
 # divMigrateOnline function definition for online application
 # function definition ----
-divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "d", 
+divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "all", 
                              para = FALSE){
   # preabmle ----
   #nbs <- 10
@@ -47,31 +47,31 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "d",
   #hs <- lapply(hs, function(x){ x[is.nan(x)] <- NA; return(x)})
   # Calculate D ----
   # function for locus d
-  if(stat == "d" || stat == "Nm"){
+  #if(stat == "d" || stat == "Nm"){
     d <- function(ht, hs){
       return(((ht-hs)/(1-hs))*2)
     }
-  }
+  #}
   # Gst function
-  if(stat == "gst" || stat == "Nm"){
+  #if(stat == "gst" || stat == "Nm"){
     g <- function(ht, hs){
       ot <- (ht - hs)/ht
       diag(ot) <- 0
       return(ot)
     }
-  }
+  #}
   # Nm estimator (Alcala et al 2014)
-  if(stat == "Nm"){
+  #if(stat == "Nm"){
     Nm <- function(g, d, n){
       t1 <- (1-g)/g
       t2 <- ((n-1)/n)^2
       t3 <- ((1-d)/(1-((n-1)/n)*d))
       return(0.25*t1*t2*t3)
     }
-  }
+  #}
   
   # D calculations ----
-  if(stat == "d" || stat == "Nm"){
+  #if(stat == "d" || stat == "Nm"){
     dloc <- mapply(`d`, ht = ht, hs = hs, SIMPLIFY = "array")
     dloc[is.nan(dloc)] <- 1
     hrmD <- apply(dloc, c(1,2), function(x){
@@ -87,10 +87,10 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "d",
     dRel[is.nan(dRel)] <- NA
     colnames(dRel) <- popnms
     rownames(dRel) <- popnms
-  }
+  #}
   
   # Gst calculations ----
-  if(stat == "gst" || stat == "Nm"){
+  #if(stat == "gst" || stat == "Nm"){
     g <- function(ht, hs){
       ot <- (ht - hs)/ht
       diag(ot) <- 0
@@ -107,16 +107,16 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "d",
     gRel <- gMig/max(gMig, na.rm = TRUE)
     colnames(gRel) <- popnms
     rownames(gRel) <- popnms
-  }
+  #}
   
   # Nm calculations ----
-  if(stat == "Nm"){
+  #if(stat == "Nm"){
     nm <- Nm(hrmGst, hrmD, 2)
     diag(nm) <- NA
     nmRel <- nm/max(nm, na.rm = TRUE)
     colnames(nmRel) <- popnms
     rownames(nmRel) <- popnms
-  }
+  #}
   
   # Bootstrapping ----
   if(nbs != 0L){
@@ -150,15 +150,15 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "d",
     }
     
     # convert stats to arrays
-    if(stat == "d"){
+    #if(stat == "d"){
       bsD <- sapply(bsStat, "[[", "dRel", simplify = "array")
-    }
-    if(stat == "gst"){
+    #}
+    #if(stat == "gst"){
       bsG <- sapply(bsStat, "[[", "gRel", simplify = "array")
-    }
-    if(stat == "Nm"){
+    #}
+    #if(stat == "Nm"){
       bsNm <- sapply(bsStat, "[[", "nmRel", simplify = "array")
-    }
+    #}
     
     # function for significant difference determination
     sigDiff <- function(x, y){
@@ -168,7 +168,7 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "d",
         return(FALSE)
       }
     }
-    if(stat == "d"){
+    #if(stat == "d"){
       sigMatD <- matrix(NA, nrow = ncol(dRel), ncol(dRel))
       for(i in 1:ncol(pw)){
         p1 <- quantile(bsD[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
@@ -178,8 +178,8 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "d",
       }
       dRelbs <- dRel
       dRelbs[!sigMatD] <- 0
-    }
-    if(stat == "gst"){
+    #}
+    #if(stat == "gst"){
       sigMatG <- matrix(NA, nrow = ncol(gRel), ncol(gRel))
       for(i in 1:ncol(pw)){
         p1 <- quantile(bsG[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
@@ -189,8 +189,8 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "d",
       }
       gRelbs <- gRel
       gRelbs[!sigMatG] <- 0
-    }
-    if(stat == "Nm"){
+    #}
+    #if(stat == "Nm"){
       sigMatNm <- matrix(NA, nrow = ncol(nmRel), ncol(nmRel))
       for(i in 1:ncol(pw)){
         p1 <- quantile(bsNm[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
@@ -200,26 +200,20 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "d",
       }
       nmRelbs <- nmRel
       nmRelbs[!sigMatNm] <- 0
-    }
+    #}
   }
   if(nbs != 0L){
-    if(stat == "d"){
-      list(D = round(dRel, 3),
-           D_sig = sigMatD)
-    } else if(stat == "gst"){
-      list(Gst = round(gRel, 3),
-           G_sig = sigMatG)
-    } else if(stat == "Nm"){
-      list(Nm = round(nmRel, 3),
-           Nm_sig = sigMatNm)
-    }
+    list(D = round(dRel, 3),
+         D_sig = sigMatD,
+         Gst = round(gRel, 3),
+         G_sig = sigMatG,
+         Nm = round(nmRel, 3),
+         Nm_sig = sigMatNm,
+         nbs = nbs)
   } else if(nbs == 0L){
-    if(stat == "d"){
-      list(D = round(dRel, 3))
-    } else if(stat == "gst"){
-      list(Gst = round(gRel, 3))
-    } else if(stat == "Nm"){
-      list(Nm = round(nmRel, 3)) 
-    }
+      list(D = round(dRel, 3),
+           Gst = round(gRel, 3),
+           Nm = round(nmRel, 3),
+           nbs = 0L)
   }
 }
