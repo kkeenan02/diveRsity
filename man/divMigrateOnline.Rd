@@ -14,7 +14,7 @@ The function will except both Arlequin (.arp) genotype and genepop (.gen/.txt) f
 }
 
 \usage{
-divMigrateOnline(infile = NULL, nbs = 0, stat = "d", para = FALSE)
+divMigrateOnline(infile = NULL, nbs = 0, stat = "all", para = FALSE)
 }
 \arguments{
 
