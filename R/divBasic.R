@@ -2,9 +2,18 @@
 # Calculate basic stats
 ################################################################################
 #' @export
-divBasic <- function (infile = NULL, outfile = NULL, gp = 3, 
-                      bootstraps = NULL) {
+#' HWE exact testing added 29/10/2014
+divBasic <- function (infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL,
+                      HWEexact = FALSE, mcRep = 2000) {
   
+  #infile <- "./test_files/mono.gen"
+  #on <- NULL
+  #HWEexact <- TRUE
+  #mcRep <- 5000
+  #fileReader <- diveRsity:::fileReader
+  #rgp <- diveRsity:::rgp
+  #gp <- 3
+  #bootstraps = NULL
   on = outfile
   # create a results dir
   if(!is.null(on)){
@@ -121,9 +130,9 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
   colnames(locSD) <- pop_names
   rownames(locSD) <- c("Lower_CI", "Upper_CI")
   ###vectorize loci_pop_sizes#################################################
-  lps<-function(x){#
-    lsp_count<-as.vector(colSums(!is.na(x)))#
-    return(lsp_count)#
+  lps<-function(x){
+    lsp_count <- as.vector(colSums(!is.na(x)))
+    return(lsp_count)
   }
   locPopSize <- sapply(pop_list,lps)
   ###vectorize pop_alleles####################################################
@@ -147,14 +156,14 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
   #vectorize allele_names#####################################################
   pop_alleles<-lapply(pop_list,pl_ss)
   # calcluate the observed heterozygosity
-  ohcFUN<-function(x){
+  ohcFUN <- function(x){
     lapply(1:ncol(x[[1]]), function(y){
       (x[[1]][,y]!=x[[2]][,y])*1 #multiply by 1 to conver logical to numeric
     })
   }
-  ohc_data<-lapply(pop_alleles, ohcFUN)
-  ohcConvert<-function(x){
-    matrix(unlist(x),nrow=length(x[[1]]))
+  ohc_data <- lapply(pop_alleles, ohcFUN)
+  ohcConvert <- function(x){
+    matrix(unlist(x),nrow = length(x[[1]]))
   }
   ohc<-lapply(ohc_data,ohcConvert)
   rm(ohc_data)
@@ -170,6 +179,7 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
     })
   }
   allele_names<-sapply(pop_alleles,alln)
+  
   # Count the number of alleles observed in each population sample per locus
   obsAlls <- apply(allele_names, 2, function(x){
     sapply(x, function(y){
@@ -260,94 +270,108 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
   # R function to calculate expected and observed genetype 
   # numbers for HWE testing
   
-  # generate all possible genotypes for each locus per population
-  posGeno <- apply(allele_names, 2, function(x) {
-    lapply(x, function(y) {
-      if (length(y) == 0) {
-        return(NA)
-      } else {
-        genos <- expand.grid(y, y)
-        genos.sort <- t(apply(genos, 1, sort))
-        genos <- unique(genos.sort)
-        geno <- paste(genos[, 1], genos[, 2], sep = "")
-        return(geno)
-      }
-    })
-  })
-  
-  # Count the number of each genotype observed
-  # define a genotype counting function
-  obsGeno <- lapply(1:npops, function(i){
-    lapply(1:nloci, function(j){
-      sapply(posGeno[[i]][[j]], function(x){
-        if(is.na(x)){
+  if(HWEexact){
+    hwe <- hweFun(infile, mcRep)
+    HWE <- round(do.call("cbind", lapply(hwe$locus, function(x){
+      sapply(x, "[[", "p")
+    })), 3)
+    chiDif <- round(do.call("cbind", lapply(hwe$locus, function(x){
+      sapply(x, "[[", "chisq")
+    })), 3)
+    HWEall <- round(sapply(hwe$multilocus, "[[", "p"), 3)
+    chi.glb <- sapply(hwe$multilocus, "[[", "chisq")
+  } else {
+    # generate all possible genotypes for each locus per population
+    posGeno <- apply(allele_names, 2, function(x) {
+      lapply(x, function(y) {
+        if (length(y) == 0) {
           return(NA)
         } else {
-          length(which(pop_list[[i]][,j] == x))
+          genos <- expand.grid(y, y)
+          genos.sort <- t(apply(genos, 1, sort))
+          genos <- unique(genos.sort)
+          geno <- paste(genos[, 1], genos[, 2], sep = "")
+          return(geno)
         }
       })
     })
-  })
-  
-  
-  expGeno <- lapply(1:npops, function(i){
-    lapply(1:nloci, function(j){
-      sapply(posGeno[[i]][[j]], function(x){
-        if(is.na(x)){
+    # Count the number of each genotype observed
+    # define a genotype counting function
+    obsGeno <- lapply(1:npops, function(i){
+      lapply(1:nloci, function(j){
+        sapply(posGeno[[i]][[j]], function(x){
+          if(is.na(x)){
+            return(NA)
+          } else {
+            length(which(pop_list[[i]][,j] == x))
+          }
+        })
+      })
+    })
+    expGeno <- lapply(1:npops, function(i){
+      lapply(1:nloci, function(j){
+        sapply(posGeno[[i]][[j]], function(x){
+          if(is.na(x)){
+            return(NA)
+          } else {
+            if(gp == 3){
+              allele1 <- substr(x, 1, 3)
+              allele2 <- substr(x, 4, 6)
+            } else {
+              allele1 <- substr(x, 1, 2)
+              allele2 <- substr(x, 3, 4)
+            }
+            Freq1 <- allele_freq[[j]][which(rownames(allele_freq[[j]]) == 
+                                              allele1), i]
+            Freq2 <- allele_freq[[j]][which(rownames(allele_freq[[j]]) == 
+                                              allele2), i]
+            if(allele1 != allele2){
+              expFreq <- 2 * (Freq1 * Freq2)
+              return(as.vector(expNum <- expFreq * locPopSize[j, i]))
+            } else {
+              expFreq <- Freq1^2
+              return(expNum <- as.vector(expFreq * locPopSize[j, i]))
+            }
+          }
+        })
+      })
+    })
+    # Calculate chi-sq
+    chiDif <- sapply(1:npops, function(i){
+      sapply(1:nloci, function(j){
+        if(length(obsGeno[[i]][[j]]) == 1){
           return(NA)
         } else {
-          if(gp == 3){
-            allele1 <- substr(x, 1, 3)
-            allele2 <- substr(x, 4, 6)
-          } else {
-            allele1 <- substr(x, 1, 2)
-            allele2 <- substr(x, 3, 4)
-          }
-          Freq1 <- allele_freq[[j]][which(rownames(allele_freq[[j]]) == allele1), i]
-          Freq2 <- allele_freq[[j]][which(rownames(allele_freq[[j]]) == allele2), i]
-          if(allele1 != allele2){
-            expFreq <- 2 * (Freq1 * Freq2)
-            return(as.vector(expNum <- expFreq * locPopSize[j, i]))
-          } else {
-            expFreq <- Freq1^2
-            return(expNum <- as.vector(expFreq * locPopSize[j, i]))
-          }
+          top <- (obsGeno[[i]][[j]] - expGeno[[i]][[j]])^2
+          chi <- top/expGeno[[i]][[j]]
+          return(round(sum(chi), 2))
+        }      
+      })
+    })
+    # Calculate degrees of freedom
+    df <- apply(allele_names, 2,   function(x){
+      sapply(x, function(y){
+        k <- length(y)
+        if(k == 1){
+          return(NA)
+        } else {
+          return((k*(k-1))/2)
         }
       })
     })
-  })
-  
-  # Calculate chi-sq
-  chiDif <- sapply(1:npops, function(i){
-    sapply(1:nloci, function(j){
-      if(length(obsGeno[[i]][[j]]) == 1){
-        return(NA)
-      } else {
-        top <- (obsGeno[[i]][[j]] - expGeno[[i]][[j]])^2
-        chi <- top/expGeno[[i]][[j]]
-        return(round(sum(chi), 2))
-      }      
+    # Calculate HWE significance
+    HWE <- sapply(1:npops, function(i){
+      round(pchisq(q = chiDif[,i], df = df[,i], lower.tail = FALSE), 4)
     })
-  })
+    # Calculate over all HWE significance
+    HWEall <- round(pchisq(q = colSums(chiDif, na.rm = TRUE), 
+                           df = colSums(df, na.rm = TRUE), 
+                           lower.tail = FALSE), 4)
+  }
   
-  # Calculate degrees of freedom
-  df <- apply(allele_names, 2,   function(x){
-    sapply(x, function(y){
-      k <- length(y)
-      if(k == 1){
-        return(NA)
-      } else {
-        return((k*(k-1))/2)
-      }
-    })
-  })
-  
-  # Calculate HWE significance
-  HWE <- sapply(1:npops, function(i){
-    round(pchisq(q = chiDif[,i], df = df[,i], lower.tail = FALSE), 4)
-  })
   if(!is.null(bootstraps)){
-    # write a function to calculate allele freq and  obsHet from pop_alleles object
+    # write a function to calculate allele freq and  obsHet from pop_alleles
+    # object
     # convert pop_alleles into a list of arrays
     pa <- lapply(pop_alleles, function(x){
       return(array(unlist(x), dim = c(nrow(x[[1]]), ncol(x[[1]]), 2)))
@@ -404,7 +428,8 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
       he <- colSums(y, na.rm = TRUE)
       return((he-ho)/he)
     }
-    fisLoc <- round((hetExp[-(nloci+1),] - hetObs[-(nloci+1),])/hetExp[-(nloci+1),], 4)
+    fisLoc <- round((hetExp[-(nloci+1),] - hetObs[-(nloci+1),])/
+                      hetExp[-(nloci+1),], 4)
     fisLoc[is.nan(fisLoc)] <- NA
     fisAct <- fisCalc(hetObs, hetExp)
     # calculate fis CIs
@@ -466,10 +491,6 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3,
                      MoreArgs = list(loci_names = loci_names))
     
   }
-  
-  # Calculate over all HWE significance
-  HWEall <- round(pchisq(q = colSums(chiDif), df = colSums(df), 
-                         lower.tail = FALSE), 4)
   # Add pop means or totals to each stat object
   # allelic richness
   AR <- round(rbind(AR, colMeans(AR)), 2)

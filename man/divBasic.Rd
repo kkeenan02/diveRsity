@@ -12,11 +12,12 @@ A function to calculate basic population parameters such as allelic richness, ob
 \details{
 All results will be written to a user defined folder ("working_directory/outfile"), providing an argument is passed for 'outfile'. Results will be written to \code{.xlsx} files, and multiple \code{R} objects are also written to the current environment.
 
-HWE tests are carried out as standard. These tests are known to be unreliable where classes are observed less that five times. This is often the case when using highly polymorphic loci. Caution is encouraged.
+HWE tests can be carried out using either a standard Chisq goodness of fit method, or using Fisher's exact method. The standard chisq test behave poorly when there are classes with low numbers of observations (e.g. hypervariable microsatellite loci). In such instance it is advisable to use exact testing. Multi-locus HWE is tested using the standard chisq method by summing chisq difference and degrees of freedom across loci, and using these parameter to derive a pvalue for the test. When using exact testing, the multi-locus pvalue is determined using Fisher's method for combining pvalue from independent tests. This process assumes that loci are unlinked.
 }
 
 \usage{
-divBasic(infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL)
+divBasic(infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL,
+         HWEexact = FALSE, mcRep = 2000)
 }
 \arguments{
 
@@ -27,6 +28,11 @@ divBasic(infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL)
 \item{gp}{Specifies the digit format of the \code{infile}. Either 3 (default) or 2.}
 
 \item{bootstraps}{This argument specifies how many bootstrap iterations should be executed when calculating 95\% confidence intervals for $F_is$. The argument should be an integer greater than 1. Setting \code{bootstrap = NULL} suppresses the calculation of F_is. Users should note that setting this argument to values greater than 1000 may result in longer executions times.}
+
+\item{HWEexact}{A logical argument specifying if HWE testing should be carried out using Fisher's exact tests.}
+
+\item{mcRep}{An integer specifying the number of replicates to use for the Monte Carlo tests if HWEexact is TRUE.}
+
 }
 
 \value{

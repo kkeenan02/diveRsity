@@ -173,3 +173,7 @@ v1.9.9.0
 --------
 
 Added updates for divMigrate-online.
+
+v1.9.9.40
+---------
+Exact tests of HWE added in divBasic function
