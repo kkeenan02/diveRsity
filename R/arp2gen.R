@@ -5,7 +5,12 @@
 arp2gen <- function(infile){
   # test if the file exists
   flForm <- strsplit(infile, split = "\\.")[[1]]
-  if(length(flForm) > 2){
+  if(substr(infile, 1, 2) == "./"){
+    flForm <- flForm[-1]
+  } else if(substr(infile, 1, 3) == "../"){
+    flForm <- flForm[-(1:2)]
+  }
+  if(length(flForm) > 3){
     stop("There were multiple '.' characters in your file name!")
   }
   tstfile <- paste(flForm[1], ".gen", sep = "")
