@@ -123,27 +123,27 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
     # calculate refPopStats based on each subject pop sample size
     ###########################################################################
     if(parallel){
-      library("doParallel")
-      cores <- detectCores()
-      cl <- makeCluster(cores)
-      registerDoParallel(cl)
-      clusterExport(cl, c("arHex", "NBS", "refPop", "popSizes", 
-                          "gp", "nloci", "validLoc"), envir = environment())
-      refPopStats <- parLapply(cl, seq_along(popSizes), function(i){
-        inner <- list(ref = refPop[,validLoc[[i]]], size = popSizes[i],
-                      gp = gp)
-        outer <- replicate(NBS, arHex(inner), simplify = FALSE)
-        alrPre <- sapply(outer, function(x){
-          return(x$alls)
+      if(require("parallel")){
+        cores <- detectCores()
+        cl <- makeCluster(cores)
+        clusterExport(cl, c("arHex", "NBS", "refPop", "popSizes", 
+                            "gp", "nloci", "validLoc"), envir = environment())
+        refPopStats <- parLapply(cl, seq_along(popSizes), function(i){
+          inner <- list(ref = refPop[,validLoc[[i]]], size = popSizes[i],
+                        gp = gp)
+          outer <- replicate(NBS, arHex(inner), simplify = FALSE)
+          alrPre <- sapply(outer, function(x){
+            return(x$alls)
+          })
+          alr <- rowMeans(alrPre)
+          hexpPre <- sapply(outer, function(x){
+            return(x$hexp)
+          })
+          hexp <- rowMeans(hexpPre)
+          return(data.frame(alr = alr, hexp = hexp))
         })
-        alr <- rowMeans(alrPre)
-        hexpPre <- sapply(outer, function(x){
-          return(x$hexp)
-        })
-        hexp <- rowMeans(hexpPre)
-        return(data.frame(alr = alr, hexp = hexp))
-      })
-      stopCluster(cl)
+        stopCluster(cl) 
+      }
     } else {
       refPopStats <- lapply(1:length(popSizes), function(i){
         inner <- list(ref = refPop, size = popSizes[i],
@@ -213,23 +213,23 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
     # Run AR and Hexpected function for each population other than the refpop
     # call them subject populations
     if(parallel){
-      library("doParallel")
-      cores <- detectCores()
-      cl <- makeCluster(cores)
-      registerDoParallel(cl)
-      clusterExport(cl, c("Hex", "AR", "NBS", "gp", "nloci", "pop_list"), 
-                    envir = environment())
-      subPopStats <- parLapply(cl, pop_list, function(x){
-        # Calculate allelic richness
-        # bootstrap first
-        alrbs <- replicate(NBS, AR(x))
-        # calculate the mean of the bootstraps per locus
-        alr <- rowMeans(alrbs)
-        # Calculate expected Het
-        hex <- Hex(x)
-        # create return obj
-        return(data.frame(alr = alr, hexp = hex))
-      })
+      if(require(parallel)){
+        cores <- detectCores()
+        cl <- makeCluster(cores)
+        clusterExport(cl, c("Hex", "AR", "NBS", "gp", "nloci", "pop_list"), 
+                      envir = environment())
+        subPopStats <- parLapply(cl, pop_list, function(x){
+          # Calculate allelic richness
+          # bootstrap first
+          alrbs <- replicate(NBS, AR(x))
+          # calculate the mean of the bootstraps per locus
+          alr <- rowMeans(alrbs)
+          # Calculate expected Het
+          hex <- Hex(x)
+          # create return obj
+          return(data.frame(alr = alr, hexp = hex))
+        }) 
+      }
     } else {
       subPopStats <- lapply(pop_list, function(x){
         # Calculate allelic richness
@@ -337,7 +337,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
     if(write_res){
       library("xlsx")
       # standard stats
-      write.xlsx(divRatio, file = paste(of, "[divRatio].xlsx",sep = ""),
+      xlsx::write.xlsx(divRatio, file = paste(of, "[divRatio].xlsx",sep = ""),
                  sheetName = "Diversity_ratios", col.names = TRUE,
                  row.names = FALSE, append = FALSE)
     } else {
