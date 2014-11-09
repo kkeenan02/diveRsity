@@ -161,11 +161,11 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
         # Load dependencies
         require("xlsx")
         # standard stats
-        write.xlsx(ot1,file=paste(of,"[fastDivPart].xlsx",sep=""),
+        xlsx::write.xlsx(ot1,file=paste(of,"[fastDivPart].xlsx",sep=""),
                    sheetName="Standard_stats",col.names=T,
                    row.names=F,append=F)
         # Estimated stats
-        write.xlsx(ot2,file=paste(of,"[fastDivPart].xlsx",sep=""),
+        xlsx::write.xlsx(ot2,file=paste(of,"[fastDivPart].xlsx",sep=""),
                    sheetName="Estimated_stats",col.names=T,
                    row.names=F,append=T)
       } else {
@@ -223,10 +223,9 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
         
         if (para && para_pack) {
           #count cores
-          library("doParallel")
+          require("parallel")
           cores <- detectCores()
           cl<-makeCluster(cores)
-          registerDoParallel(cl)
         }
         
         #vectorize prallele#
@@ -483,7 +482,7 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
       }
       if(!is.null(on)){
         if(write_res==TRUE){
-          write.xlsx(bs_out,file=paste(of,"[fastDivPart].xlsx",sep=""),
+          xlsx::write.xlsx(bs_out,file=paste(of,"[fastDivPart].xlsx",sep=""),
                      sheetName="Locus_bootstrap",col.names=F,
                      row.names=F,append=T)
         } else {
@@ -1204,7 +1203,7 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
           # write data to excel
           # Load dependencies
           # pw stats
-          write.xlsx(outobj, file = paste(of, "[fastDivPart].xlsx", sep=""),
+          xlsx::write.xlsx(outobj, file = paste(of, "[fastDivPart].xlsx", sep=""),
                      sheetName = "Pairwise-stats", col.names = FALSE,
                      row.names = FALSE, append = TRUE)
         } else {
@@ -1601,7 +1600,7 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
       # write results
       if(!is.null(on)){
         if(write_res==TRUE){
-          write.xlsx(pwWrite, file = paste(of, "[fastDivPart].xlsx", sep = ""),
+          xlsx::write.xlsx(pwWrite, file = paste(of, "[fastDivPart].xlsx", sep = ""),
                      sheetName = "Pairwise_bootstrap", col.names = FALSE,
                      row.names = FALSE, append = TRUE)
         } else {

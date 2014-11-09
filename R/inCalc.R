@@ -169,22 +169,18 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
   if(!file.exists(outDir)){
     dir.create(path = outDir, showWarnings = FALSE)
   }
-  if(xlsx){
-    if(!is.element("xlsx",installed.packages()[,1])){
-      stop("The 'xlsx' package must be installed. Writing to text...")
-    }
-    require("xlsx")
+  if(require("xlsx")){
     outF <- paste(outDir, "outfile-[in.Calc].xlsx", sep = "")
-    write.xlsx(glbDat, file = outF, sheetName = "Global In", 
+    xlsx::write.xlsx(glbDat, file = outF, sheetName = "Global In", 
                col.names = TRUE, row.names = FALSE, append = FALSE)
     if(pairwise){
-      write.xlsx(pwDat, file = outF, sheetName = "Pairwise In", 
+      xlsx::write.xlsx(pwDat, file = outF, sheetName = "Pairwise In", 
                  col.names = TRUE, row.names = FALSE, append = TRUE)
     }
     if(!is.null(bootstraps)){
-      write.xlsx(lowCI, file = outF, sheetName = "Lower CI (PW)", 
+      xlsx::write.xlsx(lowCI, file = outF, sheetName = "Lower CI (PW)", 
                  col.names = TRUE, row.names = FALSE, append = TRUE)
-      write.xlsx(upCI, file = outF, sheetName = "Upper CI (PW)", 
+      xlsx::write.xlsx(upCI, file = outF, sheetName = "Upper CI (PW)", 
                  col.names = TRUE, row.names = FALSE, append = TRUE)
     }
   } else {

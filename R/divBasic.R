@@ -571,10 +571,9 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL,
   
   
   if (!is.null(outfile)){
-    write_res<-is.element("xlsx",installed.packages()[,1])
-    if(write_res){
-      library("xlsx")
-      write.xlsx(writeOut, file = paste(of, "[divBasic].xlsx", sep = ""),
+    #write_res<-is.element("xlsx",installed.packages()[,1])
+    if(require("xlsx")){
+      xlsx::write.xlsx(writeOut, file = paste(of, "[divBasic].xlsx", sep = ""),
                  sheetName = "Basic stats", col.names = FALSE,
                  row.names = FALSE, append=FALSE)
     } else {
