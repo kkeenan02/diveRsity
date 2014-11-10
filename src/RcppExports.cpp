@@ -120,6 +120,21 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// Tab
+IntegerVector Tab(CharacterVector x);
+RcppExport SEXP diveRsity_Tab(SEXP xSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< CharacterVector >::type x(xSEXP );
+        IntegerVector __result = Tab(x);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // tabMerge
 NumericVector tabMerge(List hsum);
 RcppExport SEXP diveRsity_tabMerge(SEXP hsumSEXP) {

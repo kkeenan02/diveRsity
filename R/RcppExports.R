@@ -29,6 +29,10 @@ pwWCcpp <- function(hsum1, af1, indtyp1, pw) {
     .Call('diveRsity_pwWCcpp', PACKAGE = 'diveRsity', hsum1, af1, indtyp1, pw)
 }
 
+Tab <- function(x) {
+    .Call('diveRsity_Tab', PACKAGE = 'diveRsity', x)
+}
+
 tabMerge <- function(hsum) {
     .Call('diveRsity_tabMerge', PACKAGE = 'diveRsity', hsum)
 }
