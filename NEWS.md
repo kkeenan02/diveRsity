@@ -177,3 +177,7 @@ Added updates for divMigrate-online.
 v1.9.9.40
 ---------
 Exact tests of HWE added in divBasic function
+
+v1.9.9.43
+---------
+New chiCalc function with new output structure and pairwise calculations. P Values are now calculated using `fisher.test` rather than `chisq.test`.
