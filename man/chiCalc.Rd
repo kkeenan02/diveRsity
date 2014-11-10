@@ -2,41 +2,43 @@
 \alias{chiCalc}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A functions for the assessment of population genetic heterogeneity
+Testing sample independence from genotype counts
 }
 
 \description{
-\code{chiCalc} allows the calculation of locus $X^{2}$ as well as $X^{2}$ across loci and populations. P.values and significance indicators are also provided. The function accepts co-dominant genetic data in both 2 and 3 digit genepop formats.
+\code{chiCalc} carries out Fisher's exact tests of sample independence using genotype data.
 }
 
 \details{
-All results will be written to a user defined folder ("working_directory/outfile"), providing an argument is passed for 'outfile'. Results will be written to \code{.txt} files, and an \code{R}, object is also written to the current environment.
+All results will be written to a user defined folder ("working_directory/outfile"), providing an argument is passed for 'outfile'. Otherwise, results will only be returned to the workspace.
+
+Fisher's exact tests are carried out using the function \code{fisher.test}. Multilocus p values are calculated using Fisher's method for combining p value.
 }
 
 \usage{
-chiCalc(infile = NULL, outfile = NULL, gp = 3, minFreq = NULL)
+chiCalc(infile = NULL, outfile = NULL, pairwise = FALSE, mcRep = 2000)
 }
+
 \arguments{
 
-\item{infile}{Specifying the name of the \emph{`genepop'}(Rousset, 2008) file from which the statistics are to be calculated. This file can be in either the 3 digit of 2 digit format, and must contain only one \emph{whitespace} separator (e.g. \dQuote{space} or \dQuote{tab}) between each column including the individual names column. The number of columns must be equal to the number of loci + 1 (the individual names column). If this file is not in the \code{working directory} the file path must be given. The name must be a character string (i.e. enclosed in \dQuote{} or `').}
+\item{infile}{A character string indicating the location and name of a genepop format file to be read. If the file is in the current working directory, only the name must be provided. If the file is in a directory other than the current working directory, either a relative or absolute path to the file must be provided. The genepop file can be in the 2-digit or 3-digit allele format.}
 
-\item{outfile}{Allows users to specify a prefix for an output folder. Name must a character string enclosed in either ``'' or `'.}
+\item{outfile}{A character string indicating the prefix to be added to the results directory created. All results files will be written to this directory.}
 
-\item{gp}{Specifies the digit format of the \code{infile}. Either 3 (default) or 2.}
+\item{pairwise}{A logical argument indicating whether sample independence should be tested between all population pairs.}
 
-\item{minFreq}{This argument allows users to specify a minimum mean allele frequency, below which, allele classes should be excluded from the analysis. The chi-square test for heterogeneity works well for classes which are observed at least five times. As many alleles at microsatellite loci are not observed this frequently, this option allow for a more conservative assessment of population heterogeneity, only considering alleles equal to or above the specified frequency. minFreq can be single nominal frequency or a vector of frequencies.}
+\item{mcRep}{An integer specifying the number Monte Carlo test replicates. See \code{?fisher.test} for more information.}
+
 }
 
 \value{
 
-\item{chiTable}{A character matrix of locus and overall $X^{2}$ values, as well as respective degrees of freedom, p.values and visual statistical significance.}
+\item{overall}{A data frame containing p values calculated across all population samples, per locus and across all loci.}
 
-}
+\item{multilocus_pw}{Generated if \code{pairwise = TRUE}. The object is a data frame containing multilocus p value calculated for all population pairs.}
 
-\references{
-Rousset, F., ``genepop'007: a complete re-implementation of the genepop
-software for Windows and Linux.,'' Molecular ecology resources, vol. 8,
-no. 1, pp. 103-6, (2008).
+\item{locus_pw}{A dataframe containing locus p values calculated for all pairs of populations. Rows represent loci, while columns represent pairwise comparisons.}
+
 }
 
 \author{
@@ -45,7 +47,8 @@ Kevin Keenan <kkeenan02@qub.ac.uk>
 
 \examples{
 # To run an example use the following format
-#
-# test_results <- chiCalc(infile = Test_data, outfile = 'out',
-#                       gp = 3, minFreq = 0.05)
-}
+# library(diveRsity)
+# data(Test_data)
+# test_results <- chiCalc(infile = Test_data, outfile = NULL,
+#                          pairwise = TRUE, mcRep = 5000)
+#}
