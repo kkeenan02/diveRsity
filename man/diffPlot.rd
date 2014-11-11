@@ -1,5 +1,5 @@
-\name{difPlot}
-\alias{difPlot}
+\name{diffPlot}
+\alias{diffPlot}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 A function to plot pairwise statistics calculated by divPart.
@@ -10,11 +10,11 @@ This function uses results from \code{divPart} to plot pairwise statistic estima
 }
 
 \details{
-This function returns four R plots for Fst (theta) (if \code{WC_Fst = TRUE} in \code{divPart}, Gst, G'st and D (Jost) pairwise values. This plot printed to the R graphical device if the argument \code{interactive = FALSE}. N.B. the argument \code{interactive = TRUE} is only valid if the package \code{sendplot} is available.
+A number of heatmap style plots of pairwise differentiation are generated. The function takes the output from either \code{fastDivPart} or \code{diffPlot} and writes interactive \code{HTML} plots to file. The number of plots depends on the input structure. For instance, if \code{fst = FALSE} in either \code{fastDivPart} or \code{diffCalc}, then a plot containing pairwise Fst will be produced.
 }
 
 \usage{
-difPlot(x, outfile = NULL, interactive = FALSE)
+diffPlot(x, outfile = NULL, interactive = FALSE)
 }
 
 \arguments{
