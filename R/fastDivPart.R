@@ -5,11 +5,11 @@
 
 # divPart, a wrapper function for the calculation of differentiation stats.
 #' @export
-fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
-                        WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
-                        bootstraps = 0, plot = FALSE, parallel = FALSE){
+fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3, 
+                        pairwise = FALSE, fst = FALSE, bs_locus = FALSE,
+                        bs_pairwise = FALSE, boots = 0, plot = FALSE,
+                        para = FALSE){
   
-  ############################ Argument definitions ############################
   # define arguments for testing
   #   D <- "MyData_GP2D.gen"
   #   on <- NULL
@@ -24,12 +24,12 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
   # define
   D <- infile
   on <- outfile
-  fst <- WC_Fst
-  bstrps <- bootstraps
+  #fst <- WC_Fst
+  bstrps <- boots
   bsls <- bs_locus
   bspw <- bs_pairwise
   plt <- plot
-  para <- parallel
+  #para <- parallel
   pWise <- pairwise
   gp = gp
   ##############################################################################

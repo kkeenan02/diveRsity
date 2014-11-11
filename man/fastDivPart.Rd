@@ -16,12 +16,9 @@ Multi-locus estimates of Weir and Cockerham's theta are calculated as per Weir a
 
 \usage{
 
-fastDivPart(infile = NULL, outfile = NULL, gp = 3, 
-            pairwise = FALSE, WC_Fst = FALSE, 
-            bs_locus = FALSE, 
-            bs_pairwise = FALSE,
-            bootstraps = 0, plot = FALSE, 
-            parallel = FALSE)
+fastDivPart(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE, 
+            fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE,
+            boots = 0, plot = FALSE, para = FALSE)
 }
 			   
 \arguments{
@@ -34,17 +31,17 @@ fastDivPart(infile = NULL, outfile = NULL, gp = 3,
 
 \item{pairwise}{A logical argument indicating whether standard pairwise diversity statistics should be calculated and returned as a diagonal matrix.}
 
-\item{WC_Fst}{A Logical argument indicating whether Weir & Cockerham's 1984 F-statistics should be calculated. NOTE - Calculating these statistics adds significant time to analysis when carrying out pairwise comparisons.}
+\item{fst}{A Logical argument indicating whether Weir & Cockerham's 1984 F-statistics should be calculated. NOTE - Calculating these statistics adds significant time to analysis when carrying out pairwise comparisons.}
 
 \item{bs_locus}{Gives users the option to bootstrap locus statistics. Results will be written to \code{.xlsx} workbook by default if the package \code{'xlsx'} is installed, and to a \code{.html} file if \code{plot=TRUE}. If \code{'xlsx'} is not installed, results will be written to \code{.txt} files.}
 
 \item{bs_pairwise}{Gives users the option to bootstrap statistics across all loci for each pairwise population comparison. Results will be written to a \code{.xlsx} file by default if the package \code{'xlsx'} is installed, and to a \code{.html} file if \code{plot=TRUE}. If \code{'xlsx'} is not installed, results will be written to \code{.txt} files.}
 
-\item{bootstraps}{Determines the number of bootstrap iterations to be carried out. The default value is \code{bootstraps = 0}, this is only valid when all bootstrap options are false. There is no limit on the number of bootstrap iterations, however very large numbers of bootstrap iterations (< 1000) on even modest data sets (e.g. 265 individuals x 38 loci) will take over 30 minutes to run on a most PCs).}
+\item{boots}{Determines the number of bootstrap iterations to be carried out. The default value is \code{boots = 0}, this is only valid when all bootstrap options are false. There is no limit on the number of bootstrap iterations, however very large numbers of bootstrap iterations can take some time to run. If time is a limiting factor, the function \code{diffCalc} is up to 10x faster than \code{fastDivPart}, but does not allow users to write results to xlsx workbooks or plot results from the function. If required, these must be done manually.}
 
 \item{plot}{Optional interactive \code{.html} image file of the plotted bootstrap results for loci if \code{bs_locus = TRUE} and pairwise population comparisons if \code{bs_pairwise = TRUE}. The default option is \code{plot = FALSE}.}
 
-\item{parallel}{A logical input, indicating whether your analysis should be run in parallel mode or sequentially. \code{parallel} = \code{TRUE} is only valid if the packages, \code{parallel}, \code{doParallel} and \code{foreach} are installed.}
+\item{para}{A logical input, indicating whether your analysis should be run in parallel mode or sequentially.}
 }
 
 \value{
