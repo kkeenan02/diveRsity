@@ -7,7 +7,7 @@
 #' @export
 chiCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
                      mcRep = 2000){ 
-  dat <- rgp("test.gen")
+  dat <- rgp(infile)
   #pairwise = T
   #mcRep = 2000
   #outfile <- "test"
