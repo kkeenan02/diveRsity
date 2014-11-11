@@ -1,30 +1,37 @@
 ################################################################################
-# difPlot, plot all pairwise population pairs                                  #
+# diffPlot, plot all pairwise population pairs                                  #
 ################################################################################
 #' @export
 diffPlot <- function (x, outfile= NULL, interactive = FALSE) {
+  #x <- diveRsity::fastDivPart("test.gen", pairwise = T, fst = T)
+  #y <- diveRsity::diffCalc("test.gen", pairwise = T, fst = T)
   if(require("plotrix") & require("sendplot")){
-    on=outfile
+    on <- outfile
     inta <- interactive
     #output from divPart
     #require("plotrix")
     if(!is.element("pairwise", names(x))){
       stop(cat(paste("To plot pairwise differentiation the argument ",
-                     "'pairwise' in\neither 'diffCalc' or fastDivPart' must be TRUE!",
-                     sep = "")))
+                     "'pairwise' in\neither 'diffCalc' or fastDivPart'",
+                     "must be TRUE!", sep = "")))
     }
-    idx <- c(1, 4, 2, 3)
-    fun <- "fastDivPart"
+    if(is.element("gstEst", names(x$pairwise))){
+      idx <- c(1, 4, 2, 3)
+      fun <- "fastDivPart" 
+    } else {
+      idx <- c(1, 5, 2, 4)
+      fun <- "fastDivPart"
+    }
     
     if(is.null(on) == TRUE && inta == TRUE){
       of = paste(getwd(),"/", sep = "")
     } else {
       suppressWarnings(dir.create(paste(getwd(), "/", 
-                                        on, "-[diveRsity]", "/", sep="")))
-      of=paste(getwd(),"/",on,"-[diveRsity]","/",sep="")
+                                        on, "-[diffPlot]", "/", sep="")))
+      of=paste(getwd(),"/",on,"-[diffPlot]","/",sep="")
     }
     
-    if(!exists("inta",-1)){
+    if(!exists("inta", -1)){
       inta <- FALSE
     }
     if(inta == TRUE) {
@@ -42,7 +49,7 @@ diffPlot <- function (x, outfile= NULL, interactive = FALSE) {
       gst_lab <- na.omit(gst_lab)
       collab111<-list()
       #
-      if(length(x[[3]]) == 4 && fun == "fastDivPart"){
+      if(length(x[[3]]) > 3 && fun == "fastDivPart"){
         fst_lab <- round(as.vector(x[[3]][[idx[2]]]), 4)
         fst_lab<-na.omit(fst_lab)
       }
@@ -55,7 +62,7 @@ diffPlot <- function (x, outfile= NULL, interactive = FALSE) {
       #
       
       fl_ext<-c(".tif","Dot.png","Dot.tif")
-      if(length(x[[3]]) == 4 && fun == "fastDivPart"){
+      if(length(x[[3]]) > 3 && fun == "fastDivPart"){
         xy.labels <-  data.frame(pops = pwNames,
                                  Nei_Gst = gst_lab,
                                  Weir_Theta = fst_lab,
@@ -116,7 +123,7 @@ diffPlot <- function (x, outfile= NULL, interactive = FALSE) {
       #
       #
       #Fst
-      if(length(x[[3]]) == 4 && fun == "fastDivPart"){
+      if(length(x[[3]]) > 3 && fun == "fastDivPart"){
         collab111 <<- c(round(min(fst_lab),3),
                         round(mean(fst_lab),3),
                         round(max(fst_lab),3))
@@ -253,7 +260,7 @@ diffPlot <- function (x, outfile= NULL, interactive = FALSE) {
     } else {
       
       #
-      if(length(x[[3]]) == 4 && fun == "fastDivPart"){
+      if(length(x[[3]]) > 3 && fun == "fastDivPart"){
         par(mfrow=c(2,2))
       } else {
         par(mfrow=c(3,1))
@@ -282,7 +289,7 @@ diffPlot <- function (x, outfile= NULL, interactive = FALSE) {
                             collab111,
                             cols,
                             gradient="y")
-      if(length(x[[3]]) == 4 && fun == "fastDivPart"){
+      if(length(x[[3]]) > 3 && fun == "fastDivPart"){
         #Fst
         image(1:nrow(x[[3]][[idx[2]]]),
               1:nrow(x[[3]][[idx[2]]]),
@@ -365,6 +372,3 @@ diffPlot <- function (x, outfile= NULL, interactive = FALSE) {
     stop("This function requires the 'plotrix' & 'sendplot' packages. Please make sure both are installed.")
   }
 }
-################################################################################
-# end dif.Plot                                                                 #
-################################################################################
