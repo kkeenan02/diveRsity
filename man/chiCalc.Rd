@@ -51,4 +51,4 @@ Kevin Keenan <kkeenan02@qub.ac.uk>
 # data(Test_data)
 # test_results <- chiCalc(infile = Test_data, outfile = NULL,
 #                          pairwise = TRUE, mcRep = 5000)
-#}
+}

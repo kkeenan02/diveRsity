@@ -1,7 +1,12 @@
-################################################################################
-# snp2gp: a function for converting SNP data to genepop format                 #
-################################################################################
-snp2gp <- function(infile, prefix_length = 2){
+#' snp2gen function
+#' 
+#' Convert genotypes in a snp matrix to genepop genotype files.
+#' 
+#' Kevin Keenan, QUB, 2014
+snp2gen <- function(infile = NULL, prefix_length = 2, write = FALSE){
+  if(is.null(infile)){
+    stop("Please provide an input file!")
+  }
   fastScan <- function(fname) {
     s <- file.info(fname)$size
     buf <- readChar(fname, s, useBytes = TRUE)
@@ -84,19 +89,19 @@ snp2gp <- function(infile, prefix_length = 2){
                       rep(NA, nloci)),
                     c(c(paste(locs[1:(nloci-1)], ",", sep = ""), 
                         locs[nloci]), NA), pop_list)
-  pop_list[is.na(pop_list)] <- "\t"
-  # write the results
-  fl <- file(paste(pre, "_converted.gen", sep = ""), "w")
-  for(i in 1:nrow(pop_list)){
-    out <- pop_list[i,]
-    if(all(out[-1] == "\t")){
-      out <- out[1]
+  pop_list[is.na(pop_list)] <- ""
+  if(write){
+    # write the results
+    fl <- file(paste(pre, "_converted.gen", sep = ""), "w")
+    for(i in 1:nrow(pop_list)){
+      out <- pop_list[i,]
+      if(all(out[-1] == "\t")){
+        out <- out[1]
+      }
+      cat(out, "\n", file = fl, sep = "\t")
     }
-    cat(out, "\n", file = fl, sep = "\t")
+    close(fl)
+    z <- gc()
   }
-  close(fl)
-  z <- gc()
+  return(as.data.frame(pop_list))
 }
-################################################################################
-# end snp2gp                                                                   #
-################################################################################
