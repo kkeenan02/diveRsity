@@ -6,14 +6,15 @@
 divBasic <- function (infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL,
                       HWEexact = FALSE, mcRep = 2000) {
   
-  #infile <- "./test_files/mono.gen"
-  #on <- NULL
+  #infile <- "Test_data.gen"
+  #outfile <- "kk"
   #HWEexact <- TRUE
   #mcRep <- 5000
   #fileReader <- diveRsity:::fileReader
+  #hweFun <- diveRsity:::hweFun
   #rgp <- diveRsity:::rgp
   #gp <- 3
-  #bootstraps = NULL
+  #bootstraps = 10
   on = outfile
   # create a results dir
   if(!is.null(on)){
@@ -574,8 +575,8 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL,
     #write_res<-is.element("xlsx",installed.packages()[,1])
     if(require("xlsx")){
       xlsx::write.xlsx(writeOut, file = paste(of, "[divBasic].xlsx", sep = ""),
-                 sheetName = "Basic stats", col.names = FALSE,
-                 row.names = FALSE, append=FALSE)
+                       sheetName = "Basic stats", col.names = FALSE,
+                       row.names = FALSE, append=FALSE)
     } else {
       out<-file(paste(of, "[divBasic].txt", sep = ""), "w")
       #cat(paste(colnames(pw_bs_out),sep=""),"\n",sep="\t",file=pw_bts)
@@ -585,6 +586,17 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL,
       close(out)
     }
   }
+  mainTab <- lapply(statComp, function(x){
+    if(nrow(x) == 10L){
+      as.data.frame(cbind(stats = c("N", "A", "%", "Ar", "Ho", "He", 
+                                    "HWE", "Fis", "Fis_Low", "Fis_High"), 
+                          round(x, 3)))
+    } else {
+      as.data.frame(cbind(stat = c("N", "A", "%", "Ar", "Ho", "He", "HWE"),
+                          round(x, 3)))
+    }
+  })
+  names(mainTab) <- pop_names
   if(!is.null(bootstraps)){
     list(locus_pop_size = locPopSize,
          Allele_number = obsAlls,
@@ -595,7 +607,7 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL,
          HWE = HWE,
          fis = output,
          arCIs = round(locSD, 4),
-         mainTab = writeOut)
+         mainTab = mainTab)
   } else {
     list(locus_pop_size = locPopSize,
          Allele_number = obsAlls,
@@ -605,10 +617,7 @@ divBasic <- function (infile = NULL, outfile = NULL, gp = 3, bootstraps = NULL,
          He = hetExp,
          HWE = HWE,
          arCIs = round(locSD, 4),
-         mainTab = writeOut)
+         mainTab = mainTab)
   }
   
 }
-################################################################################
-# END
-################################################################################
