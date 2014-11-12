@@ -1,6 +1,5 @@
 # TODO
 
-
 This file lists developments still to be carried out for the `diveRsity` package.
 
 1. Speed-up allelic richness and $F_{IS}$ calculations in `divBasic`
