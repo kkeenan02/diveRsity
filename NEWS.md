@@ -1,9 +1,5 @@
----
-title: "NEWS"
-author: "Kevin Keenan"
-date: "17/04/2014"
-output: html_document
----
+# NEWS
+
 
 diveRsity update notes
 ======================
