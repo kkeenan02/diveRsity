@@ -14,7 +14,7 @@ The function will except both Arlequin (.arp) genotype and genepop (.gen/.txt) f
 }
 
 \usage{
-divMigrate(infile = NULL, outfile = NULL, nbs = 0, stat = "all", 
+divMigrate(infile = NULL, outfile = NULL, boots = 0, stat = "all", 
            filter_threshold = 0, plot_network = FALSE, 
            plot_col = "darkblue", para = FALSE)
 }
@@ -24,7 +24,7 @@ divMigrate(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
 
 \item{outfile}{String prefix to be added to the results directory. If left \code{NULL}, no networks will be written to file.}
 
-\item{nbs}{The number of bootstrap iteration to carry out for calculating mean relative migration and 95\% confidence intervals.}
+\item{boots}{The number of bootstrap iteration to carry out for calculating mean relative migration and 95\% confidence intervals.}
 
 \item{stat}{A character string indicating which statistic should be used to estimate relative migration between populations. The argument accepts one of the following: "d" (Jost's D), "gst" (Nei's Gst), "Nm" (Alcala et al, 2014) or "all" (all of the preceeding statistics; default).}
 
