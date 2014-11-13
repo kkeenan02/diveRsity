@@ -12,24 +12,26 @@
 #' @export
 
 # function definition ----
-divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
+divMigrate <- function(infile = NULL, outfile = NULL, boots = 0, stat = "all",
                        filter_threshold = 0, plot_network = FALSE, 
                        plot_col = "darkblue", para = FALSE){
   # preabmle ----
-  #nbs <- 10
+  #boots <- 10
   #cat("The method used in this function is still under development. \n")
   # read data ----
   #source("bsFun-fix.R")
   #Rcpp::sourceCpp("pwHt-fix.cpp")
   #pwHt <- diveRsity:::pwHt
   #rgp <- diveRsity:::rgp
-  #nbs <- 0
+  #boots <- 0
   #stat = "all"
-  #filter_threshold <- 0.5
-  #plot_network = TRUE
+  #filter_threshold <- 0
+  #plot_network = FALSE
   #plot_col <- "darkblue"
   #para = FALSE
-  #infile <- "YOSEonly.gen"
+  #data(Test_data, package = "diveRsity")
+  #infile <- Test_data
+  #outfile = NULL
   #data(Test_data, package = "diveRsity")
   #Test_data[is.na(Test_data)] <- ""
   #Test_data[Test_data == "0"] <- "000000"
@@ -128,7 +130,8 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
     diag(nm) <- NA
     nmRel <- nm/max(nm, na.rm = TRUE)
   }
-  if(plot_network){
+  
+  if(plot_network || boots != 0L){
     # plotting network
     if(stat == "d" || stat == "all" || stat == "Nm"){
       dRelPlt <- dRel
@@ -142,7 +145,8 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
       nmRelPlt <- nmRel
       nmRelPlt[nmRelPlt < filter_threshold] <- 0
     }
-    
+  }
+  if(plot_network){
     if(stat == "d"){
       qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                      legend = TRUE, posCol = plot_col, 
@@ -223,16 +227,16 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                     filter_threshold, "; Nm)", sep = ""))
       }
     }
-    if(nbs == 0L && !is.null(outfile)){
+    if(boots == 0L && !is.null(outfile)){
       dev.off() 
     } 
   }
   # Bootstrapping ----
   
-  if(nbs != 0L){
+  if(boots != 0L){
     # generate bootstrap indexes ----
     ps <- sapply(dat$indnms, length)
-    idx <- lapply(1:nbs, function(i){
+    idx <- lapply(1:boots, function(i){
       lapply(ps, function(x){
         return(sample(x, size = x, replace = TRUE))
       })
@@ -316,7 +320,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; D method)", sep = ""))
         dev.off()
       }
@@ -325,7 +329,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; Gst method)", sep = ""))
         dev.off()
       }
@@ -334,7 +338,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; Nm method)", sep = ""))
         dev.off()
       }
@@ -343,20 +347,20 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; D method)", sep = ""))
         
         qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps)", sep = ""))
         qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; Nm method)", sep = ""))
         dev.off()
       }
@@ -366,7 +370,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; D method)", sep = ""))
       }
       if(stat == "gst"){
@@ -374,7 +378,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; Gst method)", sep = ""))
       }
       if(stat == "Nm"){
@@ -382,7 +386,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; Nm method)", sep = ""))
       }
       if(stat == "all"){
@@ -390,26 +394,26 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; D method)", sep = ""))
         
         qgraph::qgraph(dRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; Gst Method)", sep = ""))
         qgraph::qgraph(nmRelPlt, nodeNames = sapply(dat$indnms, "[", 1),
                        legend = TRUE, posCol = plot_col, 
                        label.color = plot_col,
                        edge.labels = TRUE, curve = 2.5, mar = c(2,2,5,5))
-        title(paste("Significant relative migration network \n (", nbs, 
+        title(paste("Significant relative migration network \n (", boots, 
                     " bootstraps; Nm method)", sep = ""))
       }
     }
   }
   
-  if(nbs != 0L){
+  if(boots != 0L){
     if(stat == "d"){
       list(dRelMig = dRel,
            dRelMigSig = dRelPlt)
@@ -450,6 +454,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, nbs = 0, stat = "all",
 # Bootstrapping function definition ----
 bsFun <- function(genos, idx, af, pw, stat){
   nl <- length(af)
+  #myTab <- diveRsity:::myTab
   # sub-sample genos ----
   sampleFun <- function(input, idx){
     return(input[idx,,])
