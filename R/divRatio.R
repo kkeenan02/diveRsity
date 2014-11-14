@@ -11,10 +11,10 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
   #gp = 3
   popStats = pop_stats
   #boots = 99#boots
-  fileReader <- diveRsity::fileReader
-  AR <- diveRsity:::AR
-  Hex <- diveRsity:::Hex
-  arHex <- diveRsity:::arHex
+  #fileReader <- diveRsity::fileReader
+  #AR <- diveRsity:::AR
+  #Hex <- diveRsity:::Hex
+  #arHex <- diveRsity:::arHex
   #para = TRUE
   # create a directory for output
   if(!is.null(outfile)){
