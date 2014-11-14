@@ -4,8 +4,18 @@
 #' @export
 divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL, 
                      refPos = NULL, boots = 1000,  para = FALSE) {
+  #data(Test_data, package = "diveRsity")
+  #infile <- Test_data
+  #outfile = NULL
+  #refPos = 1
+  #gp = 3
   popStats = pop_stats
-  boots = boots
+  #boots = 99#boots
+  fileReader <- diveRsity::fileReader
+  AR <- diveRsity:::AR
+  Hex <- diveRsity:::Hex
+  arHex <- diveRsity:::arHex
+  #para = TRUE
   # create a directory for output
   if(!is.null(outfile)){
     suppressWarnings(dir.create(path=paste(getwd(),"/", outfile,
@@ -66,6 +76,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
   # if only the refpop raw data is given
   if(npops == 1 && !is.null(pop_stats)){
     refPop <- pop_list[[1]]
+    refPos <- 1
     # read subject population stats
     trypopDF <- try(read.table(popStats, header = TRUE), silent = TRUE)
     if(is(trypopDF, "try-error")){ 
@@ -201,9 +212,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
                heRatio = round(hexpRat, 4),
                heSEratio = round(hexpSErat, 4))
       return(res)
-    })
-    
-    divRatio <- as.data.frame(divRatio)
+    })  
   } else {
     ############################################################################
     # Subset pop_list into subject populations and reference population
@@ -293,6 +302,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
            hexp = data.frame(mean = meanHexp, se = seHexp))
     })
     # calculate the means and s.e. for all subPopStats
+    #if()
     subs <- lapply(subPopStats, function(x){
       meanAlr <- mean(x$alr, na.rm = TRUE)
       seAlr <- sd(x$alr, na.rm = TRUE)/sqrt(length(na.omit(x$alr)))
@@ -301,6 +311,8 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
       list(alr = data.frame(mean = meanAlr, se = seAlr),
            hexp = data.frame(mean = meanHexp, se = seHexp))
     })
+    # Account for refpop calculation variation
+    subs[refPos] <- refs[refPos]
     ##############################################################################
     # calculate the ratio stats
     seRatCalc <- function(subs, refs){
@@ -327,19 +339,29 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
                heSEratio = round(hexpSErat, 4))
       return(res)
     })
-    # add reference data to divRatio
-    refPop <- divRatio[refPos,]
-    divRatio <- divRatio[-refPos,]
-    refPop[1] <- paste(refPop[1], "-(ref)", sep = "")
-    divRatio <- as.data.frame(rbind(refPop, divRatio))
   }
+  # add reference data to divRatio
+  popnms <- divRatio[,1]
+  stst <- divRatio[,-1]
+  class(stst) <- "numeric"
+  refPop <- stst[refPos,]
+  divRatio <- stst[-refPos,]
+  popnms[refPos] <- paste(popnms[refPos], "-(ref)", sep = "")
+  divRatio <- as.data.frame(rbind(refPop, divRatio))
+  row.names(divRatio) <- NULL
+  divRatio <- cbind(popnms, divRatio)
+  colnames(divRatio)[1] <- "pops"
+  #refPop <- divRatio[refPos,]
+  #divRatio <- divRatio[-refPos,]
+  #refPop[1] <- paste(refPop[1], "-(ref)", sep = "")
+  #divRatio <- as.data.frame(rbind(refPop, divRatio))
   if(!is.null(outfile)){
     if(write_res){
       library("xlsx")
       # standard stats
       xlsx::write.xlsx(divRatio, file = paste(of, "[divRatio].xlsx",sep = ""),
-                 sheetName = "Diversity_ratios", col.names = TRUE,
-                 row.names = FALSE, append = FALSE)
+                       sheetName = "Diversity_ratios", col.names = TRUE,
+                       row.names = FALSE, append = FALSE)
     } else {
       write.table(divRatio, "divRatio-out.txt", col.names = TRUE, 
                   row.names = FALSE, append = FALSE, sep = "\t", 
