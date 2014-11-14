@@ -16,7 +16,7 @@ All results will be written to a user defined folder, providing an argument is p
 
 \usage{
 divRatio(infile = NULL, outfile = NULL, gp = 3, pop_stats = NULL, 
-         refPos = NULL, bootstraps = 1000, parallel = FALSE)
+         refPos = NULL, boots = 1000, para = FALSE)
 }
 
 \arguments{
@@ -31,9 +31,9 @@ divRatio(infile = NULL, outfile = NULL, gp = 3, pop_stats = NULL,
 
 \item{refPos}{A numeric argument specifying the position of the reference population in \code{infile}. The argument is only valid when raw genotype data has been provided for the reference population sample and all other populations of interest and \code{pop_stats} is \code{NULL}.}
 
-\item{bootstraps}{Specifies the number of times the reference population should be resampled when calculating the sample size standardised allelic richness and expected heterozygosity for calculating the diversity ratios. The larger the number of bootstraps the longer the analysis will take to run. As an indication of runtime, running \code{divRatio} on the \code{Big_data} data set (type \code{?Big_data} for details), takes 10min 42s on a Toshiba Satellite R830 with 6GB RAM, and an Intel Core i5 - 2435M CPU running Linux.}
+\item{boots}{Specifies the number of times the reference population should be resampled when calculating the sample size standardised allelic richness and expected heterozygosity for calculating the diversity ratios. The larger the number of bootstraps the longer the analysis will take to run. As an indication of runtime, running \code{divRatio} on the \code{Big_data} data set (type \code{?Big_data} for details), takes 10min 42s on a Toshiba Satellite R830 with 6GB RAM, and an Intel Core i5 - 2435M CPU running Linux.}
 
-\item{parallel}{A logical argument indicating whether the analysis should make use of all available cores on the users system.}
+\item{para}{A logical argument indicating whether the analysis should make use of all available cores on the users system.}
 
 }
 

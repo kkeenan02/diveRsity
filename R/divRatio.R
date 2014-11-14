@@ -3,9 +3,9 @@
 ################################################################################
 #' @export
 divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL, 
-                     refPos = NULL, bootstraps = 1000,  parallel = FALSE) {
+                     refPos = NULL, boots = 1000,  para = FALSE) {
   popStats = pop_stats
-  NBS = bootstraps
+  boots = boots
   # create a directory for output
   if(!is.null(outfile)){
     suppressWarnings(dir.create(path=paste(getwd(),"/", outfile,
@@ -83,7 +83,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
       popDF <- read.table(popStats, header = TRUE)
     }
     # calculate refpop standard stats
-    refalr <- rowMeans(replicate(NBS, AR(refPop)))
+    refalr <- rowMeans(replicate(boots, AR(refPop)))
     refhe <- Hex(refPop)
     refStd <- data.frame(alr = refalr, hexp = refhe)
     refStd <- data.frame(pops = paste(pop_names, "-(ref)", sep = ""),
@@ -122,16 +122,16 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
     
     # calculate refPopStats based on each subject pop sample size
     ###########################################################################
-    if(parallel){
+    if(para){
       if(require("parallel")){
         cores <- detectCores()
         cl <- makeCluster(cores)
-        clusterExport(cl, c("arHex", "NBS", "refPop", "popSizes", 
+        clusterExport(cl, c("arHex", "boots", "refPop", "popSizes", 
                             "gp", "nloci", "validLoc"), envir = environment())
         refPopStats <- parLapply(cl, seq_along(popSizes), function(i){
           inner <- list(ref = refPop[,validLoc[[i]]], size = popSizes[i],
                         gp = gp)
-          outer <- replicate(NBS, arHex(inner), simplify = FALSE)
+          outer <- replicate(boots, arHex(inner), simplify = FALSE)
           alrPre <- sapply(outer, function(x){
             return(x$alls)
           })
@@ -148,7 +148,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
       refPopStats <- lapply(1:length(popSizes), function(i){
         inner <- list(ref = refPop, size = popSizes[i],
                       gp = gp)
-        outer <- replicate(NBS, arHex(inner), simplify = FALSE)
+        outer <- replicate(boots, arHex(inner), simplify = FALSE)
         alrPre <- sapply(outer, function(x){
           return(x$alls)
         })
@@ -212,16 +212,16 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
     
     # Run AR and Hexpected function for each population other than the refpop
     # call them subject populations
-    if(parallel){
+    if(para){
       if(require(parallel)){
         cores <- detectCores()
         cl <- makeCluster(cores)
-        clusterExport(cl, c("Hex", "AR", "NBS", "gp", "nloci", "pop_list"), 
+        clusterExport(cl, c("Hex", "AR", "boots", "gp", "nloci", "pop_list"), 
                       envir = environment())
         subPopStats <- parLapply(cl, pop_list, function(x){
           # Calculate allelic richness
           # bootstrap first
-          alrbs <- replicate(NBS, AR(x))
+          alrbs <- replicate(boots, AR(x))
           # calculate the mean of the bootstraps per locus
           alr <- rowMeans(alrbs)
           # Calculate expected Het
@@ -234,7 +234,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
       subPopStats <- lapply(pop_list, function(x){
         # Calculate allelic richness
         # bootstrap first
-        alrbs <- replicate(NBS, AR(x))
+        alrbs <- replicate(boots, AR(x))
         # calculate the mean of the bootstraps per locus
         alr <- rowMeans(alrbs)
         # Calculate expected Het
@@ -249,13 +249,13 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
       which(!is.na(x[,1]))
     })
     # calculate the standardized alr and hex for the ref pop
-    if(parallel){
-      clusterExport(cl, c("arHex", "refPop", "NBS", "gp", "pop_sizes", 
+    if(para){
+      clusterExport(cl, c("arHex", "refPop", "boots", "gp", "pop_sizes", 
                           "validLocs"), envir = environment())
       refPopStats <- parLapply(cl, seq_along(pop_list), function(i){
         inner <- list(ref = refPop[,validLocs[[i]]], size = pop_sizes[i],
                       gp = gp)
-        outer <- replicate(NBS, arHex(inner), simplify = FALSE)
+        outer <- replicate(boots, arHex(inner), simplify = FALSE)
         alrPre <- sapply(outer, function(x){
           return(x$alls)
         })
@@ -271,7 +271,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
       refPopStats <- lapply(seq_along(pop_list), function(i){
         inner <- list(ref = refPop, size = pop_sizes[i],
                       gp = gp)
-        outer <- replicate(NBS, arHex(inner), simplify = FALSE)
+        outer <- replicate(boots, arHex(inner), simplify = FALSE)
         alrPre <- sapply(outer, function(x){
           return(x$alls)
         })
