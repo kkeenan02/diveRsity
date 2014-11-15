@@ -7,7 +7,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
   #data(Test_data, package = "diveRsity")
   #infile <- Test_data
   #outfile = NULL
-  #refPos = 1
+  #refPos = 5
   #gp = 3
   popStats = pop_stats
   #boots = 99#boots
@@ -349,6 +349,8 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
   popnms[refPos] <- paste(popnms[refPos], "-(ref)", sep = "")
   divRatio <- as.data.frame(rbind(refPop, divRatio))
   row.names(divRatio) <- NULL
+  rp <- popnms[refPos]
+  popnms <- c(rp, popnms[-refPos])
   divRatio <- cbind(popnms, divRatio)
   colnames(divRatio)[1] <- "pops"
   #refPop <- divRatio[refPos,]
