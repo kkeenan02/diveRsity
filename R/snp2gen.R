@@ -26,6 +26,10 @@ snp2gen <- function(infile = NULL, prefix_length = 2, write = FALSE){
     dat <- c(paste(colnames(infile), collapse = "\t"), dat)
   } else {
     dat <- fastScan(infile)
+    # deal with empty last lines in files
+    if(dat[length(dat)] == ""){
+      dat <- dat[-length(dat)]
+    }
   }
   inds <- strsplit(dat[1], split = "\\s+")[[1]][-1]
   splitNames <- lapply(inds, function(x){
