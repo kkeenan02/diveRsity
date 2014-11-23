@@ -84,7 +84,12 @@ rgp <- function(infile){
   #indNames <- do.call("c", indNames)
   genos <- lapply(genos, "[[", 1)
   # detect genepop format
-  gp <- round(mean(nchar(na.omit(genos[[1]][,1:2]))/2))
+  # check for loci with all missing data before calculating gp
+  badLoc <- apply(genos[[1]], 2, function(x){
+    sum(is.na(x)) == length(x)
+  })
+  badLoc <- which(!badLoc)
+  gp <- round(mean(nchar(na.omit(genos[[badLoc[1]]][,1]))/2))
   # convert genotypes to arrays
   genos <- lapply(genos, function(x){
     al1 <- substr(x, 1, gp)

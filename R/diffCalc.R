@@ -173,6 +173,10 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   if(fst){
     # locus variance components (working)
     hsum <- lapply(preStats$hsum, tabMerge)
+    # fix missing data loci
+    hsum <- lapply(hsum, function(x){
+      x[!(names(x) == "NA")]
+    })
     varC <- mapply("glbWCcpp", hsum = hsum, af = preStats$alOut,
                    indtyp = preStats$indtyp, SIMPLIFY = FALSE)
     rm(hsum)
@@ -333,6 +337,10 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       
       bsVarC <- lapply(bsDat, function(x){
         hsum <- lapply(x$hsum, tabMerge)
+        # fix missing data loci
+        hsum <- lapply(hsum, function(x){
+          x[!(names(x) == "NA")]
+        })
         stat <- mapply(glbWCcpp, hsum = hsum, af = x$alOut, 
                        indtyp = x$indtyp, SIMPLIFY = FALSE)
         bsFst <- sapply(stat, function(y){
@@ -583,6 +591,11 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       # calculate standard statistics (non-bootstrap)
       hsum <- lapply(preStats$hsum, function(x){
         pwTabMerge(x, pw-1)
+      })
+      # fix missing data loci
+      hsum <- lapply(hsum, function(x){
+        x <- x[[1]]
+        list(x[!(names(x) == "NA")])
       })
       pwVar <- mapply("pwWCcpp", hsum1 = hsum, af1 = preStats$alOut,
                       indtyp1 = preStats$indtyp, MoreArgs = list(pw = pw-1),
