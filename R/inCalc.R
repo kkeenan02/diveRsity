@@ -169,20 +169,24 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
   if(!file.exists(outDir)){
     dir.create(path = outDir, showWarnings = FALSE)
   }
-  if(require("xlsx")){
-    outF <- paste(outDir, "outfile-[in.Calc].xlsx", sep = "")
-    xlsx::write.xlsx(glbDat, file = outF, sheetName = "Global In", 
-               col.names = TRUE, row.names = FALSE, append = FALSE)
-    if(pairwise){
-      xlsx::write.xlsx(pwDat, file = outF, sheetName = "Pairwise In", 
-                 col.names = TRUE, row.names = FALSE, append = TRUE)
-    }
-    if(!is.null(boots)){
-      xlsx::write.xlsx(lowCI, file = outF, sheetName = "Lower CI (PW)", 
-                 col.names = TRUE, row.names = FALSE, append = TRUE)
-      xlsx::write.xlsx(upCI, file = outF, sheetName = "Upper CI (PW)", 
-                 col.names = TRUE, row.names = FALSE, append = TRUE)
-    }
+  if(xlsx){
+    if(!require("xlsx")){
+      stop("You must install the 'xlsx' package to write results in this format.")
+    } else {
+        outF <- paste(outDir, "outfile-[in.Calc].xlsx", sep = "")
+        xlsx::write.xlsx(glbDat, file = outF, sheetName = "Global In", 
+                         col.names = TRUE, row.names = FALSE, append = FALSE)
+        if(pairwise){
+          xlsx::write.xlsx(pwDat, file = outF, sheetName = "Pairwise In", 
+                           col.names = TRUE, row.names = FALSE, append = TRUE)
+        }
+        if(!is.null(boots)){
+          xlsx::write.xlsx(lowCI, file = outF, sheetName = "Lower CI (PW)", 
+                           col.names = TRUE, row.names = FALSE, append = TRUE)
+          xlsx::write.xlsx(upCI, file = outF, sheetName = "Upper CI (PW)", 
+                           col.names = TRUE, row.names = FALSE, append = TRUE)
+        }
+      }
   } else {
     rn <- paste(colnames(glbDat), collapse = "\t")
     glbDatOut <- apply(glbDat, 1, paste, collapse = "\t")
