@@ -10,13 +10,13 @@
 #' Kevin Keenan 2014
 #' 
 # infile <- "Test.txt"
-# bootstraps = 10
+# boots = 10
 # pairwise = FALSE
 # outfile <- "out"
-# parallel = TRUE
+# para = TRUE
 # xlsx <- FALSE
 inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE, 
-                   xlsx = FALSE, bootstraps = NULL, parallel = FALSE){
+                   xlsx = FALSE, boots = NULL, para = FALSE){
   #source("rgp.R")
   #source("inFunc.R")
   # calculate basic information
@@ -33,13 +33,13 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
   }
   inStatGLB <- lapply(af, inFunc, pw = FALSE)
   ####-- Global bootstrap --####
-  if(!is.null(bootstraps)){
+  if(!is.null(boots)){
     # population sizes
     ps <- sapply(alf$genos, function(x){
       return(dim(x)[1])
     })
     # generate resample indexes
-    idx <- lapply(1:bootstraps, function(x){
+    idx <- lapply(1:boots, function(x){
       lapply(ps, function(y){
         sample(y, y, replace = TRUE)
       })
@@ -80,7 +80,7 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
       return(alOut)
     }
     
-    if(parallel){
+    if(para){
       library(parallel)
       cl <- makeCluster(detectCores())
       clusterExport(cl, c("inFunc", "paraFunc", "alf", "pairwise"), 
@@ -109,7 +109,7 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
   # global In
   glbDat <- data.frame(Locus = locs, Global_In = round(unlist(inStatGLB), 4))
   rownames(glbDat) <- NULL
-  if(!is.null(bootstraps)){
+  if(!is.null(boots)){
     glbDat$lower_ci <- round(glbLowCI, 4)
     glbDat$upper_ci <- round(glbUpCI, 4)
   }
@@ -128,8 +128,8 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
     row1 <- paste(colnames(pwDat), collapse = "\t")
   }
   ### Bootstrap code ###
-  if(!is.null(bootstraps) && pairwise){
-    if(parallel){
+  if(!is.null(boots) && pairwise){
+    if(para){
       system.time({
         inbs <- parLapply(cl, idx, function(x){
           af <- paraFunc(alf$genos, x, alf$af)
@@ -177,7 +177,7 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
       xlsx::write.xlsx(pwDat, file = outF, sheetName = "Pairwise In", 
                  col.names = TRUE, row.names = FALSE, append = TRUE)
     }
-    if(!is.null(bootstraps)){
+    if(!is.null(boots)){
       xlsx::write.xlsx(lowCI, file = outF, sheetName = "Lower CI (PW)", 
                  col.names = TRUE, row.names = FALSE, append = TRUE)
       xlsx::write.xlsx(upCI, file = outF, sheetName = "Upper CI (PW)", 
@@ -203,7 +203,7 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
       }
       close(fl2)
     }
-    if(!is.null(bootstraps) && pairwise){
+    if(!is.null(boots) && pairwise){
       of3 <- paste(outDir, "Lower_CI-[in.Calc].txt", sep = "")
       fl3 <- file(of3, "w")
       of4 <- paste(outDir, "Upper_CI-[in.Calc].txt", sep = "")
@@ -219,12 +219,12 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
     }
   }
   ####-- Function outputs --####
-  if(!pairwise && is.null(bootstraps)){
+  if(!pairwise && is.null(boots)){
     list(global = glbDat)
-  } else if(pairwise && is.null(bootstraps)){
+  } else if(pairwise && is.null(boots)){
     list(global = glbDat,
          pairwise = pwDat)
-  } else if (pairwise && !is.null(bootstraps)){
+  } else if (pairwise && !is.null(boots)){
     list(global = glbDat,
          pairwise = pwDat,
          lower_CI = lowCI,

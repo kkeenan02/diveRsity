@@ -14,8 +14,8 @@ All results will be written to a user defined folder ("working\_directory/outfil
 }
 
 \usage{
-inCalc(infile = NULL, outfile = NULL, pairwise = FALSE,
-       xlsx = FALSE, bootstraps = NULL, parallel = FALSE)
+inCalc(infile = NULL, outfile = NULL, pairwise = FALSE, xlsx = FALSE, 
+       boots = NULL, para = FALSE)
 }
 \arguments{
 
@@ -27,23 +27,23 @@ inCalc(infile = NULL, outfile = NULL, pairwise = FALSE,
 
 \item{xlsx}{A logical argument indicating whether results should be written to an \emph{xlsx} file. If \code{xlsx = FALSE} (default), results will be written to text files.}
 
-\item{bootstraps}{Determines the number of bootstrap iterations to be carried out. The default value is \code{bootstraps = 0}, this is only valid when 
+\item{boots}{Determines the number of bootstrap iterations to be carried out. The default value is \code{boots = 0}, this is only valid when 
 all bootstrap options are false.}
 
-\item{parallel}{Allows for parallel computation of pairwise locus \emph{In}. The number of available core is automatically detected if \code{parallel = TRUE}.}
+\item{para}{Allows for parallel computation of pairwise locus \emph{In}. The number of available core is automatically detected if \code{para = TRUE}.}
 }
 
 \value{
 
 \code{inCalc} return a list object to the R workspace, with elements described below. In addition to this results can be optionally written to file using the \code{outfile} argument. If \code{xlsx = TRUE} results will be written to a multi-sheet xlsx file. If \code{xlsx = FALSE} results are written to multiple text file, the number of which depends on the function arguments used.
 
-\item{global}{A \code{data.frame} containing the \emph{In} values for each locus, calculated across all samples in \code{infile}. If \code{bootstraps} is an integer greater than 0, this data.frame will also contain lower and upper 95\% confidence limits for each locus.}
+\item{global}{A \code{data.frame} containing the \emph{In} values for each locus, calculated across all samples in \code{infile}. If \code{boots} is an integer greater than 0, this data.frame will also contain lower and upper 95\% confidence limits for each locus.}
 
-\item{pairwise}{A \code{data.frame} containing the pairwise locus \emph{In} values for all possible pairwise population comparisons. This object is returned when \code{bootstraps} is an integer greater than 0.}
+\item{pairwise}{A \code{data.frame} containing the pairwise locus \emph{In} values for all possible pairwise population comparisons. This object is returned when \code{boots} is an integer greater than 0.}
 
-\item{lower_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{lower_CI} is returned. It is a \code{data.frame} containing the lower 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
+\item{lower_CI}{If \code{pairwise = TRUE} and \code{boots} is an integer greater than 0, \code{lower_CI} is returned. It is a \code{data.frame} containing the lower 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
 
-\item{upper_CI}{If \code{pairwise = TRUE} and \code{bootstraps} is an integer greater than 0, \code{upper_CI} is returned. It is a \code{data.frame} containing the upper 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
+\item{upper_CI}{If \code{pairwise = TRUE} and \code{boots} is an integer greater than 0, \code{upper_CI} is returned. It is a \code{data.frame} containing the upper 95\% confidence limit for the corresponding pairwise estimate in the \code{pairwise} data.}
 
 }
 
@@ -76,5 +76,5 @@ Kevin Keenan <kkeenan02@qub.ac.uk>
 # Test_data[is.na(Test_data)] <- ""
 #
 # test_results<-inCalc(infile = Test_data, outfile = 'out', pairwise = TRUE,
-#                      xlsx = FALSE, bootstraps = 1000, parallel = TRUE)
+#                      xlsx = FALSE, boots = 1000, para = TRUE)
 }
