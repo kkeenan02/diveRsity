@@ -165,14 +165,15 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
   ####-- Write the data to file --####
   
   # Set up directory
-  outDir <- paste(getwd(), "/", outfile, "-[inCalc]/", sep = "")
-  if(!file.exists(outDir)){
-    dir.create(path = outDir, showWarnings = FALSE)
-  }
-  if(xlsx){
-    if(!require("xlsx")){
-      stop("You must install the 'xlsx' package to write results in this format.")
-    } else {
+  if(!is.null(outfile)){
+    outDir <- paste(getwd(), "/", outfile, "-[inCalc]/", sep = "")
+    if(!file.exists(outDir)){
+      dir.create(path = outDir, showWarnings = FALSE)
+    }
+    if(xlsx){
+      if(!require("xlsx")){
+        stop("You must install the 'xlsx' package to write results in this format.")
+      } else {
         outF <- paste(outDir, "outfile-[in.Calc].xlsx", sep = "")
         xlsx::write.xlsx(glbDat, file = outF, sheetName = "Global In", 
                          col.names = TRUE, row.names = FALSE, append = FALSE)
@@ -187,39 +188,40 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
                            col.names = TRUE, row.names = FALSE, append = TRUE)
         }
       }
-  } else {
-    rn <- paste(colnames(glbDat), collapse = "\t")
-    glbDatOut <- apply(glbDat, 1, paste, collapse = "\t")
-    glbDatOut <- c(rn, glbDatOut)
-    of1 <- paste(outDir, "Global-[in.Calc].txt", sep = "")
-    fl1 <- file(of1, "w")
-    for(i in 1:length(glbDatOut)){
-      cat(glbDatOut[i], sep = "\n", file = fl1)
-    }
-    close(fl1)
-    if(pairwise){
-      pwDatOut <- apply(pwDat, 1, paste, collapse = "\t")
-      pwDatOut <- c(row1, pwDatOut)
-      of2 <- paste(outDir, "pairwise-[in.Calc].txt", sep = "")
-      fl2 <- file(of2, "w")
-      for(i in 1:length(pwDatOut)){
-        cat(pwDatOut[i], sep = "\n", file = fl2)
+    } else {
+      rn <- paste(colnames(glbDat), collapse = "\t")
+      glbDatOut <- apply(glbDat, 1, paste, collapse = "\t")
+      glbDatOut <- c(rn, glbDatOut)
+      of1 <- paste(outDir, "Global-[in.Calc].txt", sep = "")
+      fl1 <- file(of1, "w")
+      for(i in 1:length(glbDatOut)){
+        cat(glbDatOut[i], sep = "\n", file = fl1)
       }
-      close(fl2)
-    }
-    if(!is.null(boots) && pairwise){
-      of3 <- paste(outDir, "Lower_CI-[in.Calc].txt", sep = "")
-      fl3 <- file(of3, "w")
-      of4 <- paste(outDir, "Upper_CI-[in.Calc].txt", sep = "")
-      fl4 <- file(of4, "w")
-      lowCIout <- c(row1, apply(lowCI, 1, paste, collapse = "\t"))
-      upCIout <- c(row1, apply(upCI, 1, paste, collapse = "\t"))
-      for(i in 1:length(lowCIout)){
-        cat(lowCIout[i], sep = "\n", file = fl3)
-        cat(upCIout[i], sep = "\n", file = fl4)
+      close(fl1)
+      if(pairwise){
+        pwDatOut <- apply(pwDat, 1, paste, collapse = "\t")
+        pwDatOut <- c(row1, pwDatOut)
+        of2 <- paste(outDir, "pairwise-[in.Calc].txt", sep = "")
+        fl2 <- file(of2, "w")
+        for(i in 1:length(pwDatOut)){
+          cat(pwDatOut[i], sep = "\n", file = fl2)
+        }
+        close(fl2)
       }
-      close(fl3)
-      close(fl4)
+      if(!is.null(boots) && pairwise){
+        of3 <- paste(outDir, "Lower_CI-[in.Calc].txt", sep = "")
+        fl3 <- file(of3, "w")
+        of4 <- paste(outDir, "Upper_CI-[in.Calc].txt", sep = "")
+        fl4 <- file(of4, "w")
+        lowCIout <- c(row1, apply(lowCI, 1, paste, collapse = "\t"))
+        upCIout <- c(row1, apply(upCI, 1, paste, collapse = "\t"))
+        for(i in 1:length(lowCIout)){
+          cat(lowCIout[i], sep = "\n", file = fl3)
+          cat(upCIout[i], sep = "\n", file = fl4)
+        }
+        close(fl3)
+        close(fl4)
+      }
     }
   }
   ####-- Function outputs --####
