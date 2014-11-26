@@ -7,7 +7,7 @@ An internal function for plotting the relationship between differentiation and l
 An internal function for plotting the relationship between differentiation and locus polymorphism
 }
 \usage{
-corPlotter(x, y, dat, write = FALSE, plot.format = NULL)
+corPlotter(x, y, dat, write = FALSE, plot.format = NULL, yname = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,5 +16,6 @@ corPlotter(x, y, dat, write = FALSE, plot.format = NULL)
   \item{dat}{A dataframe from which variable x and y are sourced}
   \item{write}{A logical argument, indicating whether results should be written to file}
   \item{plot.format}{A string indicating the format to be used when writing results to file}
+  \item{yname}{A string or expression to be used as the yaxis label on the scatter plot}
 }
 \keyword{internal}

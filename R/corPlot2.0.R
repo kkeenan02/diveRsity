@@ -1,7 +1,7 @@
 # corPlot, plot the relationship between fastDivPart stats and number of 
 # alleles
 #' @export
-corPlot<-function(infile = NULL, plot.format = NULL, write = FALSE){
+corPlot2.0<-function(infile = NULL, write = FALSE, plot.format = NULL){
   # make sure mfrow is reset on exit
   orig <- par()$mfrow
   on.exit(par(mfrow = orig))
@@ -18,7 +18,6 @@ corPlot<-function(infile = NULL, plot.format = NULL, write = FALSE){
   dat$na <- na
   ynms <- c(expression("F"[ST]), expression("G"[ST]), expression("G'"[ST]), 
             expression("D"[JOST]))
-)
   if(write){
     plts <- mapply(corPlotter, y = colselect, yname = ynms, 
                    MoreArgs = list(x = "na", dat = dat,

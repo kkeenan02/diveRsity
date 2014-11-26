@@ -1,5 +1,5 @@
 Package: diveRsity
-Version: 1.9.9.50
+Version: 1.9.9.51
 Date: 2014/11/08
 Title: diveRsity: A comprehensive, general purpose population genetics analysis package.
 Author: Kevin Keenan <kkeenan02@qub.ac.uk>
@@ -27,7 +27,8 @@ Imports:
     ggplot2,
     shiny,
     qgraph,
-    Rcpp
+    Rcpp,
+    grid
 LinkingTo: Rcpp
 Repository: CRAN
 License: GPL (>= 2)

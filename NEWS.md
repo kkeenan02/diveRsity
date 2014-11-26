@@ -189,3 +189,7 @@ v1.9.9.45
 v1.9.9.49
 ---------
 `diffCalc` crashed when some loci had 100% missing data. The problem function was `glbWCcpp`. This version deals with this bug. Extensive testing of the fix is still required and will be carried out for v1.9.9.50
+
+v1.9.9.51
+---------
+The `corplot` function as been revamped to make use of ggplot2 graphics.

@@ -14,16 +14,17 @@ This function returns four scatter plots showing the relationship between Fst (W
 }
 
 \usage{
-corPlot2.0(infile = NULL, plot.format = NULL, write = FALSE)
+corPlot2.0(infile = NULL, write = FALSE, plot.format = NULL)
 }
 
 \arguments{
 
 \item{infile}{A character string indicating the location and name of a genepop format file to be read. If the file is in the current working directory, only the name must be provided. If the file is in a directory other than the current working directory, either a relative or absolute path to the file must be provided. The genepop file can be in the 2-digit or 3-digit allele format.}
 
+\item{write}{A logical argument indicating whether results should be written to file or not}
+
 \item{plot.format}{A string indicating the format to which plots should be written. Either 'png' or 'eps' are accepted.}
 
-\item{write}{A logical argument indicating whether results should be written to file or not}
 }
 
 \references{
@@ -46,5 +47,3 @@ Weir, B.S. & Cockerham, C.C., Estimating F-Statistics, for the Analysis of Popul
 \author{
 Kevin Keenan <kkeenan02@qub.ac.uk>
 }
-
-\
