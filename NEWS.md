@@ -193,3 +193,26 @@ v1.9.9.49
 v1.9.9.51
 ---------
 The `corplot` function as been revamped to make use of ggplot2 graphics.
+
+v1.9.9.53
+---------
+Fixed a bug in diffCalc pairwise Fst calculations. This stemmed from the fix added in v1.9.9.49.
+
+#### old code
+
+```r
+hsum <- lapply(hsum, function(x){
+   x[!(names(x) == "NA")]
+})
+```
+
+#### New code
+
+```r
+hsum <- lapply(hsum, function(x){
+   x <- lapply(x, function(y){
+      y <- y[!(names(y) == "NA")]
+      return(y)
+   })
+})
+```

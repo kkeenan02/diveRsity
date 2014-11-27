@@ -593,9 +593,12 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
         pwTabMerge(x, pw-1)
       })
       # fix missing data loci
+      # fix missing data loci
       hsum <- lapply(hsum, function(x){
-        x <- x[[1]]
-        list(x[!(names(x) == "NA")])
+        x <- lapply(x, function(y){
+          y <- y[!(names(y) == "NA")]
+          return(y)
+        })
       })
       pwVar <- mapply("pwWCcpp", hsum1 = hsum, af1 = preStats$alOut,
                       indtyp1 = preStats$indtyp, MoreArgs = list(pw = pw-1),
