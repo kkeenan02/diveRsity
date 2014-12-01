@@ -24,13 +24,20 @@
 # sourceCpp("src/myTab.cpp")
 #' __Kevin Keenan__ (2014)
 ####-- prestats function --####
-statCalc <- function(rsDat, idx = NULL, al, fst, bs = TRUE){
+statCalc <- function(rsDat, idx = NULL, al, fst, bs = TRUE, 
+                     ci_type = "individuals"){
   # generate resamples
-  if(bs){
+  if(bs & ci_type == "individuals"){
     rsFun <- function(x, y){
       return(x[y,,])
     }
     rsDat <- mapply(rsFun, x = rsDat, y = idx, SIMPLIFY = FALSE) 
+  } else if(bs & ci_type == "loci"){
+    rsFun <- function(x, y){
+      return(x[,y,])
+    }
+    rsDat <- lapply(rsDat, rsFun, y = idx)
+    al <- al[idx]
   }
   
   # calculate allele frequecies

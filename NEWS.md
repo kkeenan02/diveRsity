@@ -216,3 +216,7 @@ hsum <- lapply(hsum, function(x){
    })
 })
 ```
+
+v1.9.9.54
+---------
+Introduces bootstrapping across loci in `diffCalc`

@@ -24,7 +24,7 @@
 diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE, 
                      pairwise = FALSE, bs_locus = FALSE, 
                      bs_pairwise = FALSE, boots = NULL, 
-                     para = FALSE){
+                     ci_type = "individuals", para = FALSE){
   #' # Calculate diversity statistics functions
   #' 
   #' __Kevin Keenan__ (2014)
@@ -127,6 +127,10 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   # npops
   np = ncol(ip$af[[1]])
   
+  # number of loci
+  if(ci_type == "loci"){
+    nl <- dim(ip$genos[[1]])[2]
+  }
   # pairwise matrix index
   pw <- combn(np, 2)
   
@@ -137,12 +141,18 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   }
   
   # create resample indexes
-  if(!is.null(bs)){
+  if(ci_type == "individuals"){
+    if(!is.null(bs)){
+      idx <- lapply(1:bs, function(i){
+        lapply(1:np, function(j){
+          sample(ps[j], size = ps[j], replace = TRUE)
+        })
+      }) 
+    }
+  } else {
     idx <- lapply(1:bs, function(i){
-      lapply(1:np, function(j){
-        sample(ps[j], size = ps[j], replace = TRUE)
-      })
-    }) 
+      sample(nl, nl, replace = TRUE)
+    })
   }
   
   #' ### Calculate point estimates (locus and global)
@@ -307,13 +317,16 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     })
     if(para){
       cl <- makeCluster(ncor)
-      clusterExport(cl, c("myTab", "al"), envir = environment())
+      #clusterExport(cl, c("myTab", "al"), envir = environment())
       bsDat <- parLapply(cl, idx, statCalc, rsDat = ip$genos, al = al, 
-                         fst = fst)
+                         fst = fst, ci_type = ci_type)
       stopCluster(cl)
     } else {
-      bsDat <- lapply(idx, statCalc, rsDat = ip$genos, al = al, fst = fst)
-    }
+      system.time({
+        bsDat <- lapply(idx, statCalc, rsDat = ip$genos, al = al, fst = fst,
+                        ci_type = ci_type)
+      })
+    } 
     indtyp <- lapply(bsDat, "[[", "indtyp")
     # clean up
     rm(idx)

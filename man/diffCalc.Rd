@@ -12,7 +12,8 @@ This function allows the calculation of pairwise differentiation using a range o
 
 \usage{
 diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE,
-         bs_locus = FALSE, bs_pairwise = FALSE, boots = NULL, para = FALSE)
+         bs_locus = FALSE, bs_pairwise = FALSE, boots = NULL, 
+         ci_type = "individuals", para = FALSE)
 }
     	   
 \arguments{
@@ -30,6 +31,8 @@ diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE,
 \item{bs_pairwise}{Gives users the option to calculate bias corrected 95\% confidence intervals for pairwise statistics.}
 
 \item{boots}{Specified the number of bootstraps for the calculation of 95\% confidence intervals.}
+
+\item{ci_type}{A character string indicating whether bootstrapping should be carried out over individuals within samples (\code{``individuals''}.), or across loci (\code{``loci''}).}
 
 \item{para}{A logical argument indicating whether computations should be carried out over multiple CPUs, if available.}
 }
