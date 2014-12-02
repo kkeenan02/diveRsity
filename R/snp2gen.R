@@ -25,6 +25,13 @@ snp2gen <- function(infile = NULL, prefix_length = 2, write = FALSE){
     })
     dat <- c(paste(colnames(infile), collapse = "\t"), dat)
   } else {
+    # deal with relative paths
+    pre <- strsplit(infile, split = "\\.")[[1]]
+    if(length(pre) == 3L){
+      pre <- pre[2]
+    } else {
+      pre <- paste(pre[-length(pre)], collapse = "")
+    }
     dat <- fastScan(infile)
     # deal with empty last lines in files
     if(dat[length(dat)] == ""){
@@ -86,7 +93,6 @@ snp2gen <- function(infile = NULL, prefix_length = 2, write = FALSE){
   indNames <- lapply(pop_idx, function(x){
     return(c("pop", paste(inds[x], " ,", sep = "")))
   })
-  pre <- strsplit(infile, split = "\\.")[[1]][1]
   pop_list <- cbind(do.call("c", indNames),
                     do.call("rbind", pop_list))
   pop_list <- rbind(c(paste(pre, "-converted", sep = ""), 
