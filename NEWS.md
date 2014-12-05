@@ -224,3 +224,7 @@ Introduces bootstrapping across loci in `diffCalc`
 v1.9.9.55
 ---------
 Deals with relative paths in `snp2gen` function.
+
+v1.9.9.56
+---------
+Introduces `divSimCo` for calculating Kosman and Leonard, (2005) similarity coefficients.
