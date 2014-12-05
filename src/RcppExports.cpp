@@ -21,6 +21,23 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// genos2mat
+NumericMatrix genos2mat(NumericMatrix mat, IntegerVector ip, NumericVector na);
+RcppExport SEXP diveRsity_genos2mat(SEXP matSEXP, SEXP ipSEXP, SEXP naSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericMatrix >::type mat(matSEXP );
+        Rcpp::traits::input_parameter< IntegerVector >::type ip(ipSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type na(naSEXP );
+        NumericMatrix __result = genos2mat(mat, ip, na);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // glbWCcpp
 List glbWCcpp(IntegerVector hsum, NumericMatrix af, NumericVector indtyp);
 RcppExport SEXP diveRsity_glbWCcpp(SEXP hsumSEXP, SEXP afSEXP, SEXP indtypSEXP) {

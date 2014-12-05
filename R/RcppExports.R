@@ -5,6 +5,10 @@ diffCalcHarm <- function(idt, pw) {
     .Call('diveRsity_diffCalcHarm', PACKAGE = 'diveRsity', idt, pw)
 }
 
+genos2mat <- function(mat, ip, na) {
+    .Call('diveRsity_genos2mat', PACKAGE = 'diveRsity', mat, ip, na)
+}
+
 glbWCcpp <- function(hsum, af, indtyp) {
     .Call('diveRsity_glbWCcpp', PACKAGE = 'diveRsity', hsum, af, indtyp)
 }

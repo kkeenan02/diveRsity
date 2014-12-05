@@ -13,8 +13,8 @@ genos2mat(mat, ip, na)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{mat}{A template matrix}
-  \item{ip}{A character vector of alleles (e.g. \code{genos[,i,j]}) for all genotypes individual.}
-  \item{An NA replacement template}
+  \item{ip}{A character vector of alleles (e.g. \code{genos[,i,j]}) for all genotyped individual.}
+  \item{na}{An NA replacement template}
 }
 \author{
 Kevin Keenan
