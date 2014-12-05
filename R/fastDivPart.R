@@ -72,7 +72,7 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
       cat(noquote(writeWarn))
     }
     para_pack <- all(para_pack_inst)
-    if(write_res == FALSE){
+    if(write_res == FALSE && !is.null(on)){
       Warning1<-{paste(" "," ",
                        "[NOTE]",
                        "___________________________________________________________",
@@ -90,7 +90,7 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
       }
       cat(noquote(Warning1))
     } 
-    if(plot_res==F && plt==T){
+    if(plot_res==F && plt==T && !is.null(on)){
       Warning2<-{paste(" "," "," ",
                        "[NOTE]  ",
                        "___________________________________________________________",
