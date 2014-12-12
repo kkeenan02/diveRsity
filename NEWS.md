@@ -4,6 +4,10 @@
 diveRsity update notes
 ======================
 
+v1.9.9.58
+---------
+User defined alpha for divMigrateOnline function.
+
 v1.9.9.57
 ---------
 Fixes a bug, which caused an unnecessary warning message to be printed to the console when using `fastDivPart` without `xlsx` package being installed.

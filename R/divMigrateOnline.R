@@ -1,7 +1,7 @@
 # divMigrateOnline function definition for online application
 # function definition ----
 divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "all", 
-                             para = FALSE){
+                             para = FALSE, alpha = 0.05){
   # preabmle ----
   #nbs <- 10
   #cat("The method used in this function is still under development. \n")
@@ -171,8 +171,8 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "all",
     #if(stat == "d"){
       sigMatD <- matrix(NA, nrow = ncol(dRel), ncol(dRel))
       for(i in 1:ncol(pw)){
-        p1 <- quantile(bsD[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
-        p2 <- quantile(bsD[pw[2,i], pw[1,i],], prob = c(0.025, 0.975))
+        p1 <- quantile(bsD[pw[1,i], pw[2,i],], prob = c(alpha/2, 1-(alpha/2)))
+        p2 <- quantile(bsD[pw[2,i], pw[1,i],], prob = c(alpha/2, 1-(alpha/2)))
         sigMatD[pw[2,i], pw[1,i]] <- sigDiff(p1, p2)
         sigMatD[pw[1,i], pw[2,i]] <- sigDiff(p2, p1)
       }
@@ -182,8 +182,8 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "all",
     #if(stat == "gst"){
       sigMatG <- matrix(NA, nrow = ncol(gRel), ncol(gRel))
       for(i in 1:ncol(pw)){
-        p1 <- quantile(bsG[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
-        p2 <- quantile(bsG[pw[2,i], pw[1,i],], prob = c(0.025, 0.975))
+        p1 <- quantile(bsG[pw[1,i], pw[2,i],], prob = c(alpha/2, 1-(alpha/2)))
+        p2 <- quantile(bsG[pw[2,i], pw[1,i],], prob = c(alpha/2, 1-(alpha/2)))
         sigMatG[pw[2,i], pw[1,i]] <- sigDiff(p1, p2)
         sigMatG[pw[1,i], pw[2,i]] <- sigDiff(p2, p1)
       }
@@ -193,8 +193,8 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "all",
     #if(stat == "Nm"){
       sigMatNm <- matrix(NA, nrow = ncol(nmRel), ncol(nmRel))
       for(i in 1:ncol(pw)){
-        p1 <- quantile(bsNm[pw[1,i], pw[2,i],], prob = c(0.025, 0.975))
-        p2 <- quantile(bsNm[pw[2,i], pw[1,i],], prob = c(0.025, 0.975))
+        p1 <- quantile(bsNm[pw[1,i], pw[2,i],], prob = c(alpha/2, 1-(alpha/2)))
+        p2 <- quantile(bsNm[pw[2,i], pw[1,i],], prob = c(alpha/2, 1-(alpha/2)))
         sigMatNm[pw[2,i], pw[1,i]] <- sigDiff(p1, p2)
         sigMatNm[pw[1,i], pw[2,i]] <- sigDiff(p2, p1)
       }

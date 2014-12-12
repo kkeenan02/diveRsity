@@ -14,17 +14,20 @@ The function will except both Arlequin (.arp) genotype and genepop (.gen/.txt) f
 }
 
 \usage{
-divMigrateOnline(infile = NULL, nbs = 0, stat = "all", para = FALSE)
+divMigrateOnline(infile = NULL, nbs = 0, stat = "all", para = FALSE, 
+                 alpha = 0.05)
 }
 \arguments{
 
 \item{infile}{Input genepop file name or path.}
 
-\item{nbs}{The number of bootstrap iteration to carry out for calculating mean relative migration and 95\% confidence intervals.}
+\item{nbs}{The number of bootstrap iteration to carry out for calculating mean relative migration and confidence intervals.}
 
 \item{stat}{A character string indicating which statistic should be used to estimate relative migration between populations. The argument accepts one of the following: "d" (Jost's D), "gst" (Nei's Gst) or "Nm" (Alcala et al, 2014).}
 
 \item{para}{A logical argument, specifying if multiple CPUs should be used when available.}
+
+\item{alpha}{The alpha level to use when constructing confidence intervals. The alpha/2 and 1-(alpha/2) quantiles are used when testing the significance of directional gene flow}
 
 }
 
