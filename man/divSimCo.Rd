@@ -8,13 +8,15 @@ Similarity coefficients for co-dominant diploid genenotype data
 Calculation of similarity coefficients for co-dominant genotype data, following Kosman and Leonard, (2005).
 }
 \usage{
-divSimCo(infile = NULL, loci = FALSE)
+divSimCo(infile = NULL, loci = FALSE, boots = 0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{infile}{Specifying the name of the \emph{`genepop'} (Rousset, 2008) file from which the statistics are to be calculated This file can be in either the 3 digit of 2 digit format. See \url{http://genepop.curtin.edu.au/help_input.html} for detail on the genepop file format.}
   
 \item{loci}{A logical argument, specifying whether similarity matrices for each locus should be calculated. If \code{FALSE}, only a global similarity matrix is given.}
+
+\item{boots}{An integer, specifying the number of bootstrapped matrices to generate. Loci are resampled with replacement.}
 
 }
 \details{

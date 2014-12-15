@@ -4,6 +4,10 @@
 diveRsity update notes
 ======================
 
+v1.9.9.59
+---------
+Bootstrapping available in `divSimCo`
+
 v1.9.9.58
 ---------
 User defined alpha for divMigrateOnline function.
