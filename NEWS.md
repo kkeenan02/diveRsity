@@ -4,6 +4,10 @@
 diveRsity update notes
 ======================
 
+v1.9.9.60
+---------
+Bug in `snp2gen` when writing genepop file from a SNP dataframe. (reported by Mark Ravinet)
+
 v1.9.9.59
 ---------
 Bootstrapping available in `divSimCo`

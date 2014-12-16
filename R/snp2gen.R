@@ -24,6 +24,7 @@ snp2gen <- function(infile = NULL, prefix_length = 2, write = FALSE){
       return(out)
     })
     dat <- c(paste(colnames(infile), collapse = "\t"), dat)
+    pre <- "snp2gen"
   } else {
     # deal with relative paths
     pre <- strsplit(infile, split = "\\.")[[1]]
