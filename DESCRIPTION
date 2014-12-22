@@ -1,7 +1,7 @@
 Package: diveRsity
 Version: 1.9.9.60
 Date: 2014/11/08
-Title: diveRsity: A comprehensive, general purpose population genetics analysis package.
+Title: A Comprehensive, General Purpose Population Genetics Analysis Package
 Author: Kevin Keenan <kkeenan02@qub.ac.uk>
 Maintainer: Kevin Keenan <kkeenan02@qub.ac.uk>
 Description: diveRsity is a package which allows the calculation of both genetic
