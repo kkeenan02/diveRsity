@@ -97,7 +97,7 @@ Weir, B.S. & Cockerham, C.C., Estimating F-Statistics, for the Analysis of Popul
 # data(Test_data)
 # Test_data[is.na(Test_data)] <- ""
 #
-# test_result <- diffCalc(infile = Test_data, outfile = "myresults',
+# test_result <- diffCalc(infile = Test_data, outfile = "myresults",
 #                         fst = TRUE, pairwise = TRUE, bs_locus = TRUE,
 #                         bs_pairwise = TRUE, boots = 1000, para = TRUE)
 }
