@@ -66,7 +66,9 @@ Kevin Keenan <kkeenan02@qub.ac.uk>
 }
 
 \examples{
+\dontrun{
 # To run an example use the following format
-#
-# test_results <- divBasic(infile = Test_data, outfile = 'out', gp = 3, bootstraps = 1000)
+
+test_results <- divBasic(infile = Test_data, outfile = 'out', gp = 3, bootstraps = 1000)
+}
 }

@@ -25,7 +25,8 @@ Kevin Keenan, 2014
 
 
 \examples{
-## NOT RUN
-# data(SNPs, package = "diveRsity")
-# snp2gen(infile = SNPs, prefix_length = 2, write = FALSE)
+\dontrun{
+data(SNPs, package = "diveRsity")
+snp2gen(infile = SNPs, prefix_length = 2, write = FALSE)
+}
 }

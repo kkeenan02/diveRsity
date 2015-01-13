@@ -71,8 +71,10 @@ Weir, B.S. & Cockerham, C.C., Estimating F-Statistics, for the Analysis of Popul
 \author{Kevin Keenan <kkeenan02@qub.ac.uk>}
 
 \examples{
+\dontrun{
 # simply use the following format to run the function
-# 
-# test_result <- bigDivPart(infile = 'mydata', outfile = "myresults',
-#                           WC_Fst = TRUE, format = "txt")
+ 
+test_result <- bigDivPart(infile = 'mydata', outfile = "myresults',
+                          WC_Fst = TRUE, format = "txt")
+}
 }

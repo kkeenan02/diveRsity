@@ -65,9 +65,11 @@ Kevin Keenan <kkeenan02@qub.ac.uk>
 }
 
 \examples{
+\dontrun{
 # To run an example use the following format
-#
-# test_results <- divBasic(infile = Test_data, outfile = 'out', 
-#                          gp = 3, pop_stats = NULL, refPos = NULL, 
-#                          bootstraps = 1000, parallel = TRUE)
-#}
+
+test_results <- divBasic(infile = Test_data, outfile = 'out', 
+                         gp = 3, pop_stats = NULL, refPos = NULL, 
+                         bootstraps = 1000, parallel = TRUE)
+}
+}
