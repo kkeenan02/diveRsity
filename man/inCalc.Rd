@@ -70,11 +70,13 @@ Kevin Keenan <kkeenan02@qub.ac.uk>
 }
 
 \examples{
+\dontrun{
 # To run an example use the following format
-# library(diveRsity)
-# data(Test_data)
-# Test_data[is.na(Test_data)] <- ""
-#
-# test_results<-inCalc(infile = Test_data, outfile = 'out', pairwise = TRUE,
-#                      xlsx = FALSE, boots = 1000, para = TRUE)
+library(diveRsity)
+data(Test_data)
+Test_data[is.na(Test_data)] <- ""
+
+test_results<-inCalc(infile = Test_data, outfile = 'out', pairwise = TRUE,
+                     xlsx = FALSE, boots = 1000, para = TRUE)
+}
 }

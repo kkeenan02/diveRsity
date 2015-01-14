@@ -92,12 +92,14 @@ Weir, B.S. & Cockerham, C.C., Estimating F-Statistics, for the Analysis of Popul
 \author{Kevin Keenan <kkeenan02@qub.ac.uk>}
 
 \examples{
+\dontrun{
 # simply use the following format to run the function
-# library(diveRsity)
-# data(Test_data)
-# Test_data[is.na(Test_data)] <- ""
-#
-# test_result <- diffCalc(infile = Test_data, outfile = "myresults",
-#                         fst = TRUE, pairwise = TRUE, bs_locus = TRUE,
-#                         bs_pairwise = TRUE, boots = 1000, para = TRUE)
+library(diveRsity)
+data(Test_data)
+Test_data[is.na(Test_data)] <- ""
+
+test_result <- diffCalc(infile = Test_data, outfile = "myresults",
+                        fst = TRUE, pairwise = TRUE, bs_locus = TRUE,
+                        bs_pairwise = TRUE, boots = 1000, para = TRUE)
+}
 }

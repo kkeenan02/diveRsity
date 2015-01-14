@@ -92,10 +92,12 @@ Weir, B.S. & Cockerham, C.C., Estimating F-Statistics, for the Analysis of Popul
 \author{Kevin Keenan <kkeenan02@qub.ac.uk>}
 
 \examples{
+\dontrun{
 # simply use the following format to run the function
-# 
-# test_result <- divPart(infile = 'mydata', outfile = "myresults', 
-#                        gp = 3, pairwise = TRUE, bs_locus = TRUE, 
-#                        bs_pairwise = TRUE, bootstraps = 1000, 
-#                        plot = TRUE)
+ 
+test_result <- divPart(infile = 'mydata', outfile = "myresults', 
+                       gp = 3, pairwise = TRUE, bs_locus = TRUE, 
+                       bs_pairwise = TRUE, bootstraps = 1000, 
+                       plot = TRUE)
+}
 }
