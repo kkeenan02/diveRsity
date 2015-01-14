@@ -65,13 +65,17 @@ gpSampler <- function(infile = NULL, samp_size = 10, outfile = NULL){
     return(x[id])
   }
   # resample data
-  out <- lapply(pop_dat, smplR, n = samp_size)
+  if(length(samp_size) == 1L){
+    out <- lapply(pop_dat, smplR, n = samp_size)
+  } else {
+    out <- mapply(smplR, x = pop_dat, n = samp_size, SIMPLIFY = FALSE)
+  }
   # construct the new output
   out <- lapply(out, function(x){
     c("POP", x)
   })
   out <- do.call("c", out)
-  out <- c(paste("gpSampler n=", samp_size, sep = ""), locs, out)
+  out <- c(paste("gpSampler n=", samp_size[1], sep = ""), locs, out)
   out <- paste(out, collapse = "\n")
   writeLines(out, outfile)
 }
