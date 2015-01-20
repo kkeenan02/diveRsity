@@ -476,7 +476,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     bsgL <- diffCalcbCor(gLoc, bsgL)
     bsGL <- diffCalcbCor(GLoc, bsGL)
     bsGGL <- diffCalcbCor(GGLoc, bsGGL)
-    bsdA <- diffCalcbCor(dGlb, bsDA)
+    bsDA <- diffCalcbCor(dGlb, bsDA)
     bsgA <- diffCalcbCor(gGlb, bsgA)
     bsGA <- diffCalcbCor(GGlb, bsGA)
     bsGGA <- diffCalcbCor(GGGlb, bsGGA)
