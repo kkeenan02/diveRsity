@@ -37,5 +37,5 @@ Once you have successfully installed any prerequisites and ```devtools``` you ca
 
 ```s
 # install diveRsity from github
-devtools::install_github("diveRsity", "kkeenan02")
+devtools::install_github("kkeenan02/diveRsity")
 ```
