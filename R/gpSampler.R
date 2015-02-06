@@ -61,15 +61,27 @@ gpSampler <- function(infile = NULL, samp_size = 10, outfile = NULL){
                     SIMPLIFY = FALSE)
   # function for sampling strings
   smplR <- function(x, n){
-    id <- sample(length(x), n, replace = FALSE)
-    return(x[id])
+    if(n == length(x)){
+      return(x)
+    } else {
+      id <- sample(length(x), n, replace = FALSE)
+      return(x[id])
+    }
   }
   # resample data
   if(length(samp_size) == 1L){
-    out <- lapply(pop_dat, smplR, n = samp_size)
-  } else {
-    out <- mapply(smplR, x = pop_dat, n = samp_size, SIMPLIFY = FALSE)
+    samp_size <- rep(samp_size, length(pop_dat))
   }
+  # make sure all samples are large enough to take a sample from
+  sizeCheck <- function(n, pop){
+    if(n > length(pop)){
+      return(length(pop))
+    } else {
+      return(n)
+    }
+  }
+  samp_size <- mapply(sizeCheck, n = samp_size, pop = pop_dat, SIMPLIFY = TRUE)
+  out <- mapply(smplR, x = pop_dat, n = samp_size, SIMPLIFY = FALSE)
   # construct the new output
   out <- lapply(out, function(x){
     c("POP", x)

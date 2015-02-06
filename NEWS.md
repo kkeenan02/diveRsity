@@ -4,6 +4,11 @@
 diveRsity update notes
 ======================
 
+v1.9.9.62
+----------
+`gpSampler` returns the original sample for any samples with < samp_size, rather than throwing an error.
+
+
 v1.9.9.61
 ----------
 Bug fix in `gpSampler`. Function failed when passing vector to `samp_size`.
