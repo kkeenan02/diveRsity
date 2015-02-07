@@ -1,7 +1,7 @@
 # divMigrateOnline function definition for online application
 # function definition ----
 divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "all", 
-                             para = FALSE, alpha = 0.05){
+                             para = FALSE, true.nm = FALSE, alpha = 0.05){
   # preabmle ----
   #nbs <- 10
   #cat("The method used in this function is still under development. \n")
@@ -116,6 +116,10 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "all",
     nmRel <- nm/max(nm, na.rm = TRUE)
     colnames(nmRel) <- popnms
     rownames(nmRel) <- popnms
+    if(true.nm){
+      colnames(nm) <- popnms
+      rownames(nm) <- popnms
+    }
   #}
   
   # Bootstrapping ----
@@ -202,18 +206,33 @@ divMigrateOnline <- function(infile = NULL, nbs = 0, stat = "all",
       nmRelbs[!sigMatNm] <- 0
     #}
   }
-  if(nbs != 0L){
-    list(D = round(dRel, 3),
-         D_sig = sigMatD,
-         Gst = round(gRel, 3),
-         G_sig = sigMatG,
-         Nm = round(nmRel, 3),
-         Nm_sig = sigMatNm,
-         nbs = nbs)
-  } else if(nbs == 0L){
+    if(nbs != 0L && !true.nm){
+      list(D = round(dRel, 3),
+           D_sig = sigMatD,
+           Gst = round(gRel, 3),
+           G_sig = sigMatG,
+           Nm = round(nmRel, 3),
+           Nm_sig = sigMatNm,
+           nbs = nbs)
+    } else if(nbs != 0L && true.nm){
+      list(D = round(dRel, 3),
+           D_sig = sigMatD,
+           Gst = round(gRel, 3),
+           G_sig = sigMatG,
+           Nm = round(nmRel, 3),
+           Nm_sig = sigMatNm,
+           true_nm = nm,
+           nbs = nbs)
+    } else if(nbs == 0L && !true.nm){
       list(D = round(dRel, 3),
            Gst = round(gRel, 3),
            Nm = round(nmRel, 3),
            nbs = 0L)
-  }
+    } else if(nbs == 0L && true.nm){
+      list(D = round(dRel, 3),
+           Gst = round(gRel, 3),
+           Nm = round(nmRel, 3),
+           true_nm = nm,
+           nbs = 0L)
+    }
 }

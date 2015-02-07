@@ -4,6 +4,11 @@
 diveRsity update notes
 ======================
 
+v1.9.9.63
+----------
+`divMigrateOnline` now returns actual estimates for Nm using Alcala et al. (2014)
+
+
 v1.9.9.62
 ----------
 `gpSampler` returns the original sample for any samples with < samp_size, rather than throwing an error.
