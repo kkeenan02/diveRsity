@@ -9,14 +9,14 @@ haploDiv allows users to calculate Weir & Cockerham's \eqn{F_{ST}} from haploid 
 }
 \usage{
 haploDiv(infile = NULL, outfile = NULL, pairwise = FALSE, 
-         bootstraps = 0)
+         boots = 0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{infile}{A genepop file/data frame containing haploid genotypes. This file/data frame should contain locus information in either the two digit or three digit format. The argument can be a character string indicating the name of a file or a data frame in the R workspace (e.g. see \code{data("Test_data")}).}
   \item{outfile}{A character string specifying a prefix to be added to output files. A character string specifying a directory location will result in the output files being written to the specified location, rather than the current working directory. If \code{outfile = NULL}, no results will be written to disk.}
   \item{pairwise}{Specifies whether a population pairwise matrix containing \eqn{F_{ST}} values should be calculated.}
-  \item{bootstraps}{Specifies whether bootstrapped 95\% confidence intervals should be calculated for each pairwise estimate of \eqn{F_{ST}}. If \code{bootstraps = 0} and \code{pairwise = TRUE}, only a pairwise matrix of \eqn{F_{ST}} will be returned.}
+  \item{boots}{Specifies whether bootstrapped 95\% confidence intervals should be calculated for each pairwise estimate of \eqn{F_{ST}}. If \code{bootstraps = 0} and \code{pairwise = TRUE}, only a pairwise matrix of \eqn{F_{ST}} will be returned.}
 }
 \details{
 This function uses the same fundamental algorithms as \code{divPart} and \code{fastDivPart}, the only difference being that if \emph{diploidizes} haploid genotypes before calculating statistics. The diploidization process has the effect of changing a haploid genotype into a homozygous diploid genotype for all individuals.

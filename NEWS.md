@@ -4,6 +4,10 @@
 diveRsity update notes
 ======================
 
+v1.9.9.64
+----------
+`haploDiv` had a bug which prevented it from using fastDivPart correctly. Fixed.
+
 v1.9.9.63
 ----------
 `divMigrateOnline` now returns actual estimates for Nm using Alcala et al. (2014)

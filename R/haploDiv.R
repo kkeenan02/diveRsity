@@ -5,7 +5,7 @@
 # try diploidization first
 #' @export
 haploDiv <- function(infile = NULL, outfile = NULL, pairwise = FALSE, 
-                     bootstraps = 0){
+                     boots = 0){
   if(bootstraps != 0){
     bs_pairwise <- TRUE
     para <- TRUE
@@ -113,8 +113,8 @@ haploDiv <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
   dat <- haploFileReader(infile)
   out <- diveRsity::fastDivPart(infile = dat$data, outfile = NULL, 
                                 gp = dat$gp, pairwise = pairwise, 
-                                WC_Fst = TRUE, bootstraps = bootstraps,
-                                bs_pairwise = bs_pairwise, parallel = para)
+                                fst = TRUE, boots = boots,
+                                bs_pairwise = bs_pairwise, para = para)
   if(pairwise && bootstraps > 0){
     output <- list(locus = out$estimate[-nrow(out$estimate), "Fst_WC"],
                    overall = out$estimate[nrow(out$estimate), "Fst_WC"],
