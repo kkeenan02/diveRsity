@@ -6,7 +6,7 @@
 #' @export
 haploDiv <- function(infile = NULL, outfile = NULL, pairwise = FALSE, 
                      boots = 0){
-  if(bootstraps != 0){
+  if(boots != 0){
     bs_pairwise <- TRUE
     para <- TRUE
   } else {
@@ -115,12 +115,12 @@ haploDiv <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
                                 gp = dat$gp, pairwise = pairwise, 
                                 fst = TRUE, boots = boots,
                                 bs_pairwise = bs_pairwise, para = para)
-  if(pairwise && bootstraps > 0){
+  if(pairwise && boots > 0){
     output <- list(locus = out$estimate[-nrow(out$estimate), "Fst_WC"],
                    overall = out$estimate[nrow(out$estimate), "Fst_WC"],
                    pairwise = out$pairwise$thetaWC,
                    bs_pairwise = out$bs_pairwise$thetaWC) 
-  } else if(pairwise && bootstraps == 0L){
+  } else if(pairwise && boots == 0L){
     output <- list(locus = out$estimate[-nrow(out$estimate), "Fst_WC"],
                    overall = out$estimate[nrow(out$estimate), "Fst_WC"],
                    pairwise = out$pairwise$thetaWC) 
