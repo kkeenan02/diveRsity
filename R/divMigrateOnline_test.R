@@ -174,9 +174,9 @@ divMigrateOnline_test <- function(infile = NULL, nbs = 0, stat = "all",
     sigMatD <- matrix(FALSE, nrow = ncol(dRel), ncol(dRel))
     diag(sigMatD) <- NA
     for(i in 1:ncol(pw)){
-      if(dCI[i,"lo"] <= 0L && dCI[i, "mean"] > 0L) {
+      if(dCI[i,"lo"] > 0L && dCI[i, "mean"] > 0L) {
         sigMatD[pw[2,i], pw[1, i]] <- TRUE
-      } else if(dCI[i,"lo"] <= 0L && dCI[i, "mean"] < 0L) {
+      } else if(dCI[i,"lo"] > 0L && dCI[i, "mean"] < 0L) {
         sigMatD[pw[1,i], pw[2, i]] <- TRUE
       }
     }
@@ -200,9 +200,9 @@ divMigrateOnline_test <- function(infile = NULL, nbs = 0, stat = "all",
     sigMatG <- matrix(FALSE, nrow = ncol(gRel), ncol(gRel))
     diag(sigMatG) <- NA
     for(i in 1:ncol(pw)){
-      if(gCI[i,"lo"] <= 0L && gCI[i, "mean"] > 0L) {
+      if(gCI[i,"lo"] > 0L && gCI[i, "mean"] > 0L) {
         sigMatG[pw[2,i], pw[1, i]] <- TRUE
-      } else if(gCI[i,"lo"] <= 0L && gCI[i, "mean"] < 0L) {
+      } else if(gCI[i,"lo"] > 0L && gCI[i, "mean"] < 0L) {
         sigMatG[pw[1,i], pw[2, i]] <- TRUE
       }
     }
@@ -226,9 +226,9 @@ divMigrateOnline_test <- function(infile = NULL, nbs = 0, stat = "all",
     sigMatNm <- matrix(FALSE, nrow = ncol(nmRel), ncol(nmRel))
     diag(sigMatNm) <- NA
     for(i in 1:ncol(pw)){
-      if(nmCI[i,"lo"] <= 0L && nmCI[i, "mean"] > 0L) {
+      if(nmCI[i,"lo"] > 0L && nmCI[i, "mean"] > 0L) {
         sigMatNm[pw[2,i], pw[1, i]] <- TRUE
-      } else if(nmCI[i,"lo"] <= 0L && nmCI[i, "mean"] < 0L) {
+      } else if(nmCI[i,"lo"] > 0L && nmCI[i, "mean"] < 0L) {
         sigMatNm[pw[1,i], pw[2, i]] <- TRUE
       }
     }
