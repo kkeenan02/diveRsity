@@ -4,6 +4,10 @@
 diveRsity update notes
 ======================
 
+v1.9.9.65
+----------
+Testing new significance testing in divMigrate-online
+
 v1.9.9.64
 ----------
 `haploDiv` had a bug which prevented it from using fastDivPart correctly. Fixed.
