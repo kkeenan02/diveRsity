@@ -163,7 +163,7 @@ divMigrateOnline_test <- function(infile = NULL, nbs = 0, stat = "all",
       x[lower.tri(x)] - x[upper.tri(x)]
     })
     mean_diff <- cbind(mean_diff, 
-                       dMig[lower.tri(dMig)] - dMig[upper.tri(dMig)])
+                       dRel[lower.tri(dRel)] - dRel[upper.tri(dRel)])
     dCI <- t(apply(mean_diff, 1, function(x){
       mn <- mean(x, na.rm = TRUE)
       names(mn) <- "mean"
@@ -189,7 +189,7 @@ divMigrateOnline_test <- function(infile = NULL, nbs = 0, stat = "all",
       x[lower.tri(x)] - x[upper.tri(x)]
     })
     mean_diff <- cbind(mean_diff, 
-                       dMig[lower.tri(dMig)] - dMig[upper.tri(dMig)])
+                       gRel[lower.tri(gRel)] - gRel[upper.tri(gRel)])
     gCI <- t(apply(mean_diff, 1, function(x){
       mn <- mean(x, na.rm = TRUE)
       names(mn) <- "mean"
@@ -200,9 +200,9 @@ divMigrateOnline_test <- function(infile = NULL, nbs = 0, stat = "all",
     sigMatG <- matrix(FALSE, nrow = ncol(gRel), ncol(gRel))
     diag(sigMatG) <- NA
     for(i in 1:ncol(pw)){
-      if(gCI[i,"lo"] > 0L && gCI[i, "mean"] > 0L) {
+      if(gCI[i,"lo"] >0L && gCI[i, "mean"] > 0L) {
         sigMatG[pw[2,i], pw[1, i]] <- TRUE
-      } else if(gCI[i,"lo"] > 0L && gCI[i, "mean"] < 0L) {
+      } else if(gCI[i,"lo"] >0L && gCI[i, "mean"] < 0L) {
         sigMatG[pw[1,i], pw[2, i]] <- TRUE
       }
     }
@@ -215,7 +215,7 @@ divMigrateOnline_test <- function(infile = NULL, nbs = 0, stat = "all",
       x[lower.tri(x)] - x[upper.tri(x)]
     })
     mean_diff <- cbind(mean_diff, 
-                       nm[lower.tri(dMig)] - nm[upper.tri(dMig)])
+                       nmRel[lower.tri(nmRel)] - nmRel[upper.tri(nmRel)])
     nmCI <- t(apply(mean_diff, 1, function(x){
       mn <- mean(x, na.rm = TRUE)
       names(mn) <- "mean"

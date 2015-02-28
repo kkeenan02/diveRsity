@@ -455,6 +455,7 @@ divMigrate <- function(infile = NULL, outfile = NULL, boots = 0, stat = "all",
 bsFun <- function(genos, idx, af, pw, stat){
   nl <- length(af)
   #myTab <- diveRsity:::myTab
+  #pwHt <- diveRsity:::pwHt
   # sub-sample genos ----
   sampleFun <- function(input, idx){
     return(input[idx,,])
@@ -551,12 +552,14 @@ bsFun <- function(genos, idx, af, pw, stat){
     nmRel <- nm/max(nm, na.rm = TRUE)
   }
   if(stat == "d"){
-    list(dRel = dMig)
+    list(dRel = dMig/max(dMig, na.rm = T))
   } else if(stat == "gst"){
-    list(gRel = gMig)
+    list(gRel = gMig/max(gMig, na.rm = T))
   } else if(stat == "Nm"){
-    list(nmRel = nm)
+    list(nmRel = nm/max(nm, na.rm = T))
   } else if(stat == "all"){
-    list(dRel = dMig, gRel = gMig, nmRel = nm)
+    list(dRel = dMig/max(dMig, na.rm = T), 
+         gRel = gMig/max(gMig, na.rm = T), 
+         nmRel = nm/max(nm, na.rm = T))
   }
 }
