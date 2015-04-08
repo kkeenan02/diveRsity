@@ -247,15 +247,16 @@ divMigrate <- function(infile = NULL, outfile = NULL, boots = 0, stat = "all",
     #source("R/bsFun.R")
     # run bootstrap function
     if(para){
-      library(parallel)
-      cl <- makeCluster(detectCores())
-      clusterExport(cl, c("bsFun", "dat", "pw", "stat"), 
-                    envir = environment())
-      bsStat <- parLapply(cl, idx, function(x){
+      
+      cl <- parallel::makeCluster(detectCores())
+      parallel::clusterExport(cl, c("bsFun", "dat", "pw", "stat"), 
+                              envir = environment())
+      bsStat <- parallel::parLapply(cl, idx, function(x){
         return(bsFun(genos = dat$genos, idx = x, af = dat$af, pw = pw,
                      stat = stat))
       })
-      stopCluster(cl)
+      parallel::stopCluster(cl)
+      
     } else {
       bsStat <- lapply(idx, function(x){
         return(bsFun(genos = dat$genos, idx = x, af = dat$af, pw = pw,

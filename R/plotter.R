@@ -2,7 +2,8 @@
 # plotter, a function to create interactive plots of results from divPart      #
 ################################################################################
 plotter<-function(x,img="1200x600"){
-  if(require("sendplot")){
+  if ("sendplot" %in% rownames(installed.packages())) {
+    requireNamespace("sendplot")
     x=x
     spot.radius=5
     jjj<-x

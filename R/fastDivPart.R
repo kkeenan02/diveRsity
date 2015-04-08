@@ -39,7 +39,7 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
     }
     cat(noquote(bs_warning))
   } else if (bspw==T && bstrps<2){
-    bs_warning<-{paste("[STOPPED]",
+    bs_warning <- {paste("[STOPPED]",
                        "bootsraps must be greater than 2")
     }
     cat(noquote(bs_warning))
@@ -158,8 +158,6 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
     if (!is.null(on)){
       if(write_res==TRUE){
         # write data to excel
-        # Load dependencies
-        require("xlsx")
         # standard stats
         xlsx::write.xlsx(ot1,file=paste(of,"[fastDivPart].xlsx",sep=""),
                    sheetName="Standard_stats",col.names=T,
@@ -223,9 +221,8 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
         
         if (para && para_pack) {
           #count cores
-          require("parallel")
-          cores <- detectCores()
-          cl<-makeCluster(cores)
+          cores <- parallel::detectCores()
+          cl <- parallel::makeCluster(cores)
         }
         
         #vectorize prallele#
@@ -240,14 +237,14 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
         
         # calculate stats from readGenepopX objects
         # export objects for parallel
-        clusterExport(cl, c("gp_inls", "pre.divLowMemory"), 
-                      envir = environment())
+        parallel::clusterExport(cl, c("gp_inls", "pre.divLowMemory"), 
+                                envir = environment())
         # run parallel code
-        bs_loc <- parLapply(cl, 1:bstrps, function(...){
+        bs_loc <- parallel::parLapply(cl, 1:bstrps, function(...){
           pre.divLowMemory(gp_inls)
         })
         # close the cluster connection
-        stopCluster(cl)
+        parallel::stopCluster(cl)
         
         
         #vectorize data extraction#
@@ -1203,13 +1200,14 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
           # write data to excel
           # Load dependencies
           # pw stats
-          xlsx::write.xlsx(outobj, file = paste(of, "[fastDivPart].xlsx", sep=""),
+          xlsx::write.xlsx(outobj, file = paste(of, "[fastDivPart].xlsx", 
+                                                sep=""),
                      sheetName = "Pairwise-stats", col.names = FALSE,
                      row.names = FALSE, append = TRUE)
         } else {
           # text file alternatives
-          pw_outer <- file(paste(of, "Pairwise-stats[fastDivPart].txt", sep=""), 
-                           "w")
+          pw_outer <- file(paste(of, "Pairwise-stats[fastDivPart].txt", 
+                                 sep=""), "w")
           for(i in 1:nrow(outobj)){
             cat(outobj[i,], "\n", file = pw_outer, sep = "\t")
           }
@@ -1243,17 +1241,18 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
     #Bootstrap
     if(bspw == TRUE){
       if (para && para_pack) {
-        library(parallel)
-        cl <- makeCluster(detectCores())
-        clusterExport(cl, c("pwCalc", "fst", "D", "readGenepopX",
-                            "fileReader", "pwFstWC", "pwHarmonic",
-                            "pwBasicCalc", "djostCalc", "gstCalc",
-                            "gstHedCalc"), 
-                      envir = environment())
-        pwBsStat <- parLapply(cl, 1:bstrps, function(...){
+        
+        cl <- parallel::makeCluster(detectCores())
+        parallel::clusterExport(cl, c("pwCalc", "fst", "D", "readGenepopX",
+                                      "fileReader", "pwFstWC", "pwHarmonic",
+                                      "pwBasicCalc", "djostCalc", "gstCalc",
+                                      "gstHedCalc"), 
+                                envir = environment())
+        pwBsStat <- parallel::parLapply(cl, 1:bstrps, function(...){
           return(pwCalc(infile = D, fst, bs = TRUE))
         })
-        stopCluster(cl)
+        parallel::stopCluster(cl)
+        
       } else {
         pwBsStat <- lapply(1:bstrps, function(...){
           return(pwCalc(D, fst, bs = TRUE))
@@ -1389,21 +1388,21 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
       })
       # works well
       if (para && para_pack) {
-        library(parallel)
-        cl <- makeCluster(detectCores())
-        bcLocLCI <- parLapply(cl, biasFix, function(x){
+        
+        cl <- parallel::makeCluster(detectCores())
+        bcLocLCI <- parallel::parLapply(cl, biasFix, function(x){
           loc <- lapply(x, function(y){
             apply(y, c(1,2), quantile, probs = 0.025, na.rm = TRUE)
           })
           return(loc)
         })
-        bcLocUCI <- parLapply(cl, biasFix, function(x){
+        bcLocUCI <- parallel::parLapply(cl, biasFix, function(x){
           loc <- lapply(x, function(y){
             apply(y, c(1,2), quantile, probs = 0.975, na.rm = TRUE)
           })
           return(loc)
         })
-        stopCluster(cl)
+        parallel::stopCluster(cl)
       } else {
         bcLocLCI <- lapply(biasFix, function(x){
           loc <- lapply(x, function(y){
@@ -1600,13 +1599,15 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
       # write results
       if(!is.null(on)){
         if(write_res==TRUE){
-          xlsx::write.xlsx(pwWrite, file = paste(of, "[fastDivPart].xlsx", sep = ""),
-                     sheetName = "Pairwise_bootstrap", col.names = FALSE,
-                     row.names = FALSE, append = TRUE)
+          xlsx::write.xlsx(pwWrite, file = paste(of, "[fastDivPart].xlsx", 
+                                                 sep = ""),
+                           sheetName = "Pairwise_bootstrap", 
+                           col.names = FALSE,
+                           row.names = FALSE, append = TRUE)
         } else {
           # text file alternatives
-          pw_bts <- file(paste(of, "Pairwise-bootstrap[fastDivPart].txt", sep = ""),
-                         "w")
+          pw_bts <- file(paste(of, "Pairwise-bootstrap[fastDivPart].txt", 
+                               sep = ""), "w")
           #cat(paste(colnames(pw_bs_out),sep=""),"\n",sep="\t",file=pw_bts)
           for(i in 1:nrow(pwWrite)){
             cat(pwWrite[i,], "\n", file = pw_bts, sep = "\t")
@@ -1634,13 +1635,13 @@ fastDivPart <- function(infile = NULL, outfile = NULL, gp = 3,
       }
       
       # define plot parameters 
-      plot.call_pw<-list()
-      plot.extras_pw<-list()
-      xy.labels_pw<-list()
-      y.pos_pw<-list()
-      x.pos_pw=1:length(pwso[[i]])
-      fn_pre_pw<-list()
-      direct=of
+      plot.call_pw <- list()
+      plot.extras_pw <- list()
+      xy.labels_pw <- list()
+      y.pos_pw <- list()
+      x.pos_pw = 1:length(pwso[[i]])
+      fn_pre_pw <- list()
+      direct = of
       #Plot Gst_Nei
       plot.call_pw[[1]]=c("plot(pw_res[[1]][pwso[[1]],1],
                           ylim=c(0,(max(pw_res[[1]][,3])+

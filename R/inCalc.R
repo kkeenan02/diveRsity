@@ -81,16 +81,16 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
     }
     
     if(para){
-      library(parallel)
-      cl <- makeCluster(detectCores())
-      clusterExport(cl, c("inFunc", "paraFunc", "alf", "pairwise"), 
-                    envir = environment())
-      glbbs <- parLapply(cl, idx, function(x){
+      
+      cl <- parallel::makeCluster(detectCores())
+      parallel::clusterExport(cl, c("inFunc", "paraFunc", "alf", "pairwise"), 
+                              envir = environment())
+      glbbs <- parallel::parLapply(cl, idx, function(x){
         af <- paraFunc(alf$genos, x, alf$af)
         return(lapply(af, inFunc, pw = FALSE))
       })
       if(!pairwise){
-        stopCluster(cl)
+        parallel::stopCluster(cl)
       }
     } else {
       glbbs <- lapply(idx, function(x){
@@ -130,13 +130,11 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
   ### Bootstrap code ###
   if(!is.null(boots) && pairwise){
     if(para){
-      system.time({
-        inbs <- parLapply(cl, idx, function(x){
-          af <- paraFunc(alf$genos, x, alf$af)
-          return(lapply(af, inFunc, pw = pairwise))
-        })
-        stopCluster(cl)
+      inbs <- parallel::parLapply(cl, idx, function(x){
+        af <- paraFunc(alf$genos, x, alf$af)
+        return(lapply(af, inFunc, pw = pairwise))
       })
+      parallel::stopCluster(cl)
     } else {
       inbs <- lapply(idx, function(x){
         af <- paraFunc(alf$genos, x, alf$af)
@@ -171,7 +169,7 @@ inCalc <- function(infile = NULL, outfile = NULL, pairwise = FALSE,
       dir.create(path = outDir, showWarnings = FALSE)
     }
     if(xlsx){
-      if(!require("xlsx")){
+      if ("xlsx" %in% rownames(installed.packages()) == FALSE) {
         stop("You must install the 'xlsx' package to write results in this format.")
       } else {
         outF <- paste(outDir, "outfile-[in.Calc].xlsx", sep = "")

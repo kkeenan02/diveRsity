@@ -5,11 +5,11 @@
 #' for loci of any ploidy.
 #' Kevin Keenan 2014
 #' @export 
-polyIn <- function(infile = NULL, pairwise = FALSE, parallel = FALSE){
+polyIn <- function(infile = NULL, pairwise = FALSE, para = FALSE){
   if(is.null(infile)){
     stop("Please provide and input file!")
   }
-  polyReader <- function(infile, parallel){
+  polyReader <- function(infile, para){
     # read data
     fastScan <- function(fname) {
       s <- file.info(fname)$size
@@ -60,11 +60,11 @@ polyIn <- function(infile = NULL, pairwise = FALSE, parallel = FALSE){
     # ploidy estimation
     ploidy <- round(mean(nchar(na.omit(genos[[1]][,1]))))
     # convert genotypes into allele arrays
-    if(parallel){
-      library(parallel)
-      cl <- makeCluster(detectCores())
-      clusterExport(cl, "ploidy", envir = environment())
-      allArr <- parLapply(cl, genos, function(x){
+    if(para){
+      
+      cl <- parallel::makeCluster(detectCores())
+      parallel::clusterExport(cl, "ploidy", envir = environment())
+      allArr <- parallel::parLapply(cl, genos, function(x){
         alls <- strsplit(x, split = "")
         # fix NAs
         alls <- lapply(alls, function(y){
@@ -86,11 +86,11 @@ polyIn <- function(infile = NULL, pairwise = FALSE, parallel = FALSE){
         })
       })
       # create allele frequency matrices
-      afMat <- parLapply(cl, 1:length(locs), function(i){
+      afMat <- parallel::parLapply(cl, 1:length(locs), function(i){
         dat <- lapply(allArr, "[[", i)
         return(do.call("cbind", dat))
       })
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     } else {
       allArr <- lapply(genos, function(x){
         alls <- strsplit(x, split = "")
@@ -151,14 +151,15 @@ polyIn <- function(infile = NULL, pairwise = FALSE, parallel = FALSE){
     }
     return(inOut)
   }
-  afs <- polyReader(infile, parallel)
+  afs <- polyReader(infile, para)
   locNames <- names(afs)
-  if(parallel){
-    library(parallel)
-    cl <- makeCluster(detectCores())
-    clusterExport(cl, c("inFunc", "pairwise"), envir = environment())
-    ins <- parLapply(cl, afs, inFunc, pw = pairwise)
-    stopCluster(cl)
+  if(para){
+    
+    cl <- parallel::makeCluster(detectCores())
+    parallel::clusterExport(cl, c("inFunc", "pairwise"), envir = environment())
+    ins <- parallel::parLapply(cl, afs, inFunc, pw = pairwise)
+    parallel::stopCluster(cl)
+    
   } else {
     ins <- lapply(afs, inFunc, pw = pairwise)
   }

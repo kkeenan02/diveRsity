@@ -12,7 +12,6 @@ writeBoot <- function(infile = NULL, outfile = NULL, gp = 3, bootstraps = 0,
   # define arguments for testing
   D <- infile
   on <- outfile
-  gp <- gp
   fst <- TRUE
   bstrps <- bootstraps
   bsls <- FALSE
@@ -646,17 +645,17 @@ writeBoot <- function(infile = NULL, outfile = NULL, gp = 3, bootstraps = 0,
   #Bootstrap
   if(bspw == TRUE){
     if (para && para_pack) {
-      library(parallel)
-      cl <- makeCluster(detectCores())
-      clusterExport(cl, c("pwCalc", "fst", "D", "readGenepopX",
-                          "fileReader", "pwFstWC", "pwHarmonic",
-                          "pwBasicCalc", "djostCalc", "gstCalc",
-                          "gstHedCalc"), 
-                    envir = environment())
-      pwBsStat <- parLapply(cl, 1:bstrps, function(...){
+      
+      cl <- parallel::makeCluster(detectCores())
+      parallel::clusterExport(cl, c("pwCalc", "fst", "D", "readGenepopX",
+                                    "fileReader", "pwFstWC", "pwHarmonic",
+                                    "pwBasicCalc", "djostCalc", "gstCalc",
+                                    "gstHedCalc"), 
+                              envir = environment())
+      pwBsStat <- parallel::parLapply(cl, 1:bstrps, function(...){
         return(pwCalc(infile = D, fst, bs = TRUE))
       })
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     } else {
       pwBsStat <- lapply(1:bstrps, function(...){
         return(pwCalc(D, fst, bs = TRUE))

@@ -139,8 +139,8 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   
   # set up parallel cluster
   if(para){
-    library(parallel)
-    ncor <- detectCores()
+    
+    ncor <- parallel::detectCores()
   }
   
   # create resample indexes
@@ -319,11 +319,11 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       return(x)
     })
     if(para){
-      cl <- makeCluster(ncor)
+      cl <- parallel::makeCluster(ncor)
       #clusterExport(cl, c("myTab", "al"), envir = environment())
-      bsDat <- parLapply(cl, idx, statCalc, rsDat = ip$genos, al = al,
+      bsDat <- parallel::parLapply(cl, idx, statCalc, rsDat = ip$genos, al = al,
                          fst = fst, ci_type = ci_type)
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     } else {
       system.time({
         bsDat <- lapply(idx, statCalc, rsDat = ip$genos, al = al, fst = fst,

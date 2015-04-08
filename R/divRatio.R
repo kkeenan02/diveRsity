@@ -134,12 +134,13 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
     # calculate refPopStats based on each subject pop sample size
     ###########################################################################
     if(para){
-      if(require("parallel")){
-        cores <- detectCores()
-        cl <- makeCluster(cores)
-        clusterExport(cl, c("arHex", "boots", "refPop", "popSizes", 
-                            "gp", "nloci", "validLoc"), envir = environment())
-        refPopStats <- parLapply(cl, seq_along(popSizes), function(i){
+      
+        cores <- parallel::detectCores()
+        cl <- parallel::makeCluster(cores)
+        parallel::clusterExport(cl, c("arHex", "boots", "refPop", "popSizes", 
+                                      "gp", "nloci", "validLoc"), 
+                                envir = environment())
+        refPopStats <- parallel::parLapply(cl, seq_along(popSizes), function(i){
           inner <- list(ref = refPop[,validLoc[[i]]], size = popSizes[i],
                         gp = gp)
           outer <- replicate(boots, arHex(inner), simplify = FALSE)
@@ -153,8 +154,8 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
           hexp <- rowMeans(hexpPre)
           return(data.frame(alr = alr, hexp = hexp))
         })
-        stopCluster(cl) 
-      }
+        parallel::stopCluster(cl) 
+      
     } else {
       refPopStats <- lapply(1:length(popSizes), function(i){
         inner <- list(ref = refPop, size = popSizes[i],
@@ -222,12 +223,13 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
     # Run AR and Hexpected function for each population other than the refpop
     # call them subject populations
     if(para){
-      if(require(parallel)){
-        cores <- detectCores()
-        cl <- makeCluster(cores)
-        clusterExport(cl, c("Hex", "AR", "boots", "gp", "nloci", "pop_list"), 
-                      envir = environment())
-        subPopStats <- parLapply(cl, pop_list, function(x){
+      
+        cores <- parallel::detectCores()
+        cl <- parallel::makeCluster(cores)
+        parallel::clusterExport(cl, c("Hex", "AR", "boots", "gp", "nloci",
+                                      "pop_list"), 
+                                envir = environment())
+        subPopStats <- parallel::parLapply(cl, pop_list, function(x){
           # Calculate allelic richness
           # bootstrap first
           alrbs <- replicate(boots, AR(x))
@@ -238,7 +240,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
           # create return obj
           return(data.frame(alr = alr, hexp = hex))
         }) 
-      }
+        
     } else {
       subPopStats <- lapply(pop_list, function(x){
         # Calculate allelic richness
@@ -257,11 +259,13 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
     validLocs <- lapply(subPopStats, function(x){
       which(!is.na(x[,1]))
     })
+    
     # calculate the standardized alr and hex for the ref pop
     if(para){
-      clusterExport(cl, c("arHex", "refPop", "boots", "gp", "pop_sizes", 
-                          "validLocs"), envir = environment())
-      refPopStats <- parLapply(cl, seq_along(pop_list), function(i){
+      parallel::clusterExport(cl, c("arHex", "refPop", "boots", "gp", 
+                                    "pop_sizes", "validLocs"), 
+                              envir = environment())
+      refPopStats <- parallel::parLapply(cl, seq_along(pop_list), function(i){
         inner <- list(ref = refPop[,validLocs[[i]]], size = pop_sizes[i],
                       gp = gp)
         outer <- replicate(boots, arHex(inner), simplify = FALSE)
@@ -275,7 +279,7 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
         hexp <- rowMeans(hexpPre)
         return(data.frame(alr = alr, hexp = hexp))
       })
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     } else {
       refPopStats <- lapply(seq_along(pop_list), function(i){
         inner <- list(ref = refPop, size = pop_sizes[i],
@@ -359,7 +363,6 @@ divRatio <- function(infile = NULL, outfile = NULL, gp = 3, pop_stats =  NULL,
   #divRatio <- as.data.frame(rbind(refPop, divRatio))
   if(!is.null(outfile)){
     if(write_res){
-      library("xlsx")
       # standard stats
       xlsx::write.xlsx(divRatio, file = paste(of, "[divRatio].xlsx",sep = ""),
                        sheetName = "Diversity_ratios", col.names = TRUE,
