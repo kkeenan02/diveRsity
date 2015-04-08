@@ -3,30 +3,31 @@
 ################################################################################
 ## Uncomment for non c++ version
 #' ### diffCalcRcpp: an Rcpp version of diveRsity::diffCalc
-#' 
+#'
 #' __Kevin Keenan__ (2014)
-#' 
-#' 
+#'
+#'
 #' ```{r echo = FALSE, message = TRUE, cache = FALSE}
 #'  library(rCharts, warn = FALSE)
 #'  knitr::opts_knit$set(self.contained=TRUE)
 #'  knitr::opts_chunk$set(tidy = FALSE, message = TRUE, echo=TRUE)
 #' ```
-#' 
+#'
 #' This code will be the basis for a faster more efficinet pairwise bootstrap
 #' routine. The major difference will be that all of the data will be resampled
 #' n time and the pairwise statistics will be calculated following this step.
 #' The original method pairs the data then bootstraps each pair seperatly. This
 #' is much less efficient.
-#' 
+#'
 #' __Kevin Keenan__ (2014)
-#' 
-diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE, 
-                     pairwise = FALSE, bs_locus = FALSE, 
-                     bs_pairwise = FALSE, boots = NULL, 
-                     ci_type = "individuals", para = FALSE){
+#'
+diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
+                     pairwise = FALSE, bs_locus = FALSE,
+                     bs_pairwise = FALSE, boots = NULL,
+                     ci_type = "individuals", alpha = 0.05,
+                     para = FALSE){
   #' # Calculate diversity statistics functions
-  #' 
+  #'
   #' __Kevin Keenan__ (2014)
   #'
   #' ### D_Jost
@@ -65,12 +66,12 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     return(a/(a+b+cdat))
   }
   #' ### bias correction
-  #' 
+  #'
   #' Function for correcting the bias associated with bootstrapped
   #' statistics
-  #' 
+  #'
   #' __Kevin Keenan__ (2014)
-  #' 
+  #'
   # Calculate CIs (bias corrected)
   diffCalcbCor <- function(act, bs){
     if(is.matrix(bs)){
@@ -85,33 +86,35 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     }
   }
   #' # Calculate the harmonic sample size for pair of populations
-  #' 
+  #'
   #' __Kevin Keenan__ (2014)
   #' As of 04/10/14 implemented as a C++ function
   #diffCalcHarm <- function(idt, pw){
   #  ps <- apply(pw, 2, function(x){
   #    return((0.5*((idt[x[1]]^-1) + idt[x[2]]^-1))^-1)
   #  })
-  #  return(ps)    
+  #  return(ps)
   #}
-  #infile <- "Test_data.gen"#Test_data
-  #outfile <- NULL
-  #fst = TRUE
-  #pairwise = TRUE
-  #bs_locus = TRUE
-  #bs_pairwise = TRUE
-  #boots = 100
-  #para = TRUE
-  #rgp <- diveRsity:::rgp
-  #statCalc <- diveRsity:::statCalc
-  #glbWCcpp <- diveRsity:::glbWCcpp
-  #varFunc <- diveRsity:::varFunc
-  #myTab <- diveRsity:::myTab
-  #pwHCalc <- diveRsity:::pwHCalc
-  #pwWCcpp <- diveRsity:::pwWCcpp
-  #diffCalcHarm <- diveRsity:::diffCalcHarm
-  #tabMerge <- diveRsity:::tabMerge
-  #pwTabMerge <- diveRsity:::pwTabMerge
+  #   infile <- "Test_data.txt"#Test_data
+  #   outfile <- NULL
+  #   fst = TRUE
+  #   pairwise = TRUE
+  #   bs_locus = TRUE
+  #   bs_pairwise = TRUE
+  #   boots = 100
+  #   alpha = 0.05
+  #   ci_type = "individuals"
+  #   para = TRUE
+  #   rgp <- diveRsity:::rgp
+  #   statCalc <- diveRsity:::statCalc
+  #   glbWCcpp <- diveRsity:::glbWCcpp
+  #   varFunc <- diveRsity:::varFunc
+  #   myTab <- diveRsity:::myTab
+  #   pwHCalc <- diveRsity:::pwHCalc
+  #   pwWCcpp <- diveRsity:::pwWCcpp
+  #   diffCalcHarm <- diveRsity:::diffCalcHarm
+  #   tabMerge <- diveRsity:::tabMerge
+  #   pwTabMerge <- diveRsity:::pwTabMerge
   
   
   bs <- boots
@@ -147,7 +150,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
         lapply(1:np, function(j){
           sample(ps[j], size = ps[j], replace = TRUE)
         })
-      }) 
+      })
     }
   } else {
     idx <- lapply(1:bs, function(i){
@@ -156,9 +159,9 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   }
   
   #' ### Calculate point estimates (locus and global)
-  #' Calculate gst, Gst, Fst and D for loci (across samples) and 
+  #' Calculate gst, Gst, Fst and D for loci (across samples) and
   #' global (across loci and samples).
-  #' 
+  #'
   
   #####################################
   # Point calculations
@@ -209,7 +212,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     # F-statistics
     glbTheta <- glba/(glba + glbb + glbc)
     glbFit <- 1 - (glbc/(glba + glbb + glbc))
-    glbFis <- 1 - (glbc/(glbb + glbc)) 
+    glbFis <- 1 - (glbc/(glbb + glbc))
   }
   
   # calculate harmonic mean sample size per locus
@@ -219,7 +222,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   harmLoc <- sapply(preStats$indtyp, hrm)
   # locus global stats (replace with Rcpp function)
   # calculate heterozygosities
-  hthsLoc <- mapply(varFunc, af = preStats$alOut, sHarm = harmLoc, 
+  hthsLoc <- mapply(varFunc, af = preStats$alOut, sHarm = harmLoc,
                     SIMPLIFY = FALSE)
   # Jost's D (loci + global) #
   dLoc <- dCalc(ht = sapply(hthsLoc, "[[", "htEst"),
@@ -257,7 +260,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   
   
   #' ### Create Est structure
-  #' 
+  #'
   
   #####################################
   # Arange points estimates for output
@@ -292,16 +295,16 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
   #'  dt <- Datatables$new()
   #'  dt$addTable(est)
   #'  dt$print("table1", include_assets = TRUE, cdn = TRUE)
-  #'  
+  #'
   #'```
   #'
   #' <br>
   #'
   #' ### Calculate locus and global bootstraps
-  #' Calculate the bootstrapped \(95\%\) Confidence intervals for locus and 
+  #' Calculate the bootstrapped \(95\%\) Confidence intervals for locus and
   #' global gst, Gst, Fst and D.
-  #' 
-  #' 
+  #'
+  #'
   #####################################
   # Bootstrap data
   ####################################
@@ -318,7 +321,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     if(para){
       cl <- makeCluster(ncor)
       #clusterExport(cl, c("myTab", "al"), envir = environment())
-      bsDat <- parLapply(cl, idx, statCalc, rsDat = ip$genos, al = al, 
+      bsDat <- parLapply(cl, idx, statCalc, rsDat = ip$genos, al = al,
                          fst = fst, ci_type = ci_type)
       stopCluster(cl)
     } else {
@@ -326,7 +329,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
         bsDat <- lapply(idx, statCalc, rsDat = ip$genos, al = al, fst = fst,
                         ci_type = ci_type)
       })
-    } 
+    }
     indtyp <- lapply(bsDat, "[[", "indtyp")
     # clean up
     rm(idx)
@@ -354,7 +357,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
         hsum <- lapply(hsum, function(x){
           x[!(names(x) == "NA")]
         })
-        stat <- mapply(glbWCcpp, hsum = hsum, af = x$alOut, 
+        stat <- mapply(glbWCcpp, hsum = hsum, af = x$alOut,
                        indtyp = x$indtyp, SIMPLIFY = FALSE)
         bsFst <- sapply(stat, function(y){
           return(y$a / (y$a + y$b + y$c))
@@ -371,7 +374,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
         glbst <- glba/(glba + glbb + glbc)
         glbit <- 1 - (glbc/(glba + glbb + glbc))
         glbis <- 1 - (glbc/(glbb + glbc))
-        list(bsFstLoc = bsFst, bsFitLoc = bsFit, bsFisLoc = bsFis, 
+        list(bsFstLoc = bsFst, bsFitLoc = bsFit, bsFisLoc = bsFis,
              bsFstAll = glbst, bsFitAll = glbit, bsFisAll = glbis)
       })
       
@@ -391,17 +394,17 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       bsFisA <- diffCalcbCor(glbFis, bsFisA)
       bsFitA <- diffCalcbCor(glbFit, bsFitA)
       # Calculate 95% CIs
-      LCI <- data.frame(Fst = apply(bsFstL, 2, quantile, probs = 0.025, 
+      LCI <- data.frame(Fst = apply(bsFstL, 2, quantile, probs = alpha/2,
                                     na.rm = TRUE),
-                        Fis = apply(bsFisL, 2, quantile, probs = 0.025, 
+                        Fis = apply(bsFisL, 2, quantile, probs = alpha/2,
                                     na.rm = TRUE),
-                        Fit = apply(bsFitL, 2, quantile, probs = 0.025, 
+                        Fit = apply(bsFitL, 2, quantile, probs = alpha/2,
                                     na.rm = TRUE))
-      UCI <- data.frame(Fst = apply(bsFstL, 2, quantile, probs = 0.975, 
+      UCI <- data.frame(Fst = apply(bsFstL, 2, quantile, probs = 1-(alpha/2),
                                     na.rm = TRUE),
-                        Fis = apply(bsFisL, 2, quantile, probs = 0.975, 
+                        Fis = apply(bsFisL, 2, quantile, probs = 1-(alpha/2),
                                     na.rm = TRUE),
-                        Fit = apply(bsFitL, 2, quantile, probs = 0.975, 
+                        Fit = apply(bsFitL, 2, quantile, probs = 1-(alpha/2),
                                     na.rm = TRUE))
       # clean up
       #rm(bsFstL, bsFisL, bsFitL, bsVarC)
@@ -433,12 +436,12 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     
     bsDat <- mapply(listAdd, bsDat = bsDat, sHarm = allHarm, SIMPLIFY = FALSE)
     
-    # Very low memory over head (takes 1.6 sec for 1000 boostraps using 
+    # Very low memory over head (takes 1.6 sec for 1000 boostraps using
     # "pw_test.gen")
     # Calculate stats
     # Parallel is not worth the memory overhead.
     hetVar <- lapply(bsDat, function(x){
-      stat <- mapply("varFunc", af = x$alOut, sHarm = x$nHarm, 
+      stat <- mapply("varFunc", af = x$alOut, sHarm = x$nHarm,
                      SIMPLIFY = FALSE)
       ht <- sapply(stat, "[[", "htEst")
       hs <- sapply(stat, "[[", "hsEst")
@@ -448,7 +451,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       varD <- var(bsDLoc, na.rm = TRUE)
       bsDAll <- 1/((1/mnD) + varD * (1/mnD)^3)
       bsgLoc <- gstCalc(ht = ht, hs = hs)
-      bsgAll <- gstCalc(ht = mean(ht, na.rm = TRUE), 
+      bsgAll <- gstCalc(ht = mean(ht, na.rm = TRUE),
                         hs = mean(hs, na.rm = TRUE))
       bsGLoc <- GstCalc(ht = ht, hs = hs, n = n)
       bsGAll <- GstCalc(ht = mean(ht, na.rm = TRUE),
@@ -456,7 +459,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       bsGGLoc <- GgstCalc(ht = ht, hs = hs, n = n)
       bsGGAll <- GgstCalc(ht = mean(ht, na.rm = TRUE),
                           hs = mean(hs, na.rm = TRUE), n = n)
-      list(bsDLoc = bsDLoc, bsgLoc = bsgLoc, bsGLoc = bsGLoc, 
+      list(bsDLoc = bsDLoc, bsgLoc = bsgLoc, bsGLoc = bsGLoc,
            bsDAll = bsDAll, bsgAll = bsgAll, bsGAll = bsGAll,
            bsGGLoc = bsGGLoc, bsGGAll = bsGGAll)
     })
@@ -483,29 +486,29 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     
     # Calculate 95% CIs
     if(fst){
-      # lower  
-      LCI$D <- apply(bsDL, 2, quantile, probs = 0.025, na.rm = TRUE)
-      LCI$gst <- apply(bsgL, 2, quantile, probs = 0.025, na.rm = TRUE)
-      LCI$Gst <- apply(bsGL, 2, quantile, probs = 0.025, na.rm = TRUE)
-      LCI$GGst <- apply(bsGGL, 2, quantile, probs = 0.025, na.rm = TRUE)
+      # lower
+      LCI$D <- apply(bsDL, 2, quantile, probs = alpha/2, na.rm = TRUE)
+      LCI$gst <- apply(bsgL, 2, quantile, probs = alpha/2, na.rm = TRUE)
+      LCI$Gst <- apply(bsGL, 2, quantile, probs = alpha/2, na.rm = TRUE)
+      LCI$GGst <- apply(bsGGL, 2, quantile, probs = alpha/2, na.rm = TRUE)
       # upper
-      UCI$D <- apply(bsDL, 2, quantile, probs = 0.975, na.rm = TRUE)
-      UCI$gst <- apply(bsgL, 2, quantile, probs = 0.975, na.rm = TRUE)
-      UCI$Gst <- apply(bsGL, 2, quantile, probs = 0.975, na.rm = TRUE)
-      UCI$GGst <- apply(bsGGL, 2, quantile, probs = 0.975, na.rm = TRUE)
+      UCI$D <- apply(bsDL, 2, quantile, probs = 1-(alpha/2), na.rm = TRUE)
+      UCI$gst <- apply(bsgL, 2, quantile, probs = 1-(alpha/2), na.rm = TRUE)
+      UCI$Gst <- apply(bsGL, 2, quantile, probs = 1-(alpha/2), na.rm = TRUE)
+      UCI$GGst <- apply(bsGGL, 2, quantile, probs = 1-(alpha/2), na.rm = TRUE)
     } else {
-      # lower  
-      LCI <- data.frame(D = apply(bsDL, 2, quantile, 
-                                  probs = 0.025, na.rm = TRUE))
-      LCI$gst <- apply(bsgL, 2, quantile, probs = 0.025, na.rm = TRUE)
-      LCI$Gst <- apply(bsGL, 2, quantile, probs = 0.025, na.rm = TRUE)
-      LCI$GGst <- apply(bsGGL, 2, quantile, probs = 0.025, na.rm = TRUE)
+      # lower
+      LCI <- data.frame(D = apply(bsDL, 2, quantile,
+                                  probs = alpha/2, na.rm = TRUE))
+      LCI$gst <- apply(bsgL, 2, quantile, probs = alpha/2, na.rm = TRUE)
+      LCI$Gst <- apply(bsGL, 2, quantile, probs = alpha/2, na.rm = TRUE)
+      LCI$GGst <- apply(bsGGL, 2, quantile, probs = alpha/2, na.rm = TRUE)
       # upper
-      UCI <- data.frame(D = apply(bsDL, 2, quantile, 
-                                  probs = 0.975, na.rm = TRUE))
-      UCI$gst <- apply(bsgL, 2, quantile, probs = 0.975, na.rm = TRUE)
-      UCI$Gst <- apply(bsGL, 2, quantile, probs = 0.975, na.rm = TRUE)
-      UCI$GGst <- apply(bsGGL, 2, quantile, probs = 0.975, na.rm = TRUE)
+      UCI <- data.frame(D = apply(bsDL, 2, quantile,
+                                  probs = 1-(alpha/2), na.rm = TRUE))
+      UCI$gst <- apply(bsgL, 2, quantile, probs = 1-(alpha/2), na.rm = TRUE)
+      UCI$Gst <- apply(bsGL, 2, quantile, probs = 1-(alpha/2), na.rm = TRUE)
+      UCI$GGst <- apply(bsGGL, 2, quantile, probs = 1-(alpha/2), na.rm = TRUE)
     }
     
     #####################################
@@ -514,27 +517,27 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     
     # global CIs
     if(fst){
-      glbBS <- data.frame(gst = bsgA, Gst = bsGA, GGst = bsGGA, 
-                          d = bsDA, fst = bsFstA, fit = bsFitA, 
+      glbBS <- data.frame(gst = bsgA, Gst = bsGA, GGst = bsGGA,
+                          d = bsDA, fst = bsFstA, fit = bsFitA,
                           fis = bsFisA)
       
       rm(bsFstA, bsFisA, bsFitA, bsDA, bsgA, bsGA, bsGGA)
     } else {
-      glbBS <- data.frame(gst = bsgA, Gst = bsGA, GGst = bsGGA, d = bsDA) 
+      glbBS <- data.frame(gst = bsgA, Gst = bsGA, GGst = bsGGA, d = bsDA)
       rm(bsDA, bsgA, bsGA, bsGGA)
     }
-    glbLCI <- apply(glbBS, 2, quantile, probs = 0.025, na.rm = TRUE)
-    glbUCI <- apply(glbBS, 2, quantile, probs = 0.975, na.rm = TRUE)
+    glbLCI <- apply(glbBS, 2, quantile, probs = alpha/2, na.rm = TRUE)
+    glbUCI <- apply(glbBS, 2, quantile, probs = 1-(alpha/2), na.rm = TRUE)
     if(fst){
-      glbOut <- data.frame(stat = c("gst", "Gst", "GGst", "D", "Fst", 
+      glbOut <- data.frame(stat = c("gst", "Gst", "GGst", "D", "Fst",
                                     "Fit", "Fis"),
-                           actual = c(gGlb, GGlb, GGGlb, dGlb, glbTheta, 
+                           actual = c(gGlb, GGlb, GGGlb, dGlb, glbTheta,
                                       glbFit, glbFis),
-                           lower = glbLCI, upper = glbUCI, row.names = NULL) 
+                           lower = glbLCI, upper = glbUCI, row.names = NULL)
     } else {
       glbOut <- data.frame(stat = c("gst", "Gst", "GGst", "D"),
                            actual = c(gGlb, GGlb, GGGlb, dGlb),
-                           lower = glbLCI, upper = glbUCI, row.names = NULL) 
+                           lower = glbLCI, upper = glbUCI, row.names = NULL)
     }
   }
   
@@ -683,14 +686,14 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     #  pwDAllbs <- parApply(cl, pwDLocbs, c(1,3), function(x){
     #    mn <- mean(x, na.rm = TRUE)
     #    vr <- var(x, na.rm = TRUE)
-    #    return(1/((1/mn)+vr*(1/mn)^3))  
+    #    return(1/((1/mn)+vr*(1/mn)^3))
     #  })
     #  stopCluster(cl)
     #} else {
     pwDAllbs <- apply(pwDLocbs, c(1,3), function(x){
       mn <- mean(x, na.rm = TRUE)
       vr <- var(x, na.rm = TRUE)
-      1/((1/mn)+((vr*((1/mn)^3))))  
+      1/((1/mn)+((vr*((1/mn)^3))))
     })
     #}
     rm(pwDLocbs)
@@ -724,15 +727,15 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       return(GgstCalc(ht, hs))
     }, simplify = "array")
     
-    #' ### Calculate Weir & Cockerham variance components (v. slow, try to 
+    #' ### Calculate Weir & Cockerham variance components (v. slow, try to
     #' write a C++ tabMerge function)
     if(fst){
       # Calculate bootstrap F-statistics
       wcVar <- lapply(bsDat, function(x){
         x$hsum <- lapply(x$hsum, pwTabMerge, pw = pw - 1)
         # Calculate pairwise Fst
-        return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp, 
-                      af1 = x$alOut, MoreArgs = list(pw = pw-1), 
+        return(mapply("pwWCcpp", hsum1 = x$hsum, indtyp1 = x$indtyp,
+                      af1 = x$alOut, MoreArgs = list(pw = pw-1),
                       SIMPLIFY = FALSE))
       })
       # Calculate bootstrap theta
@@ -740,7 +743,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       #         a <- lapply(x, "[[", "a")
       #         b <- lapply(x, "[[", "b")
       #         cdat <- lapply(x, "[[", "cdat")
-      #         return(mapply(thetaCalc, a = a, b = b, cdat = cdat, 
+      #         return(mapply(thetaCalc, a = a, b = b, cdat = cdat,
       #                SIMPLIFY = TRUE))
       #       }, simplify = "array")
       pwFstAllbs <- sapply(wcVar, function(x){
@@ -760,26 +763,26 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       #################################
       
       # loci
-      #             pwFstLocbs <- mapply(diffCalcbCor, 
+      #             pwFstLocbs <- mapply(diffCalcbCor,
       #                                  act = split(pwFstLoc, row(pwFstLoc)),
-      #                                  bs = lapply(1:dim(pwFstLocbs)[1], 
+      #                                  bs = lapply(1:dim(pwFstLocbs)[1],
       #                                              function(i){
       #                                                return(pwFstLocbs[i,,])}),
       #                                  SIMPLIFY = "array")
       #             # transpose array
       #             pwFstLocbs <- aperm(pwFstLocbs)
-      #             
-      #             pwFstLCI <- apply(pwFstLocbs, c(1,2), quantile, prob = 0.025, 
+      #
+      #             pwFstLCI <- apply(pwFstLocbs, c(1,2), quantile, prob = 0.025,
       #                               na.rm = TRUE)
-      #             pwFstUCI <- apply(pwFstLocbs, c(1,2), quantile, prob = 0.975, 
+      #             pwFstUCI <- apply(pwFstLocbs, c(1,2), quantile, prob = 0.975,
       #                               na.rm = TRUE)
       
       # global
-      pwFstAllbs <- t(mapply(diffCalcbCor, act = pwFstAll, 
+      pwFstAllbs <- t(mapply(diffCalcbCor, act = pwFstAll,
                              bs = split(pwFstAllbs, row(pwFstAllbs))))
-      pwFstAllLCI <- apply(pwFstAllbs, 1, quantile, prob = 0.025, 
+      pwFstAllLCI <- apply(pwFstAllbs, 1, quantile, prob = 0.025,
                            na.rm = TRUE)
-      pwFstAllUCI <- apply(pwFstAllbs, 1, quantile, prob = 0.975, 
+      pwFstAllUCI <- apply(pwFstAllbs, 1, quantile, prob = 0.975,
                            na.rm = TRUE)
       
       #################################
@@ -793,20 +796,20 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     # Calculate het based bs stats
     #################################
     
-    # Jost's D  
+    # Jost's D
     # loci
     #     pwDLocbs <- mapply(diffCalcbCor, act = split(pwDLoc, row(pwDLoc)),
     #                        bs = lapply(1:dim(pwDLocbs)[1], function(i){
     #                          return(pwDLocbs[i,,])}), SIMPLIFY = "array")
     #     pwDLocbs <- aperm(pwDLocbs)
     #     # CIs
-    #     pwDLocLCI <- apply(pwDLocbs, c(1,2), quantile, prob = 0.025, 
+    #     pwDLocLCI <- apply(pwDLocbs, c(1,2), quantile, prob = 0.025,
     #                        na.rm = TRUE)
-    #     pwDLocUCI <- apply(pwDLocbs, c(1,2), quantile, prob = 0.975, 
+    #     pwDLocUCI <- apply(pwDLocbs, c(1,2), quantile, prob = 0.975,
     #                        na.rm = TRUE)
     
     # global
-    pwDAllbs <- t(mapply(diffCalcbCor, act = pwDall, 
+    pwDAllbs <- t(mapply(diffCalcbCor, act = pwDall,
                          bs = split(pwDAllbs, row(pwDAllbs))))
     # CIs
     pwDAllLCI <- apply(pwDAllbs, 1, quantile, prob = 0.025, na.rm = TRUE)
@@ -819,13 +822,13 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     #                          return(pwgLocbs[i,,])}), SIMPLIFY = "array")
     #     pwgLocbs <- aperm(pwgLocbs)
     #     # CIs
-    #     pwgLocLCI <- apply(pwgLocbs, c(1,2), quantile, prob = 0.025, 
+    #     pwgLocLCI <- apply(pwgLocbs, c(1,2), quantile, prob = 0.025,
     #                        na.rm = TRUE)
-    #     pwgLocUCI <- apply(pwgLocbs, c(1,2), quantile, prob = 0.975, 
+    #     pwgLocUCI <- apply(pwgLocbs, c(1,2), quantile, prob = 0.975,
     #                        na.rm = TRUE)
     
     # global
-    pwgAllbs <- t(mapply(diffCalcbCor, act = pwgAll, 
+    pwgAllbs <- t(mapply(diffCalcbCor, act = pwgAll,
                          bs = split(pwgAllbs, row(pwgAllbs))))
     # CIs
     pwgAllLCI <- apply(pwgAllbs, 1, quantile, prob = 0.025, na.rm = TRUE)
@@ -838,13 +841,13 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     #                          return(pwGLocbs[i,,])}), SIMPLIFY = "array")
     #     pwGLocbs <- aperm(pwGLocbs)
     #     # CIs
-    #     pwGLocLCI <- apply(pwGLocbs, c(1,2), quantile, prob = 0.025, 
+    #     pwGLocLCI <- apply(pwGLocbs, c(1,2), quantile, prob = 0.025,
     #                        na.rm = TRUE)
-    #     pwGLocUCI <- apply(pwGLocbs, c(1,2), quantile, prob = 0.975, 
+    #     pwGLocUCI <- apply(pwGLocbs, c(1,2), quantile, prob = 0.975,
     #                        na.rm = TRUE)
     
     # global
-    pwGAllbs <- t(mapply(diffCalcbCor, act = pwGAll, 
+    pwGAllbs <- t(mapply(diffCalcbCor, act = pwGAll,
                          bs = split(pwGAllbs, row(pwGAllbs))))
     # CIs
     pwGAllLCI <- apply(pwGAllbs, 1, quantile, prob = 0.025, na.rm = TRUE)
@@ -866,7 +869,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
     #################################
     # stop cluster
     #if(para){
-    #  stopCluster(cl) 
+    #  stopCluster(cl)
     #}
   }
   
@@ -1116,7 +1119,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
         #fl <- file(paste(x, ".txt", sep = ""), "w")
         #cat(ot, sep = "\n", file = fl)
         #close(fl)
-        writeLines(paste(ot, collapse = "\n"), 
+        writeLines(paste(ot, collapse = "\n"),
                    paste(opf, x, ".txt", sep = ""))
         ot <- NULL
       } else if(x == "pairwise"){
@@ -1127,9 +1130,9 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
           dimnames(dat) <- list(NULL, NULL)
           opt <- apply(dat, 1, paste0, collapse = "\t", na.rm = "")
           popnmsOut <- paste(popnms, "\t", sep = "")
-          opt <- mapply(paste, popnmsOut, opt, 
-                        MoreArgs = list(collapse = "\t")) 
-          opt <- c(y, "", paste("pops", paste(popnms, collapse = "\t"), 
+          opt <- mapply(paste, popnmsOut, opt,
+                        MoreArgs = list(collapse = "\t"))
+          opt <- c(y, "", paste("pops", paste(popnms, collapse = "\t"),
                                 sep = "\t"), opt, "")
           return(opt)
         })
@@ -1140,20 +1143,20 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
                   "Fst = Weir & Cockerham's theta, (1984)",
                   "", unlist(ot))
         } else {
-          ot <- c("Pairwise stats", 
+          ot <- c("Pairwise stats",
                   "gst = Nei & Chesser, (1983)",
-                  "Gst = Hedrick, (2005)", 
+                  "Gst = Hedrick, (2005)",
                   "GGst = Meirmans & Hedrick, (2011)",
                   "D = Jost, (2008)",
                   "", unlist(ot))
         }
-        writeLines(paste(ot, collapse = "\n"), 
+        writeLines(paste(ot, collapse = "\n"),
                    paste(opf, x, ".txt", sep = ""))
         ot <- NULL
       } else if(x == "bs_locus"){
         statnms <- names(op[x][[1]])
         ot <- lapply(statnms, function(y){
-          ot1 <- c("", y, "", paste(colnames(op[x][[1]][y][[1]]), 
+          ot1 <- c("", y, "", paste(colnames(op[x][[1]][y][[1]]),
                                     collapse = "\t"))
           ot2 <- apply(op[x][[1]][y][[1]], 1, paste, collapse = "\t")
           return(c(ot1, ot2))
@@ -1176,13 +1179,13 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
                   "D = Jost, 2008",
                   unlist(ot))
         }
-        writeLines(paste(ot, collapse = "\n"), 
+        writeLines(paste(ot, collapse = "\n"),
                    paste(opf, x, ".txt", sep = ""))
         ot <- NULL
       } else if(x == "pw_locus"){
         statnms <- names(op[x][[1]])
         ot <- lapply(statnms, function(y){
-          ot1 <- c("", y, "", paste("Loci", paste(colnames(op[x][[1]][y][[1]]), 
+          ot1 <- c("", y, "", paste("Loci", paste(colnames(op[x][[1]][y][[1]]),
                                                   collapse = "\t"), sep = "\t"))
           ot2 <- apply(op[x][[1]][y][[1]], 1, paste, collapse = "\t")
           ot2 <- mapply(`paste`, rownames(op[x][[1]][y][[1]]), ot2,
@@ -1211,7 +1214,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
       } else if(x == "bs_pairwise"){
         statnms <- names(op[x][[1]])
         ot <- lapply(statnms, function(y){
-          ot1 <- c("", y, "", paste(colnames(op[x][[1]][y][[1]]), 
+          ot1 <- c("", y, "", paste(colnames(op[x][[1]][y][[1]]),
                                     collapse = "\t"))
           ot2 <- apply(op[x][[1]][y][[1]], 1, paste, collapse = "\t")
           return(c(ot1, ot2))
@@ -1232,7 +1235,7 @@ diffCalc <- function(infile = NULL, outfile = NULL, fst = FALSE,
                   "D = Jost, 2008",
                   unlist(ot))
         }
-        writeLines(paste(ot, collapse = "\n"), 
+        writeLines(paste(ot, collapse = "\n"),
                    paste(opf, x, ".txt", sep = ""))
         ot <- NULL
       }

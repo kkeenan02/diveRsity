@@ -4,6 +4,10 @@
 diveRsity update notes
 ======================
 
+v1.9.9.66
+----------
+Introduces custom confidence limit calculation. User defined alpha level is now used in diffCalc.
+
 v1.9.9.65
 ----------
 Testing new significance testing in divMigrate-online

@@ -11,9 +11,9 @@ This function allows the calculation of pairwise differentiation using a range o
 
 
 \usage{
-diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE,
+diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE, 
          bs_locus = FALSE, bs_pairwise = FALSE, boots = NULL, 
-         ci_type = "individuals", para = FALSE)
+         ci_type = "individuals", alpha = 0.05, para = FALSE)
 }
     	   
 \arguments{
@@ -33,6 +33,8 @@ diffCalc(infile = NULL, outfile = NULL, fst = FALSE, pairwise = FALSE,
 \item{boots}{Specified the number of bootstraps for the calculation of 95\% confidence intervals.}
 
 \item{ci_type}{A character string indicating whether bootstrapping should be carried out over individuals within samples (\code{``individuals''}.), or across loci (\code{``loci''}).}
+
+\item{alpha}{A numeric argument, specifying the alpha value used to estimate confidence limits for relevant parameters. Both the alpha/2 and the 1-(alpha/2) quantiles will be returned. Default value results in 95\% CI.}
 
 \item{para}{A logical argument indicating whether computations should be carried out over multiple CPUs, if available.}
 }
@@ -58,10 +60,6 @@ If \code{outfile} is given as a character string, all results will be written to
 
 Eddelbuettel, D., and Francois, R., (2011). Rcpp: Seamless R and C++ Integration. Journal of Statistical Software, 40(8), 1-18. URL http://www.jstatsoft.org/v40/i08/.
 
-Dragulescu, A.D., ``xlsx: Read, write, formal Excel 2007 and Excel 97/2000/xp/2003 files'', R package version 0.4.2, url:http://CRAN.R-project.org/package=xlsx, (2012).
-
-Guile, D.P., Shepherd, L.A., Sucheston, L., Bruno, A.,  and Manly, K.F., ``sendplot: Tool for sending interactive plots with tool-tip content.'', R package version 3.8.10, url: http://CRAN.R-project.org/package=sendplot, (2012).
-
 Hedrick, P., ``A standardized genetic differentiation measure,'' Evolution,
 vol. 59, no. 8, pp. 1633-1638, (2005).
 
@@ -78,10 +76,6 @@ sities,'' Ann. Hum. Genet, vol. 47, no. Pt 3, pp. 253-259, (1983).
 R Development Core Team (2011). R: A language and environment for statistical
 computing. R Foundation for Statistical Computing, Vienna, Austria. ISBN
 3-900051-07-0, URL http://www.R-project.org/.
-
-Revolution Analytics (2012). doParallel: Foreach parallel adaptor for the parallel package. R package version 1.0.1. http://CRAN.R-project.org/package=doParallel
-
-Revolution Analytics (2012). foreach: Foreach looping construct for R. R package version 1.4.0. http://CRAN.R-project.org/package=foreach
 
 Rousset, F., ``genepop'007: a complete re-implementation of the genepop
 software for Windows and Linux.,'' Molecular ecology resources, vol. 8,
