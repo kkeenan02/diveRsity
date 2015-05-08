@@ -5,6 +5,28 @@
 
 using namespace Rcpp;
 
+// allCount
+int allCount(CharacterMatrix x);
+RcppExport SEXP diveRsity_allCount(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< CharacterMatrix >::type x(xSEXP);
+    __result = Rcpp::wrap(allCount(x));
+    return __result;
+END_RCPP
+}
+// bsHetCalc
+double bsHetCalc(CharacterMatrix af);
+RcppExport SEXP diveRsity_bsHetCalc(SEXP afSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< CharacterMatrix >::type af(afSEXP);
+    __result = Rcpp::wrap(bsHetCalc(af));
+    return __result;
+END_RCPP
+}
 // diffCalcHarm
 NumericVector diffCalcHarm(NumericVector idt, NumericMatrix pw);
 RcppExport SEXP diveRsity_diffCalcHarm(SEXP idtSEXP, SEXP pwSEXP) {
@@ -14,6 +36,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type idt(idtSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type pw(pwSEXP);
     __result = Rcpp::wrap(diffCalcHarm(idt, pw));
+    return __result;
+END_RCPP
+}
+// expHet
+NumericVector expHet(NumericMatrix af);
+RcppExport SEXP diveRsity_expHet(SEXP afSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericMatrix >::type af(afSEXP);
+    __result = Rcpp::wrap(expHet(af));
     return __result;
 END_RCPP
 }
@@ -43,6 +76,17 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// hweTab
+NumericMatrix hweTab(CharacterMatrix af);
+RcppExport SEXP diveRsity_hweTab(SEXP afSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< CharacterMatrix >::type af(afSEXP);
+    __result = Rcpp::wrap(hweTab(af));
+    return __result;
+END_RCPP
+}
 // myTab
 NumericVector myTab(CharacterVector x);
 RcppExport SEXP diveRsity_myTab(SEXP xSEXP) {
@@ -51,6 +95,17 @@ BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< CharacterVector >::type x(xSEXP);
     __result = Rcpp::wrap(myTab(x));
+    return __result;
+END_RCPP
+}
+// obsHet
+double obsHet(CharacterMatrix in_mat);
+RcppExport SEXP diveRsity_obsHet(SEXP in_matSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< CharacterMatrix >::type in_mat(in_matSEXP);
+    __result = Rcpp::wrap(obsHet(in_mat));
     return __result;
 END_RCPP
 }
