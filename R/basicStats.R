@@ -1,4 +1,4 @@
-##############################################################################
+c##############################################################################
 #' Calculate basic stats
 #' 
 #' Kevin Keenan, 2015
@@ -96,11 +96,11 @@ basicStats <- function (infile = NULL, outfile = NULL, fis_ci = FALSE,
       he <- apply(genos[idx,,], 2, bsHetCalc)
       return(1-(ho/he))
     }
-    system.time({
-      fis_bs <- simplify2array(lapply(idx, function(x){
-        mapply(fiscalc, genos = dat$genos, idx = x, SIMPLIFY = TRUE)
-      }))
-    })
+    
+    fis_bs <- simplify2array(lapply(idx, function(x){
+      mapply(fiscalc, genos = dat$genos, idx = x, SIMPLIFY = TRUE)
+    }))
+    
     loc_cis <- apply(fis_bs, c(1,2), quantile, 
                      prob = c(fis_alpha/2, 1 - (fis_alpha/2)), 
                      na.rm = TRUE)
@@ -111,11 +111,16 @@ basicStats <- function (infile = NULL, outfile = NULL, fis_ci = FALSE,
   
   # HWP testing
   # exact
-  system.time({
-    hwe_res <- lapply(dat$genos, function(y){
-      apply(y, 2, function(x){
-        HWxtest::hwx.test(hweTab(x), detail = 0, method = "monte", B = mc_reps)
-      })
+  hwe_res <- lapply(dat$genos, function(y){
+    apply(y, 2, function(x){
+      tx <- hweTab(x)
+      if(length(tx) == 0L){
+        Pvalues = rep(NA, 4)
+        names(Pvalues) <- c("LLR", "Prob", "U", "Chisq")
+        list(Pvalues = Pvalues, observed = Pvalues, method = NA, statName = NA)
+      } else {
+        HWxtest::hwx.test(tx, detail = 0, method = "auto", B = mc_reps)
+      }
     })
   })
   hwe_p <- lapply(hwe_res, function(x){
@@ -175,10 +180,10 @@ basicStats <- function (infile = NULL, outfile = NULL, fis_ci = FALSE,
       return(x[,i])
     })))
   })
-  # add locus names
+  # add locus names (rounding is really slow for large data)
   out$main_tab <- lapply(out$main_tab, function(x){
     colnames(x) <- dat$locs
-    x <- round(x, 3)
+  #  x <- round(x, 3)
     return(x)
   })
   # add multi-locus estimates

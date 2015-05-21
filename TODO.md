@@ -9,3 +9,5 @@ This file lists developments still to be carried out for the `diveRsity` package
 5. segfault: memory not mapped for large SNP data. Cause seems to be `glbWCcpp`
 6. Make sure that all relevant functions return data frames rather than matrices.
 7. Add a warning to diffCalc when users specify pairwise = TRUE or bs_pairwise = TRUE, when there are only two pops in the input file.
+8. Implement a plink to genepop function.
+9. Fix directory bug in snp2gen function
