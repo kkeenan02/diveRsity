@@ -1,9 +1,9 @@
 #' snp2gen function
-#' 
+#'
 #' Convert genotypes in a snp matrix to genepop genotype files.
-#' 
+#'
 #' Kevin Keenan, QUB, 2014
-snp2gen <- function(infile = NULL, prefix_length = 2, write = FALSE){
+snp2gen <- function(infile = NULL, prefix_length = 2){
   if(is.null(infile)){
     stop("Please provide an input file!")
   }
@@ -61,58 +61,29 @@ snp2gen <- function(infile = NULL, prefix_length = 2, write = FALSE){
   locs <- as.vector(genos[,1])
   nloci <- length(locs)
   genos <- genos[,-1]
-  genos <- strsplit(genos, split = "")
-  al1 <- matrix(sapply(genos, "[", 1), ncol = sum(pop_sizes),
-                nrow = nloci, byrow = FALSE)
-  al2 <- matrix(sapply(genos, "[", 2), ncol = sum(pop_sizes),
-                nrow = nloci, byrow = FALSE)
-  # geno array [ind, loc, allele]
-  genos <- array(NA, dim = c(nrow(al1), ncol(al1), 2))
-  genos[,,1] <- al1
-  genos[,,2] <- al2
-  # replace nucleotides with genepop ids
-  genos[toupper(genos) == "A"] <- "01"
-  genos[toupper(genos) == "C"] <- "02"
-  genos[toupper(genos) == "G"] <- "03"
-  genos[toupper(genos) == "T"] <- "04"
-  genos[genos == "-"] <- "00"
+  genos <- gsub("A", "01", toupper(genos))
+  genos <- gsub("C", "02", toupper(genos))
+  genos <- gsub("G", "03", toupper(genos))
+  genos <- gsub("T", "04", toupper(genos))
+  genos <- gsub("-", "00", toupper(genos))
   # extract populations
-  pop_list <- lapply(pop_idx, function(x){
-    return(genos[,x,])
-  })
-  # convert pop_list to genepop format
-  pop_list <- lapply(pop_list, function(x){
-    out <- apply(x, 2, function(y){
-      return(paste(y[,1], y[,2], sep = ""))
-    })
-    return(t(out))
-  })
-  pop_list <- lapply(pop_list, function(x){
-    return(rbind(rep(NA, ncol(x)), x))
+  genos <- lapply(pop_idx, function(x){
+    if(length(x) == 1L){
+      paste(genos[,x], collapse = "\t")
+    } else {
+      apply(genos[,x], 2, paste, collapse = "\t")
+    }
   })
   # get ind names
   indNames <- lapply(pop_idx, function(x){
-    return(c("pop", paste(inds[x], " ,", sep = "")))
+    return(paste(inds[x], " ,", "\t", sep = ""))
   })
-  pop_list <- cbind(do.call("c", indNames),
-                    do.call("rbind", pop_list))
-  pop_list <- rbind(c(paste(pre, "-converted", sep = ""), 
-                      rep(NA, nloci)),
-                    c(c(paste(locs[1:(nloci-1)], ",", sep = ""), 
-                        locs[nloci]), NA), pop_list)
-  pop_list[is.na(pop_list)] <- ""
-  if(write){
-    # write the results
-    fl <- file(paste(pre, "_converted.gen", sep = ""), "w")
-    for(i in 1:nrow(pop_list)){
-      out <- pop_list[i,]
-      if(all(out[-1] == "\t")){
-        out <- out[1]
-      }
-      cat(out, "\n", file = fl, sep = "\t")
-    }
-    close(fl)
-    z <- gc()
-  }
-  return(as.data.frame(pop_list))
+  genos <- mapply(paste0, indNames, genos, SIMPLIFY = FALSE)
+  genos <- unlist(sapply(genos, function(x){
+    c("POP", x)
+  }))
+  genos <- c("snp2gen-converted", paste(locs, collapse = ", "),
+             genos)
+  genos <- paste0(genos, collapse = "\n")
+  writeLines(genos, "snp2gen_converted.gen")
 }
