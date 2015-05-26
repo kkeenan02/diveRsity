@@ -17,7 +17,7 @@ snp2gen <- function(infile = NULL, prefix_length = 2){
     }
     return(strsplit(buf, "\n", fixed = TRUE, useBytes = TRUE)[[1]])
   }
-  if(is.list(infile)){
+  if(!is.null(dim(infile))){
     infile <- as.matrix(infile)
     dat <- sapply(1:nrow(infile), function(i){
       out <- paste(infile[i,], collapse = "\t")
