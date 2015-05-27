@@ -41,7 +41,7 @@ snp2gen <- function(infile = NULL, prefix_length = 2){
   # add a trailing tab
   dat <- paste0(dat, "\t")
   # transpose genotypes
-  dat <- apply(do.call(cbind, strsplit(dat, split = "\\s+")), 2,
+  dat <- apply(do.call(cbind, strsplit(dat, split = "\\s+")), 1,
                paste, collapse = "\t")
   # create and index factor
   splitNames <- lapply(inds, function(x){
