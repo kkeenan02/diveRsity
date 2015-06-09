@@ -7,6 +7,9 @@ regroup <- function(infile = NULL, index = NULL){
   if(length(index) != length(unlist(dat$indnms))){
     stop("The number of individuals in index does not match the input file!")
   }
+  if(is.null(names(index))){
+    names(index) <- gsub(",", "", unlist(dat$indnms))
+  }
   #if(rm.comma){
   nms <- lapply(dat$indnms, function(x){
     gsub(",", "", x)
