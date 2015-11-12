@@ -12,7 +12,10 @@ basicStats <- function (infile = NULL, outfile = NULL, fis_ci = FALSE,
                         ar_ci = FALSE, fis_boots = NULL, ar_boots = NULL, 
                         mc_reps = 9999, rarefaction = TRUE, 
                         ar_alpha = 0.05, fis_alpha = 0.05) {
-  
+  if("HWxtest" %in% rownames(installed.packages()) == FALSE) {
+    stop("Please install HWxtest: devtools::install_github('wrengels/HWxtest', 
+         subdir='pkg')", call. = FALSE)
+  }
   #   infile <- "SNP_test.gen"
   #   outfile <- "NULL"
   #   HWPexact <- TRUE

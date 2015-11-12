@@ -1,0 +1,1541 @@
+% \VignetteIndexEntry{diveRsity}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,12pt]{article}
+\setlength{\parindent}{0pt}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{natbib}
+%\usepackage{courier}
+\usepackage[T1]{fontenc}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+%<<echo=FALSE>>=
+%library("knitr")
+%knit_theme$set("edit-eclipse")
+%opts_chunk$set(concordance=TRUE,
+%               background = "grey95",
+%               size = 'small',
+%               keep.source=TRUE,
+%               tidy=FALSE,
+%               highlight=TRUE,
+%               message = FALSE,
+%               stop_on_error = 2)
+%@
+\input{titlepage.tex}
+\normalsize
+\tableofcontents
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Introduction}
+\normalsize
+This manual has been written as a generic, user-friendly guide to using \texttt{diveRsity} in the \texttt{R} environment. It will outline briefly how to get the latest version of \texttt{R}, how to install the \texttt{diveRsity} package as well as how to install suggested packages. Fully reproducible Worked examples for functions will be provide as a guide to how the package should be implemented. Effort has been made to keep \texttt{R} jargon to a minimum to ensure accessibility for \texttt{R} beginners.  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{About R}
+\texttt{R} is an extremely powerful and popular software for statistical programming. It is very well supported by a dedicated group of people known as the \emph{R core development team} \citep{RDev2012}, as well as an active community of developers and use\texttt{R}s. More information about R can be found at \url{http://www.r-project.org/about.html}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{About diveRsity}
+\texttt{diveRsity} is a package containing multiple functions written in the statistical programming environment \texttt{R}. It allows the calculation of both genetic diversity partition statistics (e.g. $G_{ST}$ \& $F_{ST}$), genetic differentiation statistics (e.g. $G'_{ST}$ and $D_{Jost}$), and locus informativeness for ancestry assignment (e.g. \emph{$I_n$}), as well as basic population parameters such as allele frequencies, observed/expected heterozygosity and Hardy-Weinberg tests. The package also provides functions for the calculation of Weir \& Cockerham's 1984 F-statistics and `Yardstick' diversity ratios from Skrbin{\v{s}}ek \emph{et al.,} (2012). \par
+In addition to these features, \texttt{diveRsity} also provides users with various options to calculate bootstrapped 95\% ci's both across loci and for pairwise population comparisons. All of these results are returned in convenient formats and can be plotted interactively.\par
+\texttt{diveRsity} was written to ensure that even \texttt{R} beginners can carry out genetic analyses in \texttt{R} without major difficulties. By automatically writing analysis results to file, use\texttt{R}s do not need to understand how to access \texttt{variables} in the \texttt{R} environment, let alone know what a \texttt{variable} is. However, for more experienced use\texttt{R}s, all analysis functions return results \texttt{variables} to the \texttt{R} environment, details of which are provided in the \textbf{Function usage} section below.
+
+\subsubsection{How to cite}
+Keenan, K., McGinnity, P., Cross, T. F., Crozier, W. W., \& Prod\"{o}hl, P. A. (2013). \texttt{diveRsity}: An R package for the estimation and exploration of population genetics parameters and their associated errors. \emph{Methods in Ecology and Evolution}, 4: 782-788. doi:10.1111/2041-210X.12067
+
+
+\subsubsection{What's new?}
+Versions 1.2.0 and up introduce a complete rewrite of \texttt{diveRsity v1.0}. All subsequent versions have been vectorized in all but the least computationally intensive pieces of code, resulting in much faster execution speed. \\
+
+Parallel computations are also now available when using the \texttt{inCalc} and \texttt{divPart} functions. These two major changes mostly affect the speed at which the program executes. An additional results object, (i.e. \texttt{pairwise}) is now also returned from the function \texttt{divPart}. This additional functionality now allows use\texttt{R}s to calculate pairwise statistics without having to run the computationally intensive bootstrap algorithm, thus saving time. \\
+
+As of version 1.2.3, Weir and Cockerham's (1984) F-statistics are also calculated for global estimates, locus estimates and pairwise population estimates as well as 95\% confidence intervals in the function \texttt{divPart}.\\
+
+The calculation of Weir and Cockerham's F-statistics increases analysis time by around 0.3 seconds per bootstrap replicate, thus leading to significant increases in overall execution time if a large number of bootstrap iterations are used. For this reason, the calculation of F-statistics has been included as an optional extra through the new argument \texttt{WC\_Fst}.\\
+
+Versions 1.3.0 an up includes additional plotting functions to aid in data visualisation. These new functions are;\\
+
+\texttt{corPlot} - provides use\texttt{R}s with the ability to plot locus $G_{ST}$, $\theta$, $G'_{ST}$ and $D_{Jost}$ against the number of alleles at each locus. This method may be useful to assess whether particular loci might be suitable for the inference of demographic processes (i.e. they are not unduly affected by mutation). \\
+
+\texttt{difPlot} - is a function intended to be used as a data exploration tool. This function plots pairwise estimated statistics, allowing use\texttt{R}s to easily visualise pairwise comparisons of interest (e.g. highly differentiated population pairs). \parskip 1cm
+
+Version 1.3.2 provides a more flexibility in reading genepop files. It also returns more informative error when genepop files are in the wrong format. This version also fixes a bug in writing results to disk. If \texttt{outfile} is set to \texttt{NULL} in the functions \texttt{divPart} or \texttt{inCalc}, no directories will be created.\\
+
+As of version 1.3.6, a web app version of \texttt{diveRsity} is packaged with the \texttt{R} console version. This application can be launched simply by typing:
+<<eval=FALSE>>=
+divOnline()
+@
+An online version of the app is also available at:\\
+\url{http://glimmer.rstudio.com/kkeenan/diveRsity-online/}\\
+
+This web app allows users to carry out most of the analyses provided by the \texttt{divPart} function, with additional plotting options.\\
+Version 1.3.6 also contains a new function allowing the calculation of genetic heterogeneity, using $X^{2}$ tests. This new function is named \texttt{chiCalc}.\par
+
+Version 1.4.2 introduces a new function, \texttt{divBasic}. This function calculates multiple population sample specific parameters including; allelic richness, observed \& expected heterozygosity and Hardy-Weinberg equilibrium $\chi^{2}$ tests. See below for more details on its' usage.
+
+Version 1.4.4 represents a major update of \texttt{diveRsity}, introducing two new functions, \texttt{fstOnly} and \texttt{divRatio}, as well as the deprecation of some old function (\texttt{div.part}, \texttt{in.calc} \& \texttt{readGenepop.user}). \texttt{fstOnly} calculates only Weir and Cockerham's 1984, $\theta$ and $F$ for loci, global and pairwise levels. Bootstrapped confidence intervals can also be calculated. The function is intended for use by those with very large data sets as it should be more memory efficient than \texttt{divPart} which also calculates these statistics along with a variety of other parameters. The function \texttt{divRatio} calculates the allelic richness and expected heterozygosity standardised ratios originally presented by \citep{skrbinvsek2012}.\\
+
+\textbf{Version 1.4.6} is the first in a series of package releases with developments focusing on the analysis of large SNP data sets. This release contains a new function, \texttt{bigDivPart}, which allows users to calculates the same parameters as \texttt{divPart} for large data sets containing thousands of marker loci. The function only accepts genepop format files currently, but work is ongoing to allow for additional formats. No bootstrapping procedures are yet available for this function. These are also under development. In any case, given the massive computational effort involved in bootstrapping large data sets (e.g. 500 individuals across 10 population samples, genotyped for 100,000 SNP loci), these procedures may have to be restricted to High Performance Computing (HPC) environments.
+
+\textbf{Version 1.5.0} now contains citation information for the \texttt{diveRsity} package \citep{keenan2013b}. Users can extract \texttt{bibtex} information for \texttt{diveRsity} by typing the following into the \texttt{R} console:
+
+<<eval=FALSE>>=
+citation("diveRsity")
+@
+
+Version 1.5.0 also fixes a major bug on Mac systems. Due to unexpected behaviour of the \texttt{sprintf} function, \texttt{divPart}, \texttt{inCalc} and \texttt{readGenepop} were incorrectly coding alleles, thus leading to erroneous parameter calculations.
+
+\textbf{Version 1.5.3} introduces the new web app, \texttt{microPlexer}. This application is intended to aid researchers wishing to develop microsatellite multiplex system based on locus size ranges and fluorphore tags.
+
+\textbf{Version 1.5.6} introduces a new function \texttt{arp2gen}, which allows users to convert \emph{Arlequin} genotype files to \emph{genepop} files. The function is intended to provide a more integrated experience to users by negating the need to use separate software to carry out file conversions. Although this function only allows \textbf{.arp} to \textbf{.gen} file conversions, other \texttt{R} packages provide additional conversion facilities. Some such packages are; \texttt{adegenet} and \texttt{PopGenKit}.
+
+\textbf{Version 1.5.7} introduced a new \textbf{experimental} function, \texttt{divMigrate}. The function is based on a new methods presented in \citep{Sundqvist2013}, for detecting the direction of differentiation, and using this information to infer the relative migration between pairs of populations. While the method performs well for some simple migration scenarios, it is still not clear how generally applicable it is under other scenarios (e.g. the effect of high mutation rates, or recent divergence etc.). For this reason, we recommend caution when applying the method to your own data.
+
+\textbf{Version 1.6.0} contains a new function, \texttt{fastDivPart}. This function is virtually identical to \texttt{divPart}, with some slight changes to output structures and formats. The key differences in these formats are:
+\begin{itemize}
+\item[1]{\texttt{\$pairwise} in \texttt{fastDivPart} only contains the unbiased estimators of $G_{ST}$, $G'_{ST}$, $D_{Jost}$ and $\theta$.}
+
+\item[2]{The names of the output data structures in \texttt{\$pairwise}, \texttt{\$bs\_pairwise} and \texttt{\$meanPairwise} are now \texttt{gstEst}, \texttt{gstEstHed}, \texttt{djostEst} and \texttt{thetaWC}, rather than \texttt{Gst\_est}, \texttt{G\_hed\_st\_est}, \texttt{D\_Jost\_est} and \texttt{Fst\_WC}, respectively.}
+
+\end{itemize}
+
+This new function is optimised to provide faster pairwise calculations, especially where the number of pairwise comparisons is much greater than the number of loci. Some performance tests can be found at:\\ 
+\href{https://github.com/kkeenan02/diveRsity-dev/blob/master/fastDivPart-tests.md}{https://github.com/kkeenan02/diveRsity-dev/blob/master/fastDivPart-tests.md}
+
+\textbf{IMPORTANT NOTE}\\
+Users are encouraged to use \texttt{fastDivCalc} rather than \texttt{divPart}, as the latter function will eventually be removed from future releases of \texttt{diveRsity}. 
+
+\textbf{Version 1.6.1} contains a new function, \texttt{haploDiv}, for calculating Weir \& Cockerham's $\theta$ from haploid genotype data. The data should be in the two or three digit genepop format. See below for further description of the function.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Setup}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Installing R}
+\normalsize
+To use \texttt{diveRsity} you will need to download and install \texttt{R}.\\
+It is available at:\\
+\url{http://cran.r-project.org/}\\
+Simply download the R distribution appropriate for your operating system and install as normal.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Installing diveRsity}
+
+The package \texttt{diveRsity} is currently available on \texttt{CRAN} (The Comprehensive R Archive Network), thus installation is simple. Launch \texttt{R}, and in the console (you will see the $>$ symbol when \texttt{R} is ready for you to type), use the following command:
+
+<<eval=FALSE>>=
+install.packages("diveRsity")
+@
+
+The package is updated regularly, both with added functionality and bug fixes. The most up to version of \texttt{diveRsity} can be installed from \texttt{github} using the \texttt{devtools} package: \par
+
+<<eval=FALSE>>=
+# install and load devtools
+install.packages("devtools")
+
+library("devtools")
+
+# download and install diveRsity
+
+install_github(name = "diveRsity", subdir = "kkeenan02")
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+
+\subsection{Installing optional enhancer packages}
+The dependencies \texttt{plotrix} \citep{plotrix_pkg} and \texttt{shiny} \citep{shinypkg} will download automatically if you install \texttt{diveRsity} from \texttt{CRAN}. Suggested/optional packages should be installed manually (excluding \texttt{parallel}, which is distributed with \texttt{R}).\par
+Optional packages are:\par
+\texttt{xlsx}  --- writes results to .xlsx. \citep{xlsx_pkg} \par
+\texttt{sendplot}  --- Plots results to .html files with tool-tip information. \citep{sendplot_pkg}\par
+\texttt{doParallel}  --- Used in parallel computations. \citep{doParallel_pkg}\par
+\texttt{parallel}  --- Used in parallel computations. \citep{parallel_pkg}\par
+\texttt{foreach}  --- Used in parallel computations. \citep{foreach_pkg}\par
+\texttt{iterators}  --- Used in parallel computations. \citep{iterators_pkg}\par
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Each of these packages can be installed using the below command;
+<<eval=FALSE>>=
+install.packages("package_name")
+@
+Just replace `\texttt{package\_name}' with the name of the package you want to install. See \texttt{?install.packages} for details.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{Loading diveRsity}
+To load \texttt{diveRsity} in the current \texttt{R} session, type the following into the console:
+
+<<eval=FALSE>>=
+library("diveRsity")
+@
+You will not need to load any of the other dependencies or optional packages as \texttt{diveRsity} will do this as and when it needs to use them. After loading \texttt{diveRsity} into your current \texttt{R} session all of its functions are available for you to use.\par
+For convenient access to usage information on each function, within the \texttt{R} environment, type:\par
+<<eval = FALSE>>=
+?divPart
+?inCalc
+?readGenepop
+?corPlot
+?difPlot
+?chiCalc
+?divOnline
+?divBasic
+?fstOnly
+?divRatio
+?microPlexer
+?arp2gen
+?divMigrate
+?haploDiv
+?fastDivPart
+@
+Each of these commands will provide information on function usage. The help pages associated with each function describe in detail how each argument should be passed to the function. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Function details}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{divPart()}
+\subsubsection*{NOTE}
+This function was previously known as \texttt{div.part}. This name has since been deprecated. Please use \texttt{divPart} instead.
+\vspace{0.5cm}
+\texttt{divPart} (diversity partition), allows for the calculation of three main diversity partition statistics and their respective estimators. The function can be used to mainly explore locus values to identify 'outliers' and also to visualise pairwise differentiation between populations. Bootstrapped confidence intervals are calculated also. Results can be optionally plotted for data exploration purposes. The statistics and their basic 
+formulae are as follows:
+\subsubsection{Standard formulae}
+\subsubsection*{\textbf{$G_{ST}$} \citep{Nei1973,Nei1983a}}
+%% equation 1
+\begin{center}
+\begin{equation}
+G_{ST} = \frac{D_{ST}}{H_T}
+\end{equation}
+\end{center}
+\footnotesize
+Where $D_{ST}=H_T-H_S$, $H_T$ is the total heterozygosity and $H_S$ is 
+intra-population heterozygosity.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\normalsize
+\subsubsection*{\textbf{$G'_{ST}$} \citep{Hedrick2005a}}
+%% equation 2
+\normalsize
+\begin{center}
+\begin{equation}
+G'_{ST} = \frac{G_{ST}}{G_{ST(max)}}
+\end{equation}
+\end{center}
+\footnotesize
+Where $G_{ST}$ is as above, $G_{ST(max)}=\frac{H_{T(max)}-H_S}{H_{T(max)}}$ and $H_{T(max)}$ calculated as $H_{T(max)}=\frac{(k-1+H_S)}{k}$ and is the maximum possible $H_T$ value given the observed within sample heterozygosity.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\normalsize
+\subsubsection*{\textbf{$D_{Jost}$} \citep{Jost2008a}}
+%% equation 3
+\normalsize
+\begin{center}
+\begin{equation}
+D_{Jost} = \left[\frac{(H_T-H_S)}{(1-H_S)}\right]\left[\frac{n}{(n-1)}\right]
+\end{equation}
+\end{center}
+\footnotesize
+Where $H_T$ and $H_S$ are as defined above, and \emph{n} is the number of population samples. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsubsection{Estimator formulae}
+\normalsize
+The estimators of both $G_{ST}$ and $G'_{ST}$ were calculated by simply substituting the $H_S$ and $H_T$ components of each statistic with their estimators calculated using equations 4 and 5 respectively. $D_{est Chao}$ was calculated using the method described in \citep{Chao2008} (eqn 6 below). The formulae are as follows:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{\textbf{$\hat{H}_S$} \citep{Nei1983a}}
+%% equation 4
+\normalsize
+\begin{center}
+\begin{equation}
+\hat{H}_S = H_S\left[\frac{2\bar{N}}{(2\bar{N}-1)}\right]
+\end{equation}
+\end{center}
+\footnotesize
+Where $H_S$ is the inter-population heterozygosity and $\bar{N}$ is the harmonic mean of sample size across all samples.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\normalsize
+\subsubsection*{\textbf{$\hat{H}_T$} \citep{Nei1983a}}
+%% equation 5
+\begin{center}
+\begin{equation}
+\hat{H}_T = H_T + \left[\frac{\hat{H}_S}{(2\bar{N}n)}\right]
+\end{equation}
+\end{center}
+\footnotesize
+Where $H_T$ is the total heterozygosity, $\hat{H}_S$ is as defined in equation (4), $\bar{N}$ is the harmonic mean of sample sizes and $n$ is the number of population samples. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{\textbf{$D_{est(Chao)}$} \citep{Chao2008,Jost2008a}}
+%% equation
+\normalsize
+\begin{center}
+\begin{equation}
+D_{est(Chao)} = \frac{1}{[(\frac{1}{A})+var(D)(\frac{1}{A})^3]}
+\end{equation}
+\end{center}
+\footnotesize
+Where $A$ is the arithmetic mean of $D_{Jost}$ across loci, and $var(D)$ is the variance of $D_{Jost}$ across loci.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{\textbf{$F_{ST}$ (i.e. $\hat{\theta}$)} \citep{Weir1984}}
+%% equation
+\normalsize
+\begin{center}
+\begin{equation}
+\hat{\theta} = \frac{\hat{\sigma}_{P}^{2}}{\hat{\sigma}_{P}^{2}+\hat{\sigma}_{I}^{2}+\hat{\sigma}_{G}^{2}}
+\end{equation}
+\end{center}
+\footnotesize
+Where $\hat{\sigma}_{P}^{2}$ is the sum of variance components for populations, $\hat{\sigma}_{I}^{2}$ is the sum of variance components for individuals within populations and $\hat{\sigma}_{G}^{2}$ is the sum of variance components for alleles within individuals.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\normalsize
+\subsubsection{Bootstrapping}
+The variance of each statistic can be assessed using the bootstrapping method implemented in \texttt{diveRsity}. 95\% confidence intervals are calculated by taking the upper and lower 2.5\% sample quantiles form the bootstrapped parameter distribution.\\ 
+For pairwise calculations carried out by the function, \texttt{fastDivPart}, a bias corrected 95\% confidence interval is also calculated. This method accounts for the bias commonly associated with bootstrapping these types of statistics. The method is basically a technique which re-centers the confidence interval around the initial parameter estimate. Say $\theta$ is our parameter of interest, $\hat{\theta}$ is out parameter estimate, and $\hat{\theta^*}$ is a vector of length, $n$, containing estimates of $\hat{\theta}$ for resampled data. The correction is carried out as follows:
+$$\hat{\theta^*}_{[BC]} = \hat{\theta^*} - z0$$
+
+\small
+Where $z0 = \frac{\sum{\hat{\theta^*}}}{n} - \hat{\theta}$.
+
+\normalsize
+The 2.5\% and 97.5\% quantile are then taken from the re-centered vector, $\hat{\theta^*}_{[BC]}$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{inCalc()}
+\subsubsection*{NOTE}
+This function was previously known as \texttt{in.calc}. This name has since been deprecated. Please use \texttt{inCalc} instead.
+\vspace{0.5cm}
+\texttt{inCalc} allows the calculation of locus informativeness for the inference of ancestry both across all population samples and pairwise comparisons. These parameters can be bootstrapped using the same procedure as above to obtain 95\% confidence intervals. The basic equations for both the allele specific and locus specific calculation of $I_n$ are as follows: 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{\textbf{$I_{n} (alleles)$} \citep{Rosenberg2003}}
+%% equation 5
+\begin{center}
+\begin{equation}
+I_n(Q;J=j) = -p_{j} log_{e} p_{j} + \sum_{_{i = 1}}^K \frac{p_{ij}}{K}log_{e} p_{ij}
+\end{equation}
+\end{center}
+\footnotesize
+Where $p_j$ is the parametric mean frequency of the $j^{th}$ allele across populations, $log_e$ is the natural logarithm, $p_{ij}$ is the frequency of the $j^{th}$ allele in the $i^{th}$ population, and $K$ is the number of populations.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\normalsize
+\subsubsection*{\textbf{$I_{n} (locus)$} \citep{Rosenberg2003}}
+%% equation 5
+\begin{center}
+\begin{equation}
+I_n(Q;J) = \sum_{j=1}^N I_n(Q;J=j)
+\end{equation}
+\end{center}
+\footnotesize
+Where $N$ is the number of allele at the locus of interest and $I_n(Q;J=j)$ is as in equation 7.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\normalsize
+\subsection{readGenepop()}
+\subsubsection*{NOTE}
+This function was previously known as \texttt{readGenepop.user}. This name has been deprecated as of version 1.4.4.
+\vspace{0.5cm}
+
+Although the \texttt{readGenepop} function is used extensively in both \texttt{divPart} and \texttt{inCalc}, its complexity is well hidden from general use\texttt{R}s. However, it has been included in \texttt{diveRsity} as a usable function for more experienced use\texttt{R}s, who may find it useful for data exploration and the development of analysis methods. As of version 1.3.0, this function is also implemented for use with the function \texttt{corPlot}. The function \texttt{readGenepop} returns up to 18 distinct \texttt{variables} (described in detail below), some of which have particularly complex structures. Although this manual provides basic summaries of each returned \texttt{variable}, for the function to be useful, use\texttt{R}s are advised to explore the individual objects. This can be done using functions such as \texttt{str}, \texttt{names} and \texttt{typeof}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\normalsize
+\subsection{corPlot()}
+\textbf{New to v1.3.0} \\
+This function allows use\texttt{R}s to graphically visualise the relationship between locus polymorphism (i.e. Number of alleles) and corresponding $G_{ST}$, $\theta$, $G'_{ST}$ and $D_{Jost}$ values per locus. This information is plotted along with the respective Pearson's product-moment correlation coefficients for each comparison. This information is intended to help use\texttt{R}s to decide whether it would be appropriate to use their particular loci for the inference of demographic processes (i.e.effective number of migrants per generation). Typically this is done following the relationship between $F_{ST}$ and $Nm$ arising under the finite-island model from the following formula:
+\begin{center}
+\begin{equation}
+F_{ST} \approx \frac{1}{4Nm+1}
+\end{equation}
+\end{center}
+\footnotesize
+Where $F_{ST}$ is the standardised measure of genetic variance among populations (i.e. $G_{ST}$ or $\theta$ in this package), $N$ is the effective number of breeding individuals and $m$ is the migration rate among populations.\\
+
+\vspace{0.5cm}
+
+\normalsize
+The requirement to validate the use of certain marker types to infer demography is particularly important given that such information is often used to inform conservation and management strategies. It has been shown extensively in the literature that the relationship between $F_{ST}$ and $Nm$ in equation 10 breaks down if other evolutionary forces are strong (e.g. \citep{Whitlock1999}). For example if migration rate ($m$) is not $\gg$ than mutation rate ($\mu$), then $F_{ST} \neq \frac{1}{4Nm+1}$, and the quantity $Nm$ cannot be accurately derived.\\
+For marker loci to be useful in the inference of demography, the the effects of such demographic processes must be detectable independently of the affects of processes such as mutation. As demographic processes are expected to have similar effects at all neutral loci, it is reasonable to expect that where mutation/selection/range constraints are having negligible effects on divergence at a particular set of loci, $F_{ST}$ should be more or less equal across these loci. 
+\texttt{corPlot} allows use\texttt{R}s to visualise if this is in fact the case. In general, the function will allow use\texttt{R}s to determine if mutation (assumed to be a major factor contributing to the the number of allele per locus), is having a noticeable effect on $F_{ST}$ thus rendering them unsuitable for the inference of demography. As \texttt{corPlot} returns correlation plots of $G_{ST}$, $\theta$, $G'_{ST}$ and $D_{Jost}$ against the number of alleles per locus, use\texttt{R}s have the additional benefit of assessing the effect of mutation on the differentiation statistics (e.g. $D_{Jost}$), which are more sensitive to the effects of mutation.\\
+There is both theoretical and empirical evidence for this approach to assessing of the effects of processes other than migration and drift on divergence at neutral loci. O'Reilly \emph{et al} (2004) \citep{O'Reilly2004a}, demonstrated from empirical data that $F_{ST}$ (i.e. $\theta$, specifically) had an inverse relationship with allelic richness in walleye pollock. Although the authors of this study attributed this observation to homoplasious mutations, the general affect is the same (i.e. mutational processes obscure divergence due to demographic processes).
+The results from this study can also be interpreted in light of the fact that $F_{ST}$ has a theoretical maximum value defined as:
+\begin{center}
+\begin{equation}
+F_{st(max)} = \frac{H_{T(max)}-H_{S}}{H_{T(max)}}
+\end{equation}
+\end{center}
+\footnotesize
+Where $H_{T(max)}$ is the maximum possible total heterozygosity given the observed subpopulation heterozygosity, $H_{S}$.\\
+
+\vspace{0.5cm}
+\normalsize
+Thus, because of the negative dependence of $F_{ST}$ on heterozygosity, and the positive dependence of heterozygosity on number of alleles, we can predict a negative relationship between $F_{ST}$ and number of alleles. The thrust of this argument is depicted in the figure below, where we can see the response of both $G_{ST}$ and $D_{Jost}$ to the number of unique alleles at a locus (Following Jost 2008 \citep{Jost2008a}).
+
+\begin{center}
+\subsection*{The relationship between the number of unique alleles per subpopulation and $G_{ST}$ and $D_{Jost}$}
+\includegraphics[width=110mm]{gst_vs_nalleles.png}
+\end{center}
+
+\vspace{0.5cm}
+
+From this figure, it is clear that where the number of alleles at a locus is high (thus heterozygosity is high), $G_{ST}$ is expected to be low. It is important to note that the negative relationship for $G_{ST}$ and positive relationship for $D_{Jost}$, are complex, with multiple contributing factors. Thus this method should not be seen as definitive, but rather as a method to assess whether caution must be exercised when applying a particular marker set to address specific questions in populations of interest.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{difPlot()}
+\textbf{New to v1.3.0}\\
+\texttt{difPlot} is yet another plotting function introduced to help use\texttt{R}s easily visualise trends in their analysis results. Modern population genetic studies typically involve large numbers of population samples. It is often useful to know the pairwise relationships between each of these population samples. Due to the relationship between the number of sampled populations and the maximum number of possible pairwise comparisons, shown below, pin-pointing comparisons of interest can be very difficult.
+\begin{center}
+\subsection*{The number of possible pairwise comparisons as a function of the number of sampled populations}
+\includegraphics[width=110mm]{pairwise_comp.png}
+\end{center}
+
+\vspace{0.5cm}
+
+To overcome this problem, \texttt{difPlot} plots the pairwise values calculated by the function \texttt{divPart} using a diagonal matrix coupled with a colour gradient used to indicate the magnitude of a particular pairwise value. The function plots the estimated pairwise values for $G_{ST}$, $\theta$, $G'_{ST}$ and $D_{Jost}$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{chiCalc}
+\textbf{New to v1.3.6}\\
+\texttt{chiCalc} allows the calculation of $X^{2}$ statistics for population genetic heterogeneity. The function contains a unique feature which allows users to exclude particular alleles if they are not observed frequently enough to be considered reliably. This feature allows a more conservative assessment of population genetic structure, but may results in a loss of power to detect actual differences.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{divOnline}
+\textbf{New to v1.3.6}\\
+\texttt{divOnline} is a simple function which allows users to launch a web app version of the \texttt{divPart} function. This function provides a less flexible but much more user friendly interface for the use of the \texttt{diveRsity} package.
+The web app was built using the \texttt{shiny} package from RStudio and Inc \citep{shinypkg}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{fstOnly}
+\textbf{New to v1.4.4}\par
+This function was written as a more RAM efficient way to calculate Weir \& Cockerham's (1984) $F_{ST}$ and $F_{IT}$, than \texttt{divPart}. The function should be particularly useful to users wishing to analyse large SNP data sets, where negative dependence on heterozygosity is not a concern.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{divRatio}
+\textbf{New to v1.4.4}\par
+This function introduces a new implementation of the method presented in Skrbin{\v{s}}ek \emph{et al.,} (2012), whose paper proposes the use of a well-characterised, `yardstick' population sample to calculate a standardised diversity ratio for less well characterised population samples.\par
+Interested users should see the original paper for a comprehensive description and justification of the method.
+
+\subsection{bigDivPart}
+\textbf{New to v1.4.6}\par
+This function is the first in a series focused in the analysis of data sets containing large number of marker loci (e.g. RAD-seq derived SNPs). The function implements a more memory efficient programming technique (i.e. extensive use of array data structures) to overcome some of the limitations associated with \texttt{divPart}. \texttt{bigDivPart} allows users to calculate all parameters calculated by \texttt{divPart} except via bootstrapping (e.g. locus and global $G_{st}$, $G'_{st}$, $\theta$ and $D_{Jost}$ etc..).
+
+\subsection{microPlexer}
+\textbf{New to v1.5.3}\\
+\texttt{microPlexer} is a simple function which allows users to launch a web application designed to aid in the development of microsatellite multiplex systems. The application allows users to flexibly organise microsatellite loci into PCR groups based on two main algorithms. The first, the \emph{high-throughput} algorithm, aims to group as many loci into as few multiplex groups as possible, while ensuring user defined locus separation limits are observed. The second, the \emph{balanced throughput} algorithm, organises loci into multiple multiplex groups with, roughly, the same number of loci. This algorithm is useful for minimising the possible risk of primer interactions during PCR. The web app was built using the \texttt{shiny} package from RStudio and Inc \citep{shinypkg}.
+
+\subsection{arp2gen}
+\textbf{New to v1.5.6}
+\texttt{arp2gen} is a small function allowing the conversion of \emph{Arlequin} genotype files to \emph{genepop} file format.
+
+\subsection{divMigrate}
+\textbf{New to v1.5.7}\\
+\texttt{divMigrate} is an \textbf{experimental} function, allowing users to investigate and plot migration pattern in microsatellite allele data.
+See \texttt{?divMigrate} for more details. The paper that the method is derived from is \citep{Sundqvist2013}.
+
+\subsection{haploDiv}
+\textbf{New to v1.6.1}\\
+\texttt{haploDiv} allows users to calculate Weir \& Cockerham's (1984) $\theta$ from haploid genotype data. These data should be provided in the form of a two digit or three digit genepop file. The function essentially reads the haploid genotypes, \emph{diploidizes} them (e.g. alleles coded as '01' will become '0101'), then the function \texttt{fastDivPart} is used to calculate $F_{ST}$ estimates for various user defined levels. The function provides the facility to write a pairwise $F_{ST}$ matrix to .txt file, as well as pairwise bootstrapped 95\% confidence limits for each pairwise comparison.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Function Usage}
+In this section the arguments and returned values for each function are explained.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{divPart()}
+The general usage of this function is as follows:
+<<eval=FALSE>>=
+divPart(infile = NULL, outfile = NULL, gp = 3, pairwise = FALSE,
+        WC_Fst = FALSE, bs_locus = FALSE, bs_pairwise = FALSE, 
+        bootstraps = 0, plot = FALSE, parallel = FALSE)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Arguments}
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{infile}] {Specifies the name of the \emph{`genepop'} \citep{Raymond1995} file from which the statistics are to be calculated. This file can be in either the 3 digit of 2 digit format. The name must be a character string.}
+
+\item[\texttt{outfile}] {Allows use\texttt{R}s to specify a prefix for an output folder. Name must a character string enclosed in either ``'' or `'.}
+
+\item[\texttt{gp}] {Specifies the digit format of the \texttt{infile}. Either 3 (default) or 2.}
+
+\item[\texttt{pairwise}] {A logical argument indicating whether pairwise matrices for each relevant statistic should be calculated. This feature can increase computation time for large number of population samples. Calculations will be made in parallel if the argument \texttt{parallel = TRUE}}
+
+\item[\texttt{WC\_Fst}] {A logical indication as to whether Weir and Cockerham's, 1984 F-statistics should be calculated. This option will increase analysis time.}
+
+\item[\texttt{bs\_locus}] {Gives use\texttt{R}s the option to bootstrap locus statistics. Results will be written to \emph{.xlsx} workbook by default if the package \texttt{xlsx} is installed, and to a \emph{.html} file if \texttt{plot = TRUE}. If \texttt{xlsx} is not installed, results will be written to \emph{.txt} files.}
+
+\item[\texttt{bs\_pairwise}] {Gives use\texttt{R}s the option to bootstrap statistics across all loci for each pairwise population comparison. Results will be written to a \emph{.xlsx} file by default if the package \texttt{xlsx} is installed, and to a \emph{.html} file if \texttt{plot = TRUE}. If \texttt{xlsx} is not installed, results will be written to \emph{.txt} files.}
+
+\item[\texttt{bootstraps}] {Determines the number of bootstrap iterations to be carried out. The default value is \texttt{bootstraps = 0}, this is only valid when all bootstrap options are false. There is no upper limit on the number of bootstrap iterations, however very large numbers of bootstrap iterations for pairwise calculations (> 1000) may take a long time to run for large data sets and may also lead to excessive RAM consumption. As an example, a test data set containing over 4000 individuals across 97 population samples typed for 15 microsatellite loci, took 1.5 days to complete on a Windows 7 ultimate 64bit machine with an Intel Core i5-2435M CPU @ 2.40GHz x 4.} 
+
+\item[\texttt{plot}] {Optional interactive \emph{.html} image files of the plotted bootstrap results for loci if \texttt{bs\_locus = TRUE} and pairwise population comparisons if \texttt{bs\_pairwise = TRUE} and the package \texttt{sendplot} is installed. The default option is \texttt{plot = FALSE}.}
+
+\item[\texttt{parallel}] {A logical argument specifying if computations should be run in parallel on all available CPU cores. If \texttt{parallel = TRUE}, batches of jobs will be distributed to all cores resulting in faster completion.}
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsubsection{Returned values}
+Results returned by \texttt{divPart} vary depending on the argument options chosen. If the packages \texttt{xlsx} and \texttt{sendplot} are installed, results will be written to a single \emph{.xlsx} workbook and \emph{.png}/\emph{.html} files providing \texttt{plot = TRUE}.\\
+Alternatively, if these packages are unavailable the plot option is no longer available. Results will be written to multiple \emph{.txt} files, the number of which varies between three and five depending on the argument options chosen.\\
+An example screenshot of the \emph{.xlsx} output file is shown below: 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{1.5cm}
+\begin{center}
+\includegraphics[width=110mm]{diversity_partition_out.png}
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsubsection*{Returned values cont.}
+Examples of the interactive plots written, if \texttt{xlsx} is available, are given below. Error bars represent bootstrapped 95\% confidence intervals, and the red dotted lines represent the global statistic values.
+\begin{center}
+\subsection*{Example of bootstrapped \\ locus results plot}
+\includegraphics[width=110mm]{locus_plots.png}
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+\subsection*{Example of bootstrapped \\ pairwise results plot}
+\includegraphics[width=110mm]{pairwise_plots.png}
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsubsection*{Returned values cont.}
+For use\texttt{R}s wishing to carry out post analysis manipulations, all results from \texttt{divPart} are returned to the \texttt{R} environment. Depending on the bootstrap options chosen these results include between three to five of the \texttt{variables} below:
+
+<<echo=FALSE, results=hide>>=
+#data(Test_data,package='diveRsity')
+#library(diveRsity)
+#x<-capture.output(res<-divPart(Test_data,"outtt",3,T,T,T,T,3,F,T))
+
+load("./div_res.RData")
+res <- div_results
+@
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{\$standard}] A matrix containing identical data to the \emph{Standard\_stats} worksheet in the \texttt{.xlsx} workbook or the \emph{Standard-stats[divPart].txt} text file. The last row in this matrix represents statistics calculate across all population samples and loci.
+
+\end{description}
+
+\footnotesize
+<<echo=FALSE>>=
+options(width=50)
+res$standard[c(1:10,nrow(res$standard)),] 
+@
+\newpage
+\normalsize
+
+\textbf{loci} \\
+A list of locus names \\
+\textbf{H\_st} \\
+Between subpopulation heterozygsity per locus \\
+\textbf{D\_st} \\
+Absolute differentiation per locus \citep{Nei1973} \\
+\textbf{G\_st} \\
+F\_st analogue for multiple alleles per locus \citep{Nei1973} \\
+\textbf{G\_hed\_st} \\
+Hedrick's standardized ``differentiation'' per locus \citep{Hedrick2005a} \\
+\textbf{D\_jost} \\
+Jost's true allelic differentiation per locus \citep{Jost2008a}
+
+\newpage
+
+\subsubsection*{Returned values cont.}
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{\$estimate}] A matrix containing identical data to the \emph{Estimated\_stats} worksheet in the \texttt{.xlsx} workbook or the \emph{Estimated-stats[divPart].txt} text file. The last row in this matrix represents statistics calculate across all population samples and loci.
+
+\end{description}
+
+\vspace{1.5cm}
+
+\footnotesize
+<<echo=FALSE>>=
+options(width=50)
+res$estimate[c(1:10,nrow(res$estimate)),]
+@
+
+\vspace{1.5cm}
+
+\normalsize
+\textbf{loci} \\
+A list of locus names \\
+\textbf{Harmonic\_N} \\
+Harmonic mean number of individuals typed per locus \\
+\textbf{H\_st\_est} \\
+Estimator of between subpopulation heterozygosity \citep{Nei1983a} \\
+\textbf{D\_st\_est} \\
+Estimator of absolute differentiation \citep{Nei1983a} \\
+\textbf{G\_st\_est} \\
+Nearly unbiased estimator of G\_st \citep{Nei1983a} \\
+\textbf{G\_hed\_st\_est} \\
+Estimator of Hedrick's G'\_st \citep{Hedrick2005a} \\
+\textbf{D\_Jost\_est} \\
+Estimator of Jost's D \citep{Jost2008a} \\
+\textbf{Fis\_WC} \\
+Weir and Cockerham's inbreeding coefficient estimator \citep{Weir1984} \\
+\textbf{Fst\_WC} \\
+Weir and Cockerham's fixation index estimator \citep{Weir1984} \\
+\textbf{Fit\_WC} \\
+Weir and Cockerham's overall fixation index estimator \citep{Weir1984}
+
+
+\newpage
+\subsubsection*{Returned values cont.}
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{\$pairwise}] A list of six (\texttt{WC\_Fst} \texttt{= FALSE}) \- nine (\texttt{WC\_Fst} \texttt{= TRUE}) matrices containing pairwise diversity statistics without bootstrapped confidence intervals.
+%$
+\end{description}
+
+\footnotesize
+<<echo=FALSE>>=
+noquote(names(res$pairwise)[1])
+noquote(res$pairwise[[1]][1:4,1:4])
+noquote(names(res$pairwise)[2])
+noquote(res$pairwise[[2]][1:4,1:4])
+noquote(names(res$pairwise)[3])
+noquote(res$pairwise[[3]][1:4,1:4])
+noquote(names(res$pairwise)[4])
+noquote(res$pairwise[[4]][1:4,1:4])
+noquote(names(res$pairwise)[5])
+noquote(res$pairwise[[5]][1:4,1:4])
+noquote(names(res$pairwise)[6])
+noquote(res$pairwise[[6]][1:4,1:4])
+noquote(names(res$pairwise)[7])
+noquote(res$pairwise[[7]][1:4,1:4])
+noquote(names(res$pairwise)[8])
+noquote(res$pairwise[[8]][1:4,1:4])
+@
+
+\newpage
+\normalsize
+\subsubsection*{Returned values cont.}
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{\$bs\_locus}] A list containing six (\texttt{WC\_Fst} \texttt{= FALSE}) - nine (\texttt{WC\_Fst} \texttt{= TRUE}) matrices of locus values for each estimated statistic, along with their respective 95\% confidence interval.
+
+\end{description}
+
+\footnotesize
+<<echo=FALSE>>=
+noquote(names(res$bs_locus)[1])
+res$bs_locus[[1]][c(1:3,nrow(res$bs_locus[[1]])),]
+noquote(names(res$bs_locus)[2])
+res$bs_locus[[2]][c(1:3,nrow(res$bs_locus[[2]])),]
+noquote(names(res$bs_locus)[3])
+res$bs_locus[[3]][c(1:3,nrow(res$bs_locus[[3]])),]
+noquote(names(res$bs_locus)[4])
+res$bs_locus[[4]][c(1:3,nrow(res$bs_locus[[4]])),]
+noquote(names(res$bs_locus)[5])
+res$bs_locus[[5]][c(1:3,nrow(res$bs_locus[[5]])),]
+noquote(names(res$bs_locus)[6])
+res$bs_locus[[6]][c(1:3,nrow(res$bs_locus[[6]])),]
+noquote(names(res$bs_locus)[7])
+res$bs_locus[[7]][c(1:3,nrow(res$bs_locus[[7]])),]
+noquote(names(res$bs_locus)[8])
+res$bs_locus[[8]][c(1:3,nrow(res$bs_locus[[8]])),]
+#$
+@
+
+\newpage
+
+\normalsize
+\subsubsection*{Returned values cont.}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{\$bs\_pairwise}] A list containing six (\texttt{WC\_Fst} \texttt{= FALSE}) - nine (\texttt{WC\_Fst} \texttt{= TRUE}) matrices of pairwise values for each estimated statistic, along with their respective 95\% confidence interval.
+
+\end{description}
+
+\footnotesize
+<<echo=FALSE>>=
+noquote(names(res$bs_pairwise)[1])
+res$bs_pairwise[[1]][c(1:3,nrow(res$bs_pairwise[[1]])),]
+noquote(names(res$bs_pairwise)[2])
+res$bs_pairwise[[2]][c(1:3,nrow(res$bs_pairwise[[2]])),]
+noquote(names(res$bs_pairwise)[3])
+res$bs_pairwise[[3]][c(1:3,nrow(res$bs_pairwise[[3]])),]
+noquote(names(res$bs_pairwise)[4])
+res$bs_pairwise[[4]][c(1:3,nrow(res$bs_pairwise[[4]])),]
+noquote(names(res$bs_pairwise)[5])
+res$bs_pairwise[[5]][c(1:3,nrow(res$bs_pairwise[[5]])),]
+noquote(names(res$bs_pairwise)[6])
+res$bs_pairwise[[6]][c(1:3,nrow(res$bs_pairwise[[6]])),]
+noquote(names(res$bs_pairwise)[7])
+res$bs_pairwise[[7]][c(1:3,nrow(res$bs_pairwise[[7]])),]
+noquote(names(res$bs_pairwise)[8])
+res$bs_pairwise[[8]][c(1:3,nrow(res$bs_pairwise[[8]])),]
+#$
+@
+\newpage
+\normalsize
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% inCalc
+\subsection{inCalc()}
+The general usage of this function is as follows:
+<<eval=FALSE>>=
+inCalc(infile, outfile = NULL, gp = 3, bs_locus = FALSE,
+       bs_pairwise = FALSE, bootstraps = 0, plot = FALSE,
+       parallel = FALSE)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Arguments}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{infile}] Specifying the name of the \emph{`genepop'} \citep{Raymond1995} file from which the statistics are to be calculated This file can be in either the 3 digit of 2 digit format. The name must be a character string.
+
+\item[\textbf{\texttt{outfile}}] Allows use\texttt{R}s to specify a suffix for output folder and files. Name must a character string enclosed in either ``" or `'.
+
+\item[\textbf{\texttt{gp}}] Specifies the digit format of the \texttt{infile}. Either 3 (default) or 2.
+
+\item[\textbf{\texttt{bs\_locus}}] Gives use\texttt{R}s the option to bootstrap locus statistics. Results will be written to \emph{.xlsx} file by default if the package \texttt{xlsx} is installed, and to a \emph{.png} file if \texttt{plot=TRUE}. If \texttt{xlsx} is not installed, results will be written to \emph{.txt} files.
+
+\item[\textbf{\texttt{bs\_pairwise}}] Gives use\texttt{R}s the option to bootstrap statistics across all loci for each pairwise population comparison. Results will be written to a \emph{.xlsx} file by default if the package \texttt{xlsx} is installed. If \texttt{xlsx} is not installed, results will be written to \emph{.txt} files.
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsubsection*{Arguments cont.}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{bootstraps}] Determines the number of bootstrap iterations to be carried out. The default value is \texttt{bootstraps = 0}, this is only valid when all bootstrap options are false. There is no upper limit on the number of bootstrap iterations, however very large numbers of bootstrap iterations for pairwise calculations (> 1000) may take a long time to run for large data sets. 
+
+\item[\textbf{\texttt{plot}}] Optional \texttt{.png} image file of the plotted bootstrap results for locus $I_n$ if \texttt{bs\_locus = TRUE}. The default option is \texttt{plot = FALSE}.
+
+\item[\texttt{parallel}] A logical argument specifying if computations should be run in parallel on all available CPU cores. If \texttt{parallel = TRUE}, batches of jobs will be distributed to all cores resulting in faster completion.
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsubsection{Returned values}
+\normalsize
+Values returned from \texttt{inCalc} are a single \texttt{.xlsx} workbook (if the package \texttt{xlsx} is installed), containing between one to three worksheets, (\texttt{In\_allele\_stats} by default or separate \emph{.txt} files (if \texttt{xlsx} is unavailable). If \texttt{plot = TRUE} an additional \emph{.png} plot file will be written. An example of a \emph{.xlsx} workbook and a \emph{.png} plot are given below:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{center}
+\subsubsection*{Example of bootstrapped locus $I_n$ results}
+\includegraphics[width=70mm]{IN_res.png}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection*{Example of bootstrapped locus $I_n$ results plot}
+\includegraphics[width=90mm]{IN_plot.png}
+\end{center}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsubsection*{Returned values cont.}
+For use\texttt{R}s wishing to carry out post analysis manipulations, all results from \texttt{inCalc} are returned to the \texttt{R} environment. Depending on the bootstrap options chosen these results include between one to three of the \texttt{variables} below:
+
+<<echo=FALSE, results=hide>>=
+
+load("./in_res.RData")
+res_in <- in_results
+@
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\textbf{\texttt{Allele\_In}}] A character matrix of allelic $I_n$ values per locus along with locus sums.
+
+\end{description}
+
+\vspace{1.5cm}
+
+\footnotesize
+<<echo=FALSE>>=
+noquote(res_in$Allele_In[1:10,c(1:5,ncol(res_in$Allele_In))])
+@
+
+\vspace{1.5cm}
+
+\normalsize
+Each row of this results matrix represents each locus in the \texttt{infile}. Each column represents the allele specific $I_n$ per locus except the last column, which contains the sum of allele $I_n$ for each locus.
+
+
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\textbf{\texttt{l\_bootstrap}}] A character matrix of locus \emph{In} values as well as 95\% confidence intervals, calculated from bootstraps (Manly, 1997). Returned when \texttt{bs\_locus = TRUE}.
+\end{description}
+
+\vspace{1.5cm}
+
+\footnotesize
+<<echo=FALSE>>=
+res_in$l_bootstrap[1:10,]
+#$
+@
+\normalsize
+
+\vspace{1.5cm}
+
+Each row in this matrix represents each locus. The first column is the locus sum $I_n$ as in the final column in \texttt{Allele\_In}. The second and third columns represent the lower and upper confidence intervals per locus respectively.
+
+\newpage
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\textbf{\texttt{PW\_bootstrap}}] A list of matrices for each pairwise population comparison of bootstrapped pairwise locus $I_n$ values.
+
+\end{description}
+
+\vspace{1.5cm}
+
+\footnotesize
+<<echo=FALSE>>=
+noquote(names(res_in$PW_bootstrap)[1])
+res_in$PW_bootstrap[[1]][1:5,]
+noquote(names(res_in$PW_bootstrap)[2])
+res_in$PW_bootstrap[[2]][1:5,]
+noquote(names(res_in$PW_bootstrap)[3])
+res_in$PW_bootstrap[[3]][1:5,]
+noquote(names(res_in$PW_bootstrap)[4])
+res_in$PW_bootstrap[[4]][1:5,]
+noquote(names(res_in$PW_bootstrap)[5])
+res_in$PW_bootstrap[[5]][1:5,]
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\normalsize
+\subsection{readGenepop()}
+The general usage of \texttt{readGenepop} is:
+<<eval=FALSE>>=
+readGenepop(infile = NULL, gp = 3, bootstrap = FALSE)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Arguments}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{infile}] Specifying the name of the \emph{`genepop'} \citep{Raymond1995} file from which the statistics are to be calculated This file can be in either the 3 digit of 2 digit format. The name must be a character string.
+
+\item[\textbf{\texttt{gp}}] Specifies the digit format of the \texttt{infile}. Either 3 (default) or 2.
+
+\item[\textbf{\texttt{bootstrap}}] A logical argument indicating whether the \texttt{infile} should be sampled with replacement and all returned parameters calculated from this bootstrapped data.
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Returned values}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\textbf{\texttt{npops}}] The number of population samples in \texttt{infile}.
+
+\item[\textbf{\texttt{nloci}}] The number of loci in \texttt{infile}.
+
+\item[\textbf{\texttt{pop\_alleles}}] A list of two matrices per population. Each matrix per population contains haploid allele designations.
+ 
+\item[\textbf{\texttt{pop\_list}}] A list of matrices (n = \texttt{npops}) containing the diploid genotypes of individuals per locus.
+
+\item[\textbf{\texttt{loci\_names}}] A character vector containing the names of loci from \texttt{infile}.
+
+\item[\textbf{\texttt{pop\_pos}}]A numeric vector or the row index locations of the first individual per population in \texttt{infile}.
+
+\item[\textbf{\texttt{pop\_sizes}}] A numeric vector of length \texttt{npops} containing the number of individuals per population sample in \texttt{infile}.
+
+\item[\textbf{\texttt{allele\_names}}] A list of \texttt{npops} lists containing \texttt{nloci} character vectors of alleles names per locus. Useful for identifying unique alleles.
+
+\item[\textbf{\texttt{all\_alleles}}] A list of \texttt{nloci} character vectors of all alleles observed across all population samples in \texttt{infile}.
+
+\item[\textbf{\texttt{allele\_freq}}] A list containing \texttt{nloci} matrices containing allele frequencies per alleles per population sample.
+
+\item[\textbf{\texttt{raw\_data}}] An unaltered data frame of \texttt{infile}.
+
+\item[\textbf{\texttt{loci\_harm\_N}}] A numeric vector of length \texttt{nloci}, containing the harmonic mean number of individuals genotyped per locus.
+
+\item[\textbf{\texttt{n\_harmonic}}] A numeric value representing the harmonic mean of \texttt{npops}.
+
+\item[\textbf{\texttt{pop\_names}}] A character vector containing a six character population sample name for each population in \texttt{infile} (the first six characters of the first individual).
+
+\item[\textbf{\texttt{indtyp}}] A list of length \texttt{nloci} containing character vectors of length \texttt{npops}, indicating the number of individuals per population sample typed at each locus.
+
+\item[\textbf{\texttt{nalleles}}] A vector of the total number of alleles observed at each locus.
+
+\item[\textbf{\texttt{bs\_file}}] A dataframe/genpop object of bootstrapped data. Returned if \texttt{bootstrap} \texttt{= TRUE}.
+
+\item[\textbf{\texttt{obs\_all...}}] A list of matrices of the observed number of allele occurrences per population.
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{corPlot()}
+The general usage of \texttt{corPlot} is:
+<<eval=FALSE>>=
+corPlot(x,y)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Arguments}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\textbf{\texttt{x}}] The object returned by the function \texttt{readGenepop}.
+
+\item[\textbf{\texttt{y}}] The object returned by the function \texttt{divPart}.
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Returned values}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\textbf{\texttt{plot}}] A console plot is automatically created using this functions. As the plot is intended for exploratory purposes, it is not written to file. Use\texttt{R}s can save the lot manually if required. below is an example of the returned plot.
+
+\end{description}
+
+\vspace{0.5cm}
+
+\begin{center}
+\subsection*{Returned plot from the function corPlot}
+\includegraphics[width=110mm]{corPlot.png}
+\end{center}
+
+\vspace{0.5cm}
+The plot depicts the relationship between the estimated statistics calculated by \texttt{divPart} and the number of alleles per locus. Lines represents the line of best fit. Pearson's product-moment correlation coefficient is also provided.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{difPlot()}
+The general usage of \texttt{difPlot} is:
+<<eval=FALSE>>=
+difPlot(x, outfile = NULL, interactive = FALSE)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Arguments}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\textbf{\texttt{x}}] The object returned by the function \texttt{divPart}.
+
+\item[\textbf{\texttt{outfile}}] A folder name or directory indicating where interactive plots should be written. It is advisable, though not essential that this argument be set to the same \texttt{outfile} argument as for \texttt{divPart}. This argument is only valid when \texttt{interactive} \texttt{= TRUE}. If no argument is given for \texttt{outfile}, while \texttt{interactive} \texttt{= TRUE}, plot files will be written to the working directory. Folder name should be given as a character string. 
+
+\item[\textbf{\texttt{interactive}}] A logical argument indicating whether use\texttt{R}s would like to plot their results to interactive \emph{.html} files produced by \texttt{sendplot}. \texttt{TRUE} indicates that results should be written to file, whereas \texttt{FALSE} indicates that results should be plotted to the R graphics device.
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Returned values}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\textbf{\texttt{Plot}}] Depending on the argument given for \texttt{interactive}, either a single plot will be passed to the \texttt{R} graphic device (i.e. when \texttt{interactive} \texttt{= FALSE}) or 3-4 \emph{.html} files will be written to a user defined location.
+
+\end{description}
+
+\vspace{0.5cm}
+
+\begin{center}
+\subsection*{Returned plot from the function difPlot when interactive = FALSE}
+\includegraphics[width=110mm]{pw_plot.png}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{center}
+\subsection*{One of the returned plots from the function difPlot when interactive=TRUE}
+\includegraphics[width=110mm]{pw_interplot.png}
+\end{center}
+
+\vspace{0.5cm}
+
+As can be seen, the plots produced when \texttt{interactive} \texttt{= TRUE} are much more useful than when \texttt{interactive} \texttt{= FALSE}, due to use\texttt{R}s ability to identify population comparisons of interest. These plots contain tool-tip information, courtesy of the \texttt{sendplot} package. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{chiCalc}
+The general usage of \texttt{chiCalc} is:
+<<eval=FALSE>>=
+chiCalc(infile = NULL, outfile = NULL, gp = 3, minFreq = NULL)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Arguments}
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{infile}] Specifying the name of the \emph{`genepop'} \citep{Raymond1995} file from which the statistics are to be calculated This file can be in either the 3 digit of 2 digit format. The name must be a character string.
+
+\item[\textbf{\texttt{outfile}}] A character string specifying the name given to an output file, containing analysis results. If this argument is passed as \texttt{NULL}, no file will be written.
+
+\item[\textbf{\texttt{gp}}] Specifies the digit format of the \texttt{infile}. Either 3 (default) or 2.
+
+\item[\textbf{\texttt{minFreq}}] A threshold minimum value or vector of values, below which alleles are not included in the analysis. 
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Returned values}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\textbf{\texttt{chi table}}] A character matrix containing locus chi-square values, degrees of freedom, p.values and significance indicators, as well as overall values.
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{divOnline}
+The general usage of \texttt{divOnline} is:
+<<eval=FALSE>>=
+divOnline()
+@
+
+By executing the above command, a web browser (system default) will open with the divOnline application running. Users can read file from their system into the app and choose many of the analysis options. Most analysis results can be downloaded to \emph{.txt} files.
+
+\subsection{fstOnly}
+The general usage of \texttt{fstOnly} is:
+<<eval=FALSE>>=
+fstOnly(infile = NULL, outfile = NULL, gp = 3, bs_locus = FALSE,
+        bs_pairwise = FALSE, bootstraps = 0, parallel = FALSE)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Arguments}
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{infile}] Specifying the name of the \emph{`genepop'} \citep{Raymond1995} file from which the statistics are to be calculated This file can be in either the 3 digit of 2 digit format. The name must be a character string.
+
+\item[\textbf{\texttt{outfile}}] Allows use\texttt{R}s to specify a suffix for output folder and files. Name must a character string enclosed in either ``" or `'.
+
+\item[\textbf{\texttt{gp}}] Specifies the digit format of the \texttt{infile}. Either 3 (default) or 2.
+
+\item[\textbf{\texttt{bs\_locus}}] Gives use\texttt{R}s the option to bootstrap locus statistics. Results will be written to \emph{.xlsx} file by default if the package \texttt{xlsx} is installed, and to a \emph{.png} file if \texttt{plot=TRUE}. If \texttt{xlsx} is not installed, results will be written to \emph{.txt} files.
+
+\item[\textbf{\texttt{bs\_pairwise}}] Gives use\texttt{R}s the option to bootstrap statistics across all loci for each pairwise population comparison. Results will be written to a \emph{.xlsx} file by default if the package \texttt{xlsx} is installed. If \texttt{xlsx} is not installed, results will be written to \emph{.txt} files.
+
+\item[\texttt{bootstraps}] Determines the number of bootstrap iterations to be carried out. The default value is \texttt{bootstraps = 0}, this is only valid when all bootstrap options are false. There is no upper limit on the number of bootstrap iterations, however very large numbers of bootstrap iterations for pairwise calculations (> 1000) may take a long time to run for large data sets. 
+
+\item[\texttt{parallel}] A logical argument specifying if computations should be run in parallel on all available CPU cores. If \texttt{parallel = TRUE}, batches of jobs will be distributed to all cores resulting in faster completion.
+
+\end{description}
+
+\subsubsection{Returned values}
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{locus}] {A list contain two matrices, $F_{ST}$ and $F_{IT}$. Each matrix contains the actual calculated statistic along with their respective 95\% confidence intervals per locus, as well as a global estimate across all population samples and loci. This result is only returned if \texttt{bs\_locus} = \texttt{TRUE}.}
+
+\item[\texttt{pairwise}] {A list contain two matrices, $F_{ST}$ and $F_{IT}$. Each matrix contain the actual and respective 95\% confidence intervals across loci for each pairwise population comparison. This result is only returned when \texttt{bs\_pairwise} = \texttt{TRUE}.} 
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{divRatio}
+The general usage of \texttt{divRatio} is:
+<<eval=FALSE>>=
+divRatio(infile = NULL, outfile = NULL, gp = 3, pop_stats = NULL,
+         refPos = NULL, bootstraps = 1000, parallel = FALSE)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Arguments}
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{infile}]{A character string argument specifying the name of either a 3 digit or 2 digit genepop file containing the raw genotypes of at least the reference population sample.}
+
+\item[\texttt{outfile}]{A character string specifying a prefix name for an automatically generated results folder, to which results file will be written.}
+
+\item[\texttt{gp}]{Specifies the digit format of the \texttt{infile}. Either 3 (default) or 2.}
+
+\item[\texttt{pop\_stats}]{A character string indicating the name of the population statistics data frame file. This argument is required if only raw data for the reference population are give in \texttt{infile}. The data frame should be structured in a specific way. An example can be seen by typing \texttt{data(pop\_stats)} into the console. The validloci column is only required if mean allelic richness and expected heterozygosity for populations of interest have been calculated from loci for which data is not present in the reference population. This column should contain a single character string of common loci between each population sample and the reference population sample.}
+
+\item[\texttt{refPos}]{A numeric argument specifying the position of the reference population in \texttt{infile}. The argument is only valid when raw genotype data has been provided for the reference population sample and all other populations of interest and \texttt{pop\_stats} is \texttt{NULL}.}
+
+\item[\texttt{bootstraps}]{Specifies the number of times the reference population should be resampled when calculating the sample size standardised allelic richness and expected heterozygosity for calculating the diversity ratios. The larger the number of bootstraps the longer the analysis will take to run. As an indication of runtime, running \texttt{divRatio} on the \texttt{Big\_data} data set (type \texttt{?Big\_data} for details), takes 10min 42s on a Toshiba Satellite R830 with 6GB RAM, and an Intel Core i5 - 2435M CPU running Linux.}
+
+\item[\texttt{parallel}]{A logical argument indicating whether the analysis should make use of all available cores on the users system.}
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Returned values}
+All results will be written to a user defined folder, providing an argument is passed for 'outfile'. Results will be written to \texttt{.xlsx} files if the package \texttt{xlsx} and its dependencies are installed, or a \texttt{.txt} file otherwise.\par
+
+A data frame containing the following variables is also returned to the \texttt{R} console:
+
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{pop}]{The names of each population of interest, including the reference population.}
+
+\item[\texttt{n}]{The sample size of each population}
+
+\item[\texttt{alr}]{Mean allelic richness across loci}
+
+\item[\texttt{alrSE}]{The standard error of the allelic richness across loci}
+
+\item[\texttt{He}]{Mean expected heterozygosity across loci}
+
+\item[\texttt{HeSE}]{Standard error of expected heterozygosity across loci}
+
+\item[\texttt{alrRatio}]{The ratio of the allelic richness of the subject population sample and the sample size standardised reference population allelic richness}
+
+\item[\texttt{alrSERation}]{The standard error of divisions for the allelic richness ratio}
+
+\item[\texttt{heRatio}]{The ratio of expected heterozygosity between the standardised reference population sample and subject population samples}
+
+\item[\texttt{heSEratio}]{The standard error of divisions for the expected heterozygosity ratio}
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{bigDivPart()}
+The general usage of this function is as follows:
+<<eval=FALSE>>=
+bigDivPart(infile = NULL, outfile = NULL, WC_Fst = FALSE,
+           format = NULL)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Arguments}
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{infile}] {Specifies the name of the \emph{`genepop'} \citep{Raymond1995} file from which the statistics are to be calculated. This file can be in either the 3 digit of 2 digit format. The name must be a character string.}
+
+\item[\texttt{outfile}] {Allows use\texttt{R}s to specify a prefix for an output folder. Name must a character string enclosed in either ``'' or `'.}
+
+\item[\texttt{WC\_Fst}] {A logical indication as to whether Weir and Cockerham's, 1984 F-statistics should be calculated. This option will increase analysis time.}
+
+\item[\texttt{format}] {A character string specifying the preferred output format for calculated results. The arguments \texttt{txt} or \texttt{xlsx} are valid when \texttt{outfile} is not \texttt{NULL}.}
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Returned values}
+\begin{description}[style=multiline,leftmargin=3cm,font=\normalfont]
+
+\item[\texttt{standard}] {See \texttt{divPart} description for details.}
+
+\item[\texttt{estimates}] {See \texttt{divPart} description for details.}
+
+\end{description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{microPlexer}
+The general usage of this function is as follows:
+<<eval=FALSE>>=
+microPlexer()
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+By typing the above command into the \texttt{R} console, a web application will be launched in the system's default internet browser. At initiation, the application appears as the figure below:
+
+\begin{center}
+\includegraphics[width=110mm]{microplexer.png}
+\end{center}
+
+
+After uploading input data and making the desired parameter selections, multiplex group plots will be displayed as below. These plots can be downloaded to a single .PDF workbook for further inspection.
+
+\begin{center}
+\includegraphics[width=110mm]{microPlexer-1.png}
+\end{center}
+
+\subsection{arp2gen}
+The general usage of this function is as follows:
+
+
+<<eval=FALSE>>=
+arp2gen(infile)
+@
+
+Where \texttt{infile} is a character string pointing to an \emph{Arlequin} genotype file. The infile argument can simply be the file name if the file is located in the current working directory, otherwise an absolute/relative path must be given.
+
+\subsection{divMigrate}
+The general usage of this function is as follows:
+
+<<eval = FALSE>>=
+divMigrate(infile = NULL, stat = c("gst", "d_jost"))
+@
+
+Where \texttt{infile} is either an file name or a path to a file. The file should be in either the Arlequin genotype file format (.arp) or the genepop file format used in other \texttt{diveRsity} functions. The argument \texttt{stat} determines which statistic ($G_{ST}$ or $D_{Jost}$) should be used to calculate the relative migration matrix.
+
+\subsection{haploDiv}
+The general usage of this function is as follows:
+
+<<eval=FALSE>>=
+haploDiv(infile = NULL, outfile = NULL, pairwise = FALSE,
+         bootstraps = 0)
+@
+
+Where \texttt{infile} is the file name or directory location of a haploid genotype genepop file, \texttt{outfile} is the prefix name to be used for output .txt files, \texttt{pairwise} indicates whether a pairwise matrix of Weir \& Cockerham's $\theta$ should be calculated, and \texttt{bootstraps} indicates whether bootstrapped 95\% confidence limits should be estimated for each pairwise comparison.
+
+\textbf{Details} \\
+If the \texttt{outfile} argument is \texttt{NULL}, no results will be written to file. All results are returned to the \texttt{R} workspace. To calculate 95\% confidence limits, \texttt{bootstraps} must be $> 0$, and \texttt{pairwise} must be \texttt{TRUE}. 
+
+\newpage
+\section{Examples}
+In this section worked examples of each of the three functions documented above are given. The examples will employ the test data set distributed with \texttt{diveRsity}, \texttt{Test\_data}. Care has been take to ensure that examples can be used independently, thus some processes are repeated for each function examples, such as loading \texttt{Test\_data} into the \texttt{R} session.\\
+N.B. All examples assume that you have already downloaded, installed  and loaded \texttt{diveRsity}.
+
+<<echo=FALSE>>=
+library("diveRsity")
+@
+
+\subsection{divPart}
+This example is specific to the function \texttt{divPart}. It has been written to demonstrate way in the which the function may be used. It has not been written as an exhaustive demonstration. 
+
+\subsubsection{Setting your \texttt{working directory}}
+In any \texttt{R} session it is sensible to have a folder on your system where any output files etc. are to be written. When using \texttt{diveRsity}, it is recommended that you set your \texttt{working directory} to the location of your input file.\par
+
+To set your working directory, use:
+<<eval=FALSE>>=
+setwd("mypath")
+@
+
+Simply replace `mypath' with your actual file path. Make sure to use `/' or `\textbackslash \textbackslash' to separate directory levels (e.g. c:/Users/Kevin/etc., or c:\textbackslash \textbackslash Users \textbackslash \textbackslash Kevin \textbackslash \textbackslash etc.). \texttt{R} does not recognise the `\textbackslash' symbol for pathways.    
+
+\subsubsection{Loading \texttt{Test\_data}}
+\texttt{Test\_data} is only required for these examples. Use\texttt{R}s should replace the argument `\texttt{infile = Test\_data}' with `\texttt{infile = "myfilename"}' when wishing to analyse their own data set.
+<<>>=
+data(Test_data, package = "diveRsity")
+@
+
+This command loads \texttt{Test\_data} into the current \texttt{R} session.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsubsection{Running \texttt{divPart}}
+To run \texttt{divPart}, where locus bootstrap and pairwise bootstrap results are returned without plotting, use the following:
+
+<<eval=FALSE>>=
+div_results <- divPart(infile = Test_data, outfile = "Test", 
+                         gp = 3, pairwise = TRUE, 
+                         WC_Fst = TRUE, bs_locus = TRUE, 
+                         bs_pairwise = TRUE, bootstraps = 100, 
+                         plot = FALSE, parallel = TRUE)
+@
+
+<<echo=FALSE>>=
+
+load("./div_res.RData")
+@
+
+N.B. in this example \texttt{bootstraps = 100} to reduce the time taken to run the example.\\
+When the analysis has finished a folder named \texttt{Test-[diveRsity]} should be written to your working directory. This folder will contain either a single \emph{.xlsx} workbook named `\emph{[divPart].xlsx}' (if \texttt{xlsx} is installed), or four \emph{.txt} files named, `\emph{Standard-stats[divPart].txt}', `\emph{Estimated-stats[divPart].txt}', `\emph{Locus-bootstrap[divPart].txt}' and `\emph{Pairwise-bootstrap[divPart].txt}' if it is not.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Accessing your results within the \texttt{R} session}
+All of the results written to file are also assigned to the variable \texttt{test\_results}. To access these results it is useful to understand the structure of the objects \texttt{test\_results} contains. Although the objects have been described in the \textbf{Returned values} section for \texttt{divPart}, a further visual description will be provided here.\\
+Using the following will show you the names of all objects within \texttt{test\_results}:
+
+<<>>=
+names(div_results)
+@
+
+To access an object within \texttt{test\_results} you can use the extract operator `\texttt{\$}'. For example, if you want to know what type of object \texttt{bs\_locus} is, use:
+
+<<>>=
+typeof(div_results$bs_locus)
+@                
+
+<<echo=FALSE>>=
+#$
+@
+
+From the \textbf{Returned values} section for \texttt{divPart}, it is known that \texttt{bs\_locus} is indeed a list containing six matrices. This object can be explored further using:
+<<>>=
+names(div_results$bs_locus)
+@
+<<echo=FALSE>>=
+#$
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newpage
+%\subsubsection*{Accessing your results within the \texttt{R} session cont.}
+Each of the named objects within \texttt{test\_results\$bs\_locus} are known to be matrices from above. This means that we can use matrix indexing to access any of the information within any of the matrices. In \texttt{R}, to access a specific value within a matrix, we only need to know the row and column that the value is in. If we wanted to access a value that lies in the $5^{th}$ row and the $1^{st}$ column the following command could be used:
+
+<<eval=FALSE>>=
+mymatrix[5, 1]
+@
+
+The first digit within the `[ ]' (i.e. before the `,') in \texttt{R} always refers to the \textbf{row} location of a value and the second to the \textbf{column} location.\\
+It is possible to access more than one value in a matrix using indexing. If we wanted to look at the first 10 rows of \texttt{test\_results\$bs\_locus\$Gst}, we would use the following code.
+
+<<>>=
+div_results$bs_locus$Gst[1:10, ]
+@
+
+By leaving the column index blank (i.e. no numbers after the `,'), all columns are returned. Similarly, if we wanted to view all values in the first column of \texttt{test\_results\$bs\_locus\$Gst}, we would use:
+<<eval=FALSE>>=
+div_results$bs_locus$Gst[ ,1]
+@
+
+The other values returned by \texttt{divPart} can be accessed in a similar fashion. When you understand how to access the results within \texttt{R}, many \emph{post-analysis} processes can be used such as correlations, regressions and plotting.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newpage 
+\subsection{inCalc}
+This example is specific to the function \texttt{inCalc}. It has been written to demonstrate way in the which the function may be used. It has not been written as an exhaustive demonstration.
+\subsubsection{Setting your \texttt{working directory}}
+In any \texttt{R} session it is sensible to have a folder on your system where any output files etc. are to be written. When using \texttt{diveRsity}, it is recommended that you set your \texttt{working directory} to the location of your input file.\par
+
+To set your working directory, use:
+<<eval=FALSE>>=
+setwd("mypath")
+@
+
+Simply replace `mypath' with your actual file path. Make sure to use `/' or `\textbackslash\textbackslash' to separate directory levels (e.g. c:/Users/Kevin/etc., or c:\textbackslash\textbackslash Users\textbackslash\textbackslash Kevin \textbackslash\textbackslash etc.). \texttt{R} does not recognise the `\textbackslash' symbol for pathways.    
+
+\subsubsection{Loading \texttt{Test\_data}}
+\texttt{Test\_data} is only required for these examples. Use\texttt{R}s should replace the argument `\texttt{infile = Test\_data}' with `\texttt{infile = "myfilename"}' when wishing to analyse their own data set.
+<<>>=
+data(Test_data, package = "diveRsity")
+@
+
+This command loads \texttt{Test\_data} into the current \texttt{R} session.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newpage
+\subsubsection{Running \texttt{inCalc}}
+To run \texttt{inCalc}, where locus bootstrap and pairwise bootstrap results are returned without plotting, use the following:
+
+<<eval=FALSE>>=
+in_results <- inCalc (infile = Test_data, outfile = "Test", 
+                         gp = 3, bs_locus = TRUE, 
+                         bs_pairwise = TRUE, bootstraps = 100, 
+                         plot = FALSE, parallel = TRUE)
+@
+
+<<echo=FALSE>>=
+load("./in_res.RData")
+
+@
+
+
+N.B. in this example \texttt{bootstraps = 100} to reduce the time taken to run the example.\\
+When the analysis has finished a folder named \texttt{Test-[diveRsity]} should be written to your working directory. This folder will contain either a single \emph{.xlsx} workbook named `\emph{[].xlsx}' (if \texttt{xlsx} is installed), or three \emph{.txt} files named, `\emph{Allele-In[inCalc].txt}', `\emph{Overall-bootstrap[inCalc].txt}' and `\emph{Pairwise-bootstrap[inCalc].txt}' if it is not.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Accessing your results within the \texttt{R} session}
+All of the results written to file are also assigned to the variable \texttt{test\_results}. To access these results it is useful to understand the structure of the objects \texttt{test\_results} contains. Although the objects have been described in the \textbf{Returned values} section for \texttt{inCalc}, a further visual description will be provided here.
+
+Using the following will show you the names of all objects within \\
+\texttt{test\_results}:
+
+<<>>=
+names(in_results)
+@
+
+To access an object within \texttt{test\_results} you can use the extract operator `\texttt{\$}'. For example, if you want to know what type of object \texttt{PW\_bootstrap} is, use:
+
+<<>>=
+typeof(in_results$PW_bootstrap)
+@                
+
+<<echo=FALSE>>=
+#$
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newpage
+From the \textbf{Returned values} section for \texttt{inCalc}, it is known that \texttt{PW\_bootstrap} is indeed a list of matrices of bootstrapped locus results for each pairwise comparison. To find the names of the matrices within \texttt{PW\_bootstraps}, use:
+<<>>=
+names(in_results$PW_bootstrap)
+@
+<<echo=FALSE>>=
+#$
+@
+
+From this we see that \texttt{PW\_bootstrap} contains 15 matrices for each of the 15 possible pairwise comparisons from the six population samples in \texttt{Test\_data}. We can explore any of these matrices using matrix indexing. In \texttt{R}, to access a specific value within a matrix, we only need to know the row and column that the value is in (i.e. its index). If we wanted to access a value that lies in the $5^{th}$ row and the $1^{st}$ column the following command could be used:
+
+<<eval=FALSE>>=
+mymatrix[5, 1]
+@
+
+The first digit within the `[ ]' (i.e. before the `,') in \texttt{R} always refers to the \textbf{row} location of a value and the second to the \textbf{column} location.\\
+To look at the first 3 rows of the comparison between pop1 and pop2 in \texttt{PW\_bootstrap}, we would use the following code.
+
+<<>>=
+in_results$PW_bootstrap[["pop1, vs. pop2,"]][1:3, ]
+@
+<<echo=FALSE>>=
+#$
+@
+
+By leaving the column index blank (i.e. no numbers after the `,'), all columns are returned. Similarly, if we wanted to view all values in the first column of \texttt{test\_results\$PW\_bootstrap[["pop1, vs. pop2,"]]}, we would use:
+<<eval=FALSE>>=
+in_results$PW_bootstrap[["pop1, vs. pop2,"]][ ,1]
+@
+
+The other values returned by \texttt{inCalc} can be accessed in a similar fashion. When you understand how to access the results within \texttt{R}, many \emph{post-analysis} processes can be used such as correlations, regressions and plotting.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newpage
+\subsection{readGenepop}
+This example is specific to the function \texttt{readGenepop}. It has been written to demonstrate way in the which the function may be used. It has not been written as an exhaustive demonstration.
+\subsubsection{Setting your \texttt{working directory}}
+In any \texttt{R} session it is sensible to have a folder on your system where any output files etc. are to be written. When using \texttt{diveRsity}, it is recommended that you set your \texttt{working directory} to the location of your input file.\\
+To set your working directory, use:
+<<eval=FALSE>>=
+setwd("mypath")
+@
+
+Simply replace `mypath' with your actual file path. Make sure to use `/' or `\textbackslash\textbackslash' to separate directory levels (e.g. c:/Users/Kevin/etc., or c:\textbackslash\textbackslash Users\textbackslash\textbackslash Kevin \textbackslash\textbackslash etc.). \texttt{R} does not recognise the `\textbackslash' symbol for pathways.    
+
+\subsubsection{Loading \texttt{Test\_data}}
+\texttt{Test\_data} is only required for these examples. Use\texttt{R}s should replace the argument `\texttt{infile = Test\_data}' with `\texttt{infile = "myfilename"}' when wishing to analyse their own data set.
+<<>>=
+data(Test_data, package = "diveRsity")
+@
+
+This command loads \texttt{Test\_data} into the current \texttt{R} session.
+
+\subsubsection{Running \texttt{readGenepop}}
+To run \texttt{readGenepop} without producing a bootstrap file, use:
+
+<<>>=
+gp_res <- readGenepop(infile = Test_data, gp = 3,
+                      bootstrap = FALSE)
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newpage
+\subsubsection{Accessing your results within the \texttt{R} session}
+The \texttt{readGenepop} function does not write anything to file. Instead results are only returned to the \texttt{R} environment.\\
+To explore what these results are, use:
+
+<<>>=
+names(gp_res)
+@
+
+For a description of each of these objects see section \textbf{4.3.2}.
+
+\subsubsection{Applications for \texttt{readGenepop}}
+\texttt{readGenepop} is not like the other two function in that the results returned have no particularly informative format. Instead the results are the building blocks to developing other analysis methods for use\texttt{R}s who may not have the necessary programming skills to extract such information from genetic data. In this section two examples of applications of \texttt{readGenepop} are provided. Use\texttt{R}s are encouraged to use the function to develop their own methods.
+
+\subsubsection*{\textbf{`\emph{Ad hoc}' investigation of locus mutation model}}
+Understanding the likely mutation model a particular microsatellite locus follows is important for a range of analyses which make explicit assumptions. One way to ensure your data does not violate these assumption is to visualise the allele distribution at loci and assess whether the pattern fits the expectation of a given model.\\
+\texttt{readGenepop} returns an object \texttt{pop\_alleles} which contains npops x 2 matrices. Each matrix contains a haploid genotype per individual per locus, and every two matrices correspond to a single population sample. For example matrices 1 and 2 correspond to population sample 1, matrices 3 and 4 correspond to population sample 2 and so on.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newpage
+Using this object, it is possible to plot the allele size distribution to assess it allele fragments fit say the single step mutation model (SSM).
+
+<<>>=
+locus18_pop1 <- c(gp_res$pop_alleles[[1]][[1]][,18], 
+                  gp_res$pop_alleles[[2]][[1]][,18])
+# sort alleles by size
+allele_sort <- order(locus18_pop1, decreasing = FALSE)
+#plot
+plot(locus18_pop1[allele_sort], ylab = "allele size", col="blue",
+     pch = 16)
+@
+
+From this figure we could conclude that locus 18 in population 1 is likely to follow SSM given that allele size increases in a generally regular fashion. Any gaps are also a multiple of the repeat motif length.\\
+Although this example is basic and does not have a rigorous statistical basis, the value of such data exploration is clear. Indeed, use\texttt{R}s with suitable know-how could likely easily develop statistically valid model tests for this particular example. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newpage
+\subsubsection{A hypothetical example}
+
+This example is for illustrative purposes.\\
+Say for some reason, we were interested in assessing the sampling properties of the number of alleles at a particular locus, \texttt{readGenepop} is ideal to do this.
+We will use \texttt{Test\_data} for this example and the number of bootstrap iterations will be 1000. We know that \texttt{Test\_data} contains 37 loci so we will have to be able to count the number of alleles for each of these in each bootstrap iteration.
+
+\subsubsection*{\textbf{The code}}
+
+<<>>=
+# Define a results matrix with 37 columns (loci) and
+# 1000 rows (bootstraps)to record allele number per locus
+
+num_all <- matrix(rep(0,(37*10)), ncol = 37)
+
+# Now using readGenepop we can fill the matrix
+bs<-10
+for(i in 1:bs){
+    # first produce a bootstrap file
+    
+    x <- readGenepop(infile = Test_data, gp = 3,
+                     bootstrap = TRUE)
+                     
+    # Now record the number of alleles at each locus
+    
+    num_all[i, ] <- x$nalleles                      
+}
+
+# Now we can use this data to calculate the mean
+# number of alleles per locus as well at their
+# 95% confidence intervals
+
+mean_num <- colMeans(num_all)
+lower<-vector()
+upper<-vector()
+for(i in 1:ncol(num_all)){
+    lower[i] <- mean_num[i] - (1.96 * sd(num_all[,i]))  
+    upper[i] <- mean_num[i] + (1.96 * sd(num_all[,i]))
+}
+
+# Now we can create a data frame of these results
+
+bs_res <- data.frame(mean_num, lower, upper)
+
+bs_res[1:10,]
+@
+
+This is perhaps not the most efficient way to do this kind of analysis but it does make it more accessible to non-programmers.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{Running divPart in batch (using parallel)}
+
+\subsubsection*{Application of batch analyses}
+Often, for a number of reasons, it may be necessary to analyse many separate genepop file. Simulation studies and Approximate Bayesian Computation (ABC) are two examples of where this is commonly done. Below is a hypothetical example, demonstrating how this could be done using \texttt{diveRsity}
+
+\subsubsection*{The hypothetical experiment}
+Imagine that we are interested in measuring some group of parameters for a group of populations simulated under various evolutionary models. In this example we would like to estimate global $G_{st}$, $\theta$, $G'_{st}$ and $D_{Jost}$ for a group of population samples evolved under 10 distinct models. However, because we are interested in comparing the distributions of each of these parameters under each of the 10 models, we have replicated each simulation 1000 times (giving a total of 10,000 genepop files to be analysed). Helpfully, our 1000 genepop files per evolutionary model have been organised into 10 separate folders (1 per model). The directory tree might look something like this:\par
+
+\includegraphics[width=50mm]{dirTree.png}
+
+The workflow to analyse these files in parallel (say on 10 CPUs) is as follows:\\
+\begin{itemize}
+\item{Determine the names and locations of all files to be analysed}
+\item{Set up the CPU cluster for all R processes (using the \texttt{doParallel} \& \texttt{parallel} packages).}
+\item{Pipe these file names to the \texttt{divPart} function and return the parameters required (i.e. global $G_{st}$, $\theta$, $G'_{st}$ \& $D_{Jost}$).}
+\item{Return the results in a convenient format to allow for down stream investigations.}
+\end{itemize}
+
+The annotated code is below:
+<<eval = FALSE>>=
+ # load the diveRsity package 
+library("diveRsity")
+
+# We can specify the names of our simulation folders in two ways 
+
+# manually 
+fold_names <- paste("sim", 1:10, sep = "")
+
+or
+
+# automatically (when there is only a single level below the
+# top directory)
+fold_names <- list.dirs(full.names = TRUE, recursive = FALSE) 
+
+# Now we can determine the names of all genepop files in each folder
+
+file_names <- lapply(fold_names, function(x){
+  files <- dir(path = paste(x, "/", sep = ""), pattern = "*.gen",
+               full.names = TRUE)
+  return(files) })
+
+# file_names will be a list of length 10. Each element will contain
+# the names of all .gen files within the respective simulation folder
+
+# Before we are ready to run the main analyses, we should set up 
+# the parallel environment
+
+# load the doParallel package
+library("doParallel")
+# set up a cluster of 10 CPUs (one for each batch of files)
+cl <- makeCluster(10)
+# Export the 'divPart' function to the cluster cores 
+clusterExport(cl, "divPart", envir = environment())
+
+# Now we can run the main analyses
+
+results <- parLapply(cl, file_names, function(x){
+  sim_res <- sapply(x, function(y){
+    out <- divPart(infile = y, gp = 3, WC_Fst = TRUE)
+    return(out$estimate[nrow(out$estimate), 4:7])
+  })
+  return(t(sim_res))  # transpose sim_res
+})
+
+# This will generate a list (of length 10), with each element 
+# containing a matrix of 1000 rows (1 per file) and 4 columns 
+# (1 for each diversity statistic) 
+
+# Example of output for simulation 1
+# G_st_est        G_hed_st_est    D_Jost_est      Fst_WC
+# 0.3905          0.8938          0.8256          0.4010
+# 0.5519          0.8719          0.6986          0.6031
+# 0.5924          0.8880          0.7092          0.6096
+# ...             ...             ...             ...
+# ...             ...             ...             ...
+
+# these results could then be piped to further analyses or 
+# visualisation tools
+@
+
+
+
+
+
+
+\newpage
+\bibliographystyle{MEE}
+\bibliography{divMS}
+
+\newpage
+\section{Reproducibility}
+
+<<echo=FALSE>>=
+print(sessionInfo(), locale = FALSE)
+@
+
+\section{Acknowledgements}
+Many thanks to all of my colleagues for testing code and reporting bugs. In particular, I thank Mark Ravinet, Erin Landguth, Mariah Meek and Andy Jasonowicz for reporting important bugs and for making useful suggestions for the improvement of the package. Special thanks goes to my PhD supervisor, Paulo A. Prod\"{o}hl, for many useful insights into the use and applications of \texttt{diveRsity}, as well as avenues of future developments.
+
+\end{document}
