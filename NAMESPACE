@@ -24,7 +24,6 @@ import(ggplot2)
 import(qgraph)
 import(shiny)
 import(parallel)
-import(grid)
 import(HWxtest)
 useDynLib(diveRsity)
 exportPattern("^[[:alpha:]]+")
@@ -37,3 +36,5 @@ importFrom("stats", "chisq.test", "dist", "fisher.test", "na.omit",
            "pchisq", "quantile", "sd", "var")
 importFrom("utils", "combn", "installed.packages", "read.table",
            "write.table")
+importFrom("grid", "grid.newpage", "pushViewport", "viewport", 
+           "grid.layout")

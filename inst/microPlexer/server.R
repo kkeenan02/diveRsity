@@ -22,7 +22,7 @@ microPlexer <- function(mainData, proximity, dyes, algorithm = "max",
   mplexPlot <- function(x, cols, pltTitle){
     
     # load ggplot
-    if(!require("ggplot2") && !require("grid")){
+    if(!require("ggplot2")){
       library("ggplot2")
       library("grid")
     }

@@ -31,10 +31,10 @@ Imports:
     shiny,
     qgraph,
     Rcpp,
-    grid,
     HWxtest,
     methods,
-    stats
+    stats,
+    grid
 LinkingTo: Rcpp
 Repository: CRAN
 License: GPL (>= 2)
