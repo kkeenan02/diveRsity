@@ -23,7 +23,8 @@ Suggests:
     xlsx,
     sendplot,
     plotrix,
-    parallel
+    parallel,
+    HWxtest
 Depends:
     R (>= 3.0.0)
 Imports:
@@ -31,7 +32,6 @@ Imports:
     shiny,
     qgraph,
     Rcpp,
-    HWxtest,
     methods,
     stats,
     grid
