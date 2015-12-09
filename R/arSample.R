@@ -11,7 +11,7 @@ arSample <- function(dat, nrep, ci = FALSE, alpha = 0.05){
     lapply(ps, function(x) sample(x, n, replace = TRUE))
   })
   
-  Rcpp::sourceCpp("allCount.cpp")
+  # Rcpp::sourceCpp("allCount.cpp")
   
   # wrapper function for calculating number of alleles
   allCountWrap <- function(genos, idx) {

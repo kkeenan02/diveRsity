@@ -4,6 +4,10 @@
 diveRsity update notes
 ======================
 
+v1.9.9.901
+----------
+Fixes bug in arSample function where c++ code was being called using Rcpp::sourceCpp
+
 v1.9.9.66
 ----------
 Introduces custom confidence limit calculation. User defined alpha level is now used in diffCalc.

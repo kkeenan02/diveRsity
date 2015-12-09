@@ -16,25 +16,26 @@ basicStats <- function (infile = NULL, outfile = NULL, fis_ci = FALSE,
     stop("Please install HWxtest: devtools::install_github('wrengels/HWxtest', 
          subdir='pkg')", call. = FALSE)
   }
-  #   infile <- "SNP_test.gen"
-  #   outfile <- "NULL"
-  #   HWPexact <- TRUE
-  #   fis_ci = TRUE
-  #   fis_alpha = 0.05
-  #   ar_ci = TRUE
-  #   ar_alpha = 0.05
-  #   mc_reps = 9999
-  #   fis_boots = 999
-  #   ar_boots = 999
-  #   rarefaction = FALSE
-  #   para = FALSE
-  #   rgp <- diveRsity:::rgp
-  #   source("rarefactor.R")
-  #   source("arSample.R")
-  #   Rcpp::sourceCpp("obsHet.cpp")
-  #   Rcpp::sourceCpp("expHet.cpp")
-  #   Rcpp::sourceCpp("bsHetCalc.cpp")
-  #   Rcpp::sourceCpp("hweTab.cpp")
+    # infile <- "../diveRsity_help/Milaja_Nykanen/Input_for_genepop_K3_checked_2.txt"
+    # outfile <- "NULL"
+    # HWPexact <- TRUE
+    # fis_ci = TRUE
+    # fis_alpha = 0.05
+    # ar_ci = TRUE
+    # ar_alpha = 0.05
+    # mc_reps = 9999
+    # fis_boots = 5
+    # ar_boots = 5
+    # rarefaction = FALSE
+    # para = FALSE
+    # rgp <- diveRsity:::rgp
+    # source("R/rarefactor.R")
+    # source("R/arSample.R")
+    # Rcpp::sourceCpp("src/obsHet.cpp")
+    # Rcpp::sourceCpp("src/expHet.cpp")
+    # Rcpp::sourceCpp("src/bsHetCalc.cpp")
+    # Rcpp::sourceCpp("src/hweTab.cpp")
+    # Rcpp::sourceCpp("src/allCount.cpp")
   
   dat <- rgp(infile)
   gp <- dat$gp
@@ -45,7 +46,7 @@ basicStats <- function (infile = NULL, outfile = NULL, fis_ci = FALSE,
   # calculate allelic richness
   if(rarefaction){
     if(ar_ci){
-      warning("Rarefaction method used to calculate allelic richness no CIs returned")
+      warning("Rarefaction method used to calculate allelic richness. No CIs returned!")
     }
     out <- list(ar = rarefactor(dat))
     mn_ar <- colMeans(out$ar[,-1], na.rm = TRUE)
