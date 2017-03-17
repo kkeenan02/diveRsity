@@ -12,3 +12,4 @@ src-x64/
 *.so
 *.html
 *.Rmd
+*.DS_Store

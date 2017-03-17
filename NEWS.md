@@ -4,6 +4,10 @@
 diveRsity update notes
 ======================
 
+v1.9.90
+----------
+Fixes CRAN build warnings and notes
+
 v1.9.9.901
 ----------
 Fixes bug in arSample function where c++ code was being called using Rcpp::sourceCpp
