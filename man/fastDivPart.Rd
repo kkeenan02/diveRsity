@@ -95,7 +95,7 @@ Weir, B.S. & Cockerham, C.C., Estimating F-Statistics, for the Analysis of Popul
 
 test_result <- fastDivPart(infile = 'mydata', outfile = "myresults', 
                            gp = 3, pairwise = TRUE, bs_locus = TRUE, 
-                           bs_pairwise = TRUE, bootstraps = 1000, 
+                           bs_pairwise = TRUE, boots = 1000, 
                            plot = TRUE)
 }
 }
