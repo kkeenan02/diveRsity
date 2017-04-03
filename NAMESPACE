@@ -24,7 +24,7 @@ import(ggplot2)
 import(qgraph)
 import(shiny)
 import(parallel)
-useDynLib(diveRsity)
+useDynLib(diveRsity, .registration = TRUE)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, evalCpp)
 importFrom("grDevices", "cairo_ps", "colorRampPalette", 
