@@ -12,9 +12,9 @@ Description: Allows the calculation of both genetic diversity partition
   for pairwise population comparisons, and to plot these results interactively. 
   Parallel computing capabilities and pairwise results without 
   bootstrapping are provided. 
-  Weir and Cockerham's 1984 F-statistics are also calculated. 
-  Various plotting features are also provided, as well as Chi-square tests of 
-  genetic heterogeneity are also provided. 
+  Also calculates F-statistics from Weir and Cockerham (1984). 
+  Various plotting features are provided, as well as Chi-square tests of 
+  genetic heterogeneity. 
   Functionality for the calculation of various diversity parameters is 
   possible for RAD-seq derived SNP data sets containing thousands of marker loci.
   A shiny application for the development of microsatellite multiplexes is 
