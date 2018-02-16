@@ -1,26 +1,131 @@
 # Load packages
-if(!require("shiny")){
-  stop("The package 'shiny' is required to use this application.")
-}
-if(!require("diveRsity")){
-  stop("The package 'diveRsity' is required to use this application.")
-}
-if(!require(qgraph)){
-  stop("The package 'qgraph' is required to use this application.")
-}
-if(!require("shinyIncubator")){
-  stop("The package 'shinyIncubator' is required to use this application.")
-}
-# Increase file upload limit
-options(shiny.maxRequestSize = 50*(1024^2))
+library(shiny)
+library(plotrix)#, lib.loc = "/home/kkeenan/depends/")
+library(diveRsity)#, lib.loc = "/home/kkeenan/depends/")
+library(shinyIncubator)
 
-shinyServer(function(input, output, session){
+shinyServer(function(input, output, session) {
   
-  # calculate migration (only re calculate id number of bootstraps is changed)
-  out <- reactive({
+  output$hwe <- renderUI({
     if(is.null(input$file)){
       return(NULL)
     }
+    if(input$divBasic){
+      radioButtons("hwe", h5("Test HWE using exact tests?"),
+                   choices = c("Y", "N"),
+                   selected = "N",
+                   inline = TRUE)  
+    } else{
+      return(NULL)
+    }
+  })
+  
+  output$mcrep <- renderUI({
+    if(is.null(input$file)){
+      return(NULL)
+    }
+    if(is.null(input$hwe)){
+      return(NULL)
+    } else if(input$hwe == "Y"){
+      numericInput("mcrep", h5("Number of Monte Carlo replicates for HWE tests?"),
+                   value = 2000L,
+                   min = 0L, max = 10000L, 
+                   step = 100L)
+    } else{
+      return(NULL)
+    }
+  })
+  
+  # calculate std and est stats
+  stdest <- reactive ({
+    if(input$goButton==0) return(NULL)
+    isolate({
+      infile <- input$file$datapath
+      fastDivPart(infile = infile,
+                  outfile = NULL,
+                  gp = input$gp,
+                  pairwise = FALSE,
+                  WC_Fst = input$WC_Fst,
+                  bs_locus = FALSE,
+                  bs_pairwise = FALSE,
+                  bootstraps = FALSE,
+                  plot = FALSE,
+                  parallel = FALSE)
+    })
+  })
+  
+  # Calculate pairwise matrix
+  pwOut <- reactive ({
+    if(input$goButton==0) return(NULL)
+    isolate({
+      infile <- input$file$datapath
+      fastDivPart(infile = infile,
+                  outfile = NULL,
+                  gp = input$gp,
+                  pairwise = input$pairwise,
+                  WC_Fst = input$WC_Fst,
+                  bs_locus = FALSE,
+                  bs_pairwise = FALSE,
+                  bootstraps = FALSE,
+                  plot = FALSE,
+                  parallel = input$parallel)
+    })
+  })
+  
+  # Calculate locus bs
+  lbsOut <- reactive ({
+    if(input$goButton==0) return(NULL)
+    isolate({
+      infile <- input$file$datapath
+      fastDivPart(infile = infile,
+                  outfile = NULL,
+                  gp = input$gp,
+                  pairwise = FALSE,
+                  WC_Fst = input$WC_Fst,
+                  bs_locus = input$bs_locus,
+                  bs_pairwise = FALSE,
+                  bootstraps = input$bootstraps,
+                  plot = FALSE,
+                  parallel = input$parallel)    
+    })
+  })
+  
+  # Calculate pairwise bs
+  pwbsOut <- reactive ({
+    if(input$goButton==0) return(NULL)
+    isolate({
+      infile <- input$file$datapath
+      fastDivPart(infile = infile,
+                  outfile = NULL,
+                  gp = input$gp,
+                  pairwise = FALSE,
+                  WC_Fst = input$WC_Fst,
+                  bs_locus = FALSE,
+                  bs_pairwise = input$bs_pairwise,
+                  bootstraps = input$bootstraps,
+                  plot = FALSE,
+                  parallel = input$parallel)
+    })
+  })
+  
+  
+  
+  divBout <- reactive({
+    if(input$goButton==0) return(NULL)
+    isolate({
+      if(!is.null(input$divBasic)){
+        divBasic(infile = input$file$datapath,
+                 outfile = NULL,
+                 gp = input$gp)
+      }
+    })  
+  })
+  
+  #############################################################################
+  # divBasic output
+  #############################################################################
+  output$divB <- renderTable({
+    if(input$goButton==0) return(NULL)
     withProgress(session, min=1, max=15, {
       setProgress(message = 'Calculation in progress',
                   detail = 'This may take a while...')
@@ -28,326 +133,532 @@ shinyServer(function(input, output, session){
         setProgress(value = i)
         Sys.sleep(0.1)
       }
-      #isolate({
-      infile <- input$file$datapath
-      diveRsity:::divMigrateOnline(infile = infile,
-                                   nbs = input$nbs,
-                                   stat = "all",
-                                   para = FALSE)
+      
+      isolate({
+        if(input$divBasic && !is.null(input$file)){
+          res <- divBout()
+          return(as.data.frame(res$mainTab))
+        }
+      })
     })
   })
   
-  # population exclusion dialogue
-  output$popnames <- renderUI({
-    if(is.null(input$file)){
-      return(NULL)
-    }
-    op <- out()
-    if(input$nbs != 0L){
-      if(input$stat == "D"){
-        dat <- list(op$D, op$D_sig)
-      } else if(input$stat == "Gst"){
-        dat <- list(op$Gst, op$G_sig)
-      } else if(input$stat == "Nm"){
-        dat <- list(op$Nm, op$Nm_sig)
-      }
-    } else {
-      if(input$stat == "D"){
-        dat <- list(op$D)
-      } else if(input$stat == "Gst"){
-        dat <- list(op$Gst)
-      } else if(input$stat == "Nm"){
-        dat <- list(op$Nm)
-      } 
-    }
-    pops <- colnames(dat[[1]])
-    #pops <- as.character(sapply(pops, function(x) gsub(",", "", x)))
-    checkboxGroupInput("pops", HTML("<br><h5>",
-                                    "5. Exclude populations from network?",
-                                    "</h5>"),
-                       choices = pops,
-                       selected = NULL,
-                       inline = TRUE)
-  })
-  
-  # plot download button
-  output$pltDL <- renderUI({
-    if(is.null(input$file)){
-      return(NULL)
-    }
-    downloadButton("dlPlt", "Download Network")
-  })
-  
-  # re-standardise plots following sample exclusion
-  output$stdplt <- renderUI({
-    if(is.null(input$file)){
-      return(NULL)
-    }
-    radioButtons("restand", h5("6. Re-standardize network connections?"),
-                 choices = c("Y", "N"),
-                 selected = "N",
-                 inline = TRUE) 
-  })
-  
-  # plot download format dialogue
-  output$pltFormat <- renderUI({
-    if(is.null(input$file)){
-      return(NULL)
-    }
-    radioButtons("format", h5("7. Network download format."),
-                 c("pdf", "png", "eps"), inline = TRUE, 
-                 selected = "pdf")
-  })
-  
-  # network plots
-  output$plt <- renderPlot({
-    if(is.null(input$file)){
-      return(NULL)
-    }
-    op <- out()
-    #if(input$nbs == op$nbs){
-    if(input$nbs != 0L){
-      if(input$stat == "D"){
-        dat <- list(op[[1]], op[[2]])
-      } else if(input$stat == "Gst"){
-        dat <- list(op[[3]], op[[4]])
-      } else if(input$stat == "Nm"){
-        dat <- list(op[[5]], op[[6]])
-      }
-      diag(dat[[2]]) <- FALSE
-      dat[[1]][!dat[[2]]] <- 0
-      dat <- dat[[1]]
-      if(!is.null(input$pops)){
-        idx <- sapply(input$pops, function(x){
-          which(colnames(dat) == x)
-        })
-        dat <- dat[-idx, -idx]
-        # re-standardize dat
-        if(input$restand == "Y"){
-          dat <- dat/max(dat, na.rm = TRUE) 
-        }
-      }
-    } else {
-      if(input$stat == "D"){
-        dat <- list(op[[1]])
-      } else if(input$stat == "Gst"){
-        dat <- list(op[[2]])
-      } else if(input$stat == "Nm"){
-        dat <- list(op[[3]])
-      } 
-      dat <- dat[[1]]
-      if(!is.null(input$pops)){
-        idx <- sapply(input$pops, function(x){
-          which(colnames(dat) == x)
-        })
-        dat <- dat[-idx, -idx]
-        # re-standardize dat
-        if(input$restand == "Y"){
-          dat <- dat/max(dat, na.rm = TRUE) 
-        }
-      }
-    }
-    dat[is.na(dat)] <- 0
-    if(input$filter_threshold != 0L){
-      dat[dat <= input$filter_threshold] <- 0
-    }
-    #if(input$goButton == 0L) return(NULL)
-    #isolate({
-    qgraph::qgraph(dat, nodeNames = colnames(dat), posCol = "darkblue",
-                   legend = TRUE, edge.labels = TRUE, 
-                   mar = c(2,2,5,5), curve = 2.5)
-    if(input$nbs != 0L){
-      title(paste("Relative migration network (Filter threshold = ", 
-                  input$filter_threshold, "; ", input$nbs, 
-                  " bootstraps; ", input$stat, " method)", sep = ""))
-    } else {
-      title(paste("Relative migration network (Filter threshold = ", 
-                  input$filter_threshold, "; ", input$stat, ")", 
-                  sep = "")) 
-    }
-    #})
-    
-    #}
-  })
-  
-  # Matrix table
-  output$mat <- downloadHandler(
+  #############################################################################
+  # Download divBasic results
+  #############################################################################
+  output$divBdl <- downloadHandler(
     filenames <- function(file){
-      if(is.null(input$file)){
-        return(NULL)
-      }
-      if(input$stat == "D"){
-        paste("divMigrate-online_", gsub(" ", "_", date()), "-[D].txt", 
-              sep = "") 
-      } else if(input$stat == "Gst"){
-        paste("divMigrateonline_", gsub(" ", "_", date()), "-[Gst].txt", 
-              sep = "")
-      } else if(input$stat == "Nm"){
-        paste("divMigrateonline_", gsub(" ", "_", date()), "-[Nm].txt", 
-              sep = "")
-      }
+      paste("divBasic", Sys.Date(), "-[diveRsity-online].txt", sep = "")
     },
     content <- function(file){
-      if(is.null(input$file)){
-        return(NULL)
-      }
-      op <- out()
-      if(input$nbs != 0L){
-        if(input$stat == "D"){
-          dat <- list(op[[1]], op[[2]])
-        } else if(input$stat == "Gst"){
-          dat <- list(op[[3]], op[[4]])
-        } else if(input$stat == "Nm"){
-          dat <- list(op[[5]], op[[6]])
-        }
-        diag(dat[[2]]) <- FALSE
-        dat[[1]][dat[[2]]] <- paste(dat[[1]][dat[[2]]], "*", sep = "")
-        dat <- dat[[1]]
-      } else {
-        if(input$stat == "D"){
-          dat <- list(op$D)
-        } else if(input$stat == "Gst"){
-          dat <- list(op$Gst)
-        } else if(input$stat == "Nm"){
-          dat <- list(op$Nm)
-        } 
-        dat <- dat[[1]]
-      }
-      if(input$stat == "D"){
-        hdr <- paste(c(" Pops", colnames(dat)), collapse = "\t")
-        hdr <- c("divMigrate-online",
-                 "",
-                 "Relative directional Migration matrix Calculated using",
-                 "D (Jost, 2008)",
-                 "",
-                 "If bootstrapping has been carried out, statistically",
-                 "significant values (alpha = 0.5) are indicated with '*'",
-                 "",
-                 hdr)
-        dat <- cbind(colnames(dat), dat)
-        dat <- apply(dat, 1, paste, collapse = " \t")
-        dat <- paste(c(hdr, dat), collapse = "\n")
-        writeLines(text = dat, con = file)
-      } else if(input$stat == "Gst"){
-        hdr <- paste(c(" Pops", colnames(dat)), collapse = "\t")
-        hdr <- c("divMigrate-online",
-                 "",
-                 "Relative directional Migration matrix Calculated using",
-                 "Gst (Nei & Chesser, 1983)",
-                 "",
-                 "If bootstrapping has been carried out, statistically",
-                 "significant values (alpha = 0.5) are indicated with '*'",
-                 "",
-                 hdr)
-        dat <- cbind(colnames(dat), dat)
-        dat <- apply(dat, 1, paste, collapse = " \t")
-        dat <- paste(c(hdr, dat), collapse = "\n")
-        writeLines(text = dat, con = file)
-      } else if(input$stat == "Nm"){
-        hdr <- paste(c(" Pops", colnames(dat)), collapse = "\t")
-        hdr <- c("divMigrate-online",
-                 "",
-                 "Relative directional Migration matrix Calculated using",
-                 "Nm (eqn. 12 from Alcala et al, 2014)",
-                 "",
-                 "If bootstrapping has been carried out, statistically",
-                 "significant values (alpha = 0.5) are indicated with '*'",
-                 "",
-                 hdr)
-        dat <- cbind(colnames(dat), dat)
-        dat <- apply(dat, 1, paste, collapse = " \t")
-        dat <- paste(c(hdr, dat), collapse = "\n")
-        writeLines(text = dat, con = file)
-      }
+      res <- divBout()
+      outer <- res$mainTab
+      write.table(outer, file, append = FALSE, quote = FALSE,
+                  sep = "\t", eol = "\r\n", row.names = FALSE,
+                  col.names = FALSE)
     }
   )
   
-  # Downloadable plots
-  output$dlPlt <- downloadHandler(
-    #if(input$goButton==0) return(NULL)
+  
+  
+  #############################################################################
+  # Standard stats
+  #############################################################################  
+  output$std <-  renderTable({
+    if(input$goButton==0) return(NULL)
+    isolate({
+      if(!is.null(input$file)) {
+        out <- stdest()
+        return({
+          withProgress(session, min=1, max=15, {
+            setProgress(message = 'Calculation in progress',
+                        detail = 'This may take a while...')
+            for (i in 1:15) {
+              setProgress(value = i)
+              Sys.sleep(0.1)
+            }
+          })
+          as.data.frame(out$standard)
+        })
+      }    
+    })
+  })
+  
+  
+  
+  #Download standard data
+  output$dlstd <- downloadHandler(
+    #if(!is.null(input$file)) {
+    filename <- function() {
+      paste("standard_", Sys.Date(), "_[diveRsity-online].txt", sep = "")
+    },
+    content <- function(file) {
+      out <- stdest()
+      prestd <- out$standard
+      std <- cbind(rownames(prestd), prestd)
+      colnames(std) <- c("Loci", colnames(prestd))
+      write.table(std, file, append = FALSE, quote = FALSE,
+                  sep = "\t", eol = "\r\n", row.names = FALSE)
+    }
+    #} else {
+    # print("No file specified!")
+    #}
+  )   
+  #############################################################################
+  # Estimated stats
+  #############################################################################
+  output$est <- renderTable({
+    if(input$goButton==0) return(NULL)
+    isolate({
+      if(!is.null(input$file)) {
+        out <- stdest()
+        return({
+          withProgress(session, min=1, max=15, {
+            setProgress(message = 'Calculation in progress',
+                        detail = 'This may take a while...')
+            for (i in 1:15) {
+              setProgress(value = i)
+              Sys.sleep(0.1)
+            }
+          })
+          as.data.frame(out$estimate)
+        })
+      }
+    })
+  })
+  
+  #Download standard data
+  output$dlest <- downloadHandler(
+    #if(!is.null(input$file)) {
+    filename <- function() {
+      paste("estimate_", Sys.Date(), "_[diveRsity-online].txt", sep = "")
+    },
+    content <- function(file) {
+      out <- stdest()
+      preest <- out$estimate
+      est <- cbind(rownames(preest), preest)
+      colnames(est) <- c("Loci", colnames(preest))
+      write.table(est, file, append = FALSE, quote = FALSE,
+                  sep = "\t", eol = "\r\n", row.names = FALSE)
+    }
+  )
+  #############################################################################
+  # Pairwise matrices
+  #############################################################################
+  output$pw <- renderTable({
+    if(input$goButton==0) return(NULL)
+    withProgress(session, min=1, max=15, {
+      setProgress(message = 'Calculation in progress',
+                  detail = 'This may take a while...')
+      for (i in 1:15) {
+        setProgress(value = i)
+        Sys.sleep(0.1)
+      }
+      isolate({
+        out <- pwOut()
+        if(is.element("pairwise", names(out))){
+          pw_fix <- lapply(out$pairwise, function(x){
+            matrix(round(x, 4), ncol = ncol(x), nrow = nrow(x))
+          })
+          for(i in 1:length(pw_fix)){
+            pw_fix[[i]][is.na(pw_fix[[i]])] <- ""
+          }
+          spltr <- matrix(rep("", (ncol(pw_fix[[1]]))+1), nrow = 1, 
+                          ncol = (ncol(pw_fix[[1]])+1))
+          rownames(spltr) <- NULL
+          rowcol <- c("",colnames(out$pairwise[[1]]))
+          dimnames(rowcol) <- NULL
+          spltr_nm <- matrix(c("gstEst", rep("", (length(spltr)-1))), 
+                             ncol = length(spltr), nrow = 1)
+          rownames(spltr_nm) <- NULL
+          pre_pw <- rbind(rowcol[-1], pw_fix$gstEst)
+          pw <- rbind(spltr_nm, cbind(rowcol, pre_pw))
+          if(input$WC_Fst){
+            spltr_nm <- matrix(c(names(out$pairwise)[4], 
+                                 rep("", (length(spltr)-1))), 
+                               ncol = length(spltr), nrow = 1)
+            rownames(spltr_nm) <- NULL
+            pre_pw <- rbind(rowcol[-1], pw_fix$thetaWC)
+            pw <- rbind(pw, spltr, spltr_nm, cbind(rowcol, pre_pw))
+          }
+        }
+        for (i in c(2,3)){
+          spltr_nm <- matrix(c(names(out$pairwise)[i], 
+                               rep("", (length(spltr)-1))), 
+                             ncol = length(spltr), nrow = 1)
+          rownames(spltr_nm) <- NULL
+          pre_pw <- rbind(rowcol[-1], pw_fix[[i]])
+          pw <- rbind(pw, spltr, spltr_nm, cbind(rowcol, pre_pw))
+        }
+        
+        dimnames(pw) <- NULL
+        return(pw)
+      })
+    })  
+  })
+  
+  #Download pairwise matrix data
+  output$dlpw <- downloadHandler(
+    filename <- function() {
+      paste("pairwise_matrix_", Sys.Date(), "_[diveRsity-online].txt", 
+            sep = "")
+    },
+    content <- function(file) {
+      out <- pwOut()
+      if(is.element("pairwise", names(out))){
+        pw_fix <- lapply(out$pairwise, function(x){
+          matrix(round(x, 4), ncol = ncol(x), nrow = nrow(x))
+        })
+        for(i in 1:length(pw_fix)){
+          pw_fix[[i]][is.na(pw_fix[[i]])] <- ""
+        }
+        spltr <- matrix(rep("", (ncol(pw_fix[[1]]))+1), nrow = 1, 
+                        ncol = (ncol(pw_fix[[1]])+1))
+        rownames(spltr) <- NULL
+        rowcol <- c("",colnames(out$pairwise[[1]]))
+        dimnames(rowcol) <- NULL
+        spltr_nm <- matrix(c("gstEst", rep("", (length(spltr)-1))), 
+                           ncol = length(spltr), nrow = 1)
+        rownames(spltr_nm) <- NULL
+        pre_pw <- rbind(rowcol[-1], pw_fix$gstEst)
+        pw <- rbind(spltr_nm, cbind(rowcol, pre_pw))
+        if(input$WC_Fst){
+          spltr_nm <- matrix(c(names(out$pairwise)[4], 
+                               rep("", (length(spltr)-1))), 
+                             ncol = length(spltr), nrow = 1)
+          rownames(spltr_nm) <- NULL
+          pre_pw <- rbind(rowcol[-1], pw_fix$thetaWC)
+          pw <- rbind(pw, spltr, spltr_nm, cbind(rowcol, pre_pw))
+        }
+      }
+      for (i in c(2,3)){
+        spltr_nm <- matrix(c(names(out$pairwise)[i], 
+                             rep("", (length(spltr)-1))), 
+                           ncol = length(spltr), nrow = 1)
+        rownames(spltr_nm) <- NULL
+        pre_pw <- rbind(rowcol[-1], pw_fix[[i]])
+        pw <- rbind(pw, spltr, spltr_nm, cbind(rowcol, pre_pw))
+      }
+      dimnames(pw) <- NULL  
+      write.table(pw, file, append = FALSE, quote = FALSE,
+                  sep = "\t", eol = "\r\n", row.names = FALSE,
+                  col.names = FALSE)
+    }
+  )
+  #############################################################################
+  # Locus bootstraps
+  #############################################################################
+  output$bs_loc <- renderTable({
+    if(input$goButton==0) return(NULL)
+    withProgress(session, {
+      setProgress(message = 'Calculation in progress',
+                  detail = 'This may take a while...')
+      for (i in 1:15) {
+        setProgress(value = i)
+        Sys.sleep(0.5)
+      }
+      isolate({
+        if(input$bs_locus == TRUE){
+          out <- lbsOut()
+          splt <- c("--","--","--","--")
+          rownames(splt) <-  NULL
+          splt_nm <- c("Gst_est","","","")
+          rownames(splt_nm) <- NULL
+          bs_loc <- rbind(splt_nm, cbind(rownames(out$bs_locus$Gst_est),
+                                         out$bs_locus$Gst_est))
+          if(!input$WC_Fst){
+            for (i in 5:6){
+              splt_nm <- c(names(out$bs_locus)[i],"","","")
+              adder <- cbind(rownames(out$bs_locus[[i]]),
+                             out$bs_locus[[i]])
+              suppressWarnings(bs_loc <- rbind(bs_loc, splt, splt_nm, adder))
+            }
+          } else {
+            for (i in c(5,6,7,8)){
+              splt_nm <- c(names(out$bs_locus)[i],"","","")
+              adder <- cbind(rownames(out$bs_locus[[i]]),
+                             out$bs_locus[[i]])
+              suppressWarnings(bs_loc <- rbind(bs_loc, splt, splt_nm, adder))
+            }
+          }
+          rownames(bs_loc) <- NULL
+          colnames(bs_loc) <- c("Loci", "Actual", "Lower", "Upper")
+          return(bs_loc)
+        }
+      })
+    })
+  })
+  
+  #Download bs_pw data
+  output$dllcbs <- downloadHandler(
+    filename <- function() {
+      paste("Locus_bootstrap_", Sys.Date(), "_[diveRsity-online].txt", sep = "")
+    },
+    content <- function(file) {
+      if(input$bs_locus == TRUE){
+        out <- lbsOut()
+        splt <- c("--","--","--","--")
+        rownames(splt) <-  NULL
+        splt_nm <- c("Gst_est","","","")
+        rownames(splt_nm) <- NULL
+        bs_loc <- rbind(splt_nm, cbind(rownames(out$bs_locus$Gst_est),
+                                       out$bs_locus$Gst_est))
+        if(!input$WC_Fst){
+          for (i in 5:6){
+            splt_nm <- c(names(out$bs_locus)[i],"","","")
+            adder <- cbind(rownames(out$bs_locus[[i]]),
+                           out$bs_locus[[i]])
+            suppressWarnings(bs_loc <- rbind(bs_loc, splt, splt_nm, adder))
+          }
+        } else {
+          for (i in c(5,6,7,8)){
+            splt_nm <- c(names(out$bs_locus)[i],"","","")
+            adder <- cbind(rownames(out$bs_locus[[i]]),
+                           out$bs_locus[[i]])
+            suppressWarnings(bs_loc <- rbind(bs_loc, splt, splt_nm, adder))
+          }
+        }
+        rownames(bs_loc) <- NULL
+        colnames(bs_loc) <- c("Loci", "Actual", "Lower", "Upper")
+      }
+      write.table(bs_loc, file, append = FALSE, quote = FALSE,
+                  sep = "\t", eol = "\r\n", row.names = FALSE)
+    }
+  )
+  
+  ############################################################################
+  # Pairwise bootstrap
+  ############################################################################  
+  output$pw_bs <- renderTable({
+    if(input$goButton==0) return(NULL)
+    withProgress(session, {
+      setProgress(message = 'Calculation in progress',
+                  detail = 'This may take a while...')
+      for (i in 1:50) {
+        setProgress(value = i)
+        Sys.sleep(0.5)
+      }
+      isolate({
+        if(input$bs_pairwise == TRUE){
+          out <- pwbsOut()
+          splt <- c("--","--","--","--","--","--","--","--")
+          splt_nm <- c("gstEst", "","", "", "", "", "", "")
+          pw <- rbind(splt_nm, cbind(rownames(out$bs_pairwise$gstEst),
+                                     round(out$bs_pairwise$gstEst, 4)))
+          if(input$WC_Fst){
+            splt_nm <- c(names(out$bs_pairwise)[4], "", "", "", "", "", "", "")
+            adder <- cbind(rownames(out$bs_pairwise[[4]]),
+                           round(out$bs_pairwise[[4]], 4))
+            suppressWarnings(pw <- rbind(pw, splt, splt_nm, adder))
+          }
+          for(i in c(2,3)){
+            splt_nm <- c(names(out$bs_pairwise)[i], "", "", "", "", "", "", "")
+            adder <- cbind(rownames(out$bs_pairwise[[i]]),
+                           round(out$bs_pairwise[[i]], 4))
+            suppressWarnings(pw <- rbind(pw, splt, splt_nm, adder))
+          }
+          rownames(pw) <- NULL
+          colnames(pw) <- c("POPS", "Actual", "Mean", "BC_Mean", "Lower", "Upper",
+                            "BC_Lower", "BC_Upper")
+          return(pw)    
+        }
+      })
+    })
+  })
+  
+  #Download bs _pw data
+  output$dlpwbs <- downloadHandler(
+    filename <- function() {
+      paste("Pairwise_bootstrap_", Sys.Date(), "_[diveRsity-online].txt",
+            sep = "")
+    },
+    content <- function(file) {
+      if(input$bs_pairwise == TRUE){
+        out <- pwbsOut()
+        splt <- c("--","--","--","--","--","--","--","--")
+        splt_nm <- c("gstEst", "","", "", "", "", "", "")
+        pw <- rbind(splt_nm, cbind(rownames(out$bs_pairwise$gstEst),
+                                   round(out$bs_pairwise$gstEst, 4)))
+        if(input$WC_Fst){
+          splt_nm <- c(names(out$bs_pairwise)[4], "", "", "", "", "", "", "")
+          adder <- cbind(rownames(out$bs_pairwise[[4]]),
+                         round(out$bs_pairwise[[4]], 4))
+          suppressWarnings(pw <- rbind(pw, splt, splt_nm, adder))
+        }
+        for(i in c(2,3)){
+          splt_nm <- c(names(out$bs_pairwise)[i], "", "", "", "", "", "", "")
+          adder <- cbind(rownames(out$bs_pairwise[[i]]),
+                         round(out$bs_pairwise[[i]], 4))
+          suppressWarnings(pw <- rbind(pw, splt, splt_nm, adder))
+        }
+        rownames(pw) <- NULL
+        colnames(pw) <- c("POPS", "Actual", "Mean", "BC_Mean", "Lower", "Upper",
+                          "BC_Lower", "BC_Upper") 
+      }
+      
+      write.table(pw, file, append = FALSE, quote = FALSE,
+                  sep = "\t", eol = "\n", row.names = FALSE)
+    }
+  )
+  
+  #plot attempt
+  output$cor <- renderPlot({
+    if(input$goButton==0) return(NULL)
+    isolate({
+      if(input$corplot == TRUE){
+        infile <- input$file$datapath
+        x <- readGenepop(infile, input$gp, FALSE)
+        y <- fastDivPart(infile = infile,
+                         outfile = NULL,
+                         gp = input$gp,
+                         pairwise = FALSE,
+                         WC_Fst = TRUE,
+                         bs_locus = FALSE,
+                         bs_pairwise = FALSE,
+                         bootstraps = 0,
+                         plot = FALSE,
+                         parallel = FALSE)
+        par(mfrow = c(2, 2))
+        par(mar = c(4, 5, 2, 2))
+        sigStar <- function(x){
+          if(x$p.value < 0.001) {
+            return("***")
+          } else if (x$p.value < 0.01) {
+            return("**")
+          } else if (x$p.value < 0.05) {
+            return("*")
+          } else {
+            return("ns")
+          }
+        }
+        plot(y[[2]][1:(nrow(y[[2]]) - 1), 8] ~ x[[16]], pch = 16, 
+             xlab = "Number of alleles", ylab = expression(hat(theta)), 
+             ylim = c(0, 1), las = 1, cex.lab = 1.5)
+        abline(lm(y[[2]][1:(nrow(y[[2]]) - 1), 8] ~ x[[16]]), col = "red", 
+               lwd = 2)
+        cor1 <- cor.test(y[[2]][1:(nrow(y[[2]]) - 1), 8], x[[16]])
+        sig <- sigStar(cor1)
+        text(x = max(x[[16]])/1.5, y = 0.8, 
+             labels = paste("r = ", round(cor1$estimate[[1]], 3), " ", sig, 
+                            sep = ""), cex = 2)
+        plot(y[[2]][1:(nrow(y[[2]]) - 1), 4] ~ x[[16]], pch = 16, 
+             xlab = "Number of alleles", ylab = expression(G[st]), 
+             ylim = c(0, 1), las = 1, cex.lab = 1.5)
+        abline(lm(y[[2]][1:(nrow(y[[2]]) - 1), 4] ~ x[[16]]), col = "red", 
+               lwd = 2)
+        cor2 <- cor.test(y[[2]][1:(nrow(y[[2]]) - 1), 4], x[[16]])
+        sig <- sigStar(cor2)
+        text(x = max(x[[16]])/1.5, y = 0.8, 
+             labels = paste("r = ", round(cor2$estimate[[1]], 3), " ", sig, 
+                            sep = ""), cex = 2)
+        plot(y[[2]][1:(nrow(y[[2]]) - 1), 5] ~ x[[16]], pch = 16, 
+             xlab = "Number of alleles", ylab = expression("G'"[st]), 
+             ylim = c(0, 1), las = 1, cex.lab = 1.5)
+        abline(lm(y[[2]][1:(nrow(y[[2]]) - 1), 5] ~ x[[16]]), col = "red", 
+               lwd = 2)
+        cor3 <- cor.test(y[[2]][1:(nrow(y[[2]]) - 1), 5], x[[16]])
+        sig <- sigStar(cor3)
+        text(x = max(x[[16]])/1.5, y = 0.8, 
+             labels = paste("r = ", round(cor3$estimate[[1]], 3), " ", sig, 
+                            sep = ""), cex = 2)
+        plot(y[[2]][1:(nrow(y[[2]]) - 1), 6] ~ x[[16]], pch = 16, 
+             xlab = "Number of alleles", ylab = expression(D[est]), 
+             ylim = c(0, 1), las = 1, cex.lab = 1.5)
+        abline(lm(y[[2]][1:(nrow(y[[2]]) - 1), 6] ~ x[[16]]), col = "red", 
+               lwd = 2)
+        cor4 <- cor.test(y[[2]][1:(nrow(y[[2]]) - 1), 6], x[[16]])
+        sig <- sigStar(cor4)
+        text(x = max(x[[16]])/1.5, y = 0.8, 
+             labels = paste("r = ", round(cor4$estimate[[1]], 3), " ", sig, 
+                            sep = ""), cex = 2)
+      }   
+    })
+  })
+  output$corplt <- downloadHandler(
     filename = function() {
-      if(is.null(input$file)){
-        return(NULL)
-      }
-      if(input$stat == "D"){
-        paste("divMigrate-online_", gsub(" ", "_", date()), "-[D-Network].",
-              input$format, sep = "") 
-      } else if(input$stat == "Gst"){
-        paste("divMigrate_", gsub(" ", "_", date()), "-[Gst-Network].",
-              input$format, sep = "")
-      } else if(input$stat == "Nm"){
-        paste("divMigrate_", gsub(" ", "_", date()), "-[Nm-Network].",
-              input$format, sep = "")
-      }
+      paste("corPlot_", Sys.Date(), "_[diveRsity-online].pdf",
+            sep = "")
     },
     content = function(file) {
-      if(is.null(input$file)){
-        return(NULL)
-      }
-      op <- out()
-      tmp <- tempfile()
-      on.exit(unlink(tmp))
-      if(input$nbs != 0L){
-        if(input$stat == "D"){
-          dat <- list(op[[1]], op[[2]])
-        } else if(input$stat == "Gst"){
-          dat <- list(op[[3]], op[[4]])
-        } else if(input$stat == "Nm"){
-          dat <- list(op[[5]], op[[6]])
+      temp <- tempfile()
+      on.exit(unlink(temp))
+      if(input$corplot == TRUE){
+        if(is.null(input$file)) {
+          infile <- "./Test_data.txt"
+        } else {
+          infile <- input$file$datapath
         }
-        diag(dat[[2]]) <- FALSE
-        dat[[1]][!dat[[2]]] <- 0
-        dat <- dat[[1]]
-        if(!is.null(input$pops)){
-          idx <- sapply(input$pops, function(x){
-            which(colnames(dat) == x)
-          })
-          dat <- dat[-idx, -idx]
+        x <- readGenepop(infile, input$gp, FALSE)
+        y <- fastDivPart(infile = infile,
+                         outfile = NULL,
+                         gp = input$gp,
+                         pairwise = FALSE,
+                         WC_Fst = TRUE,
+                         bs_locus = FALSE,
+                         bs_pairwise = FALSE,
+                         bootstraps = 0,
+                         plot = FALSE,
+                         parallel = FALSE)
+        par(mfrow = c(2, 2))
+        par(mar = c(4, 5, 2, 2))
+        sigStar <- function(x){
+          if(x$p.value < 0.001) {
+            return("***")
+          } else if (x$p.value < 0.01) {
+            return("**")
+          } else if (x$p.value < 0.05) {
+            return("*")
+          } else {
+            return("ns")
+          }
         }
-      } else{
-        if(input$stat == "D"){
-          dat <- list(op$D)
-        } else if(input$stat == "Gst"){
-          dat <- list(op$Gst)
-        } else if(input$stat == "Nm"){
-          dat <- list(op$Nm)
-        } 
-        dat <- dat[[1]]
-        if(!is.null(input$pops)){
-          idx <- sapply(input$pops, function(x){
-            which(colnames(dat) == x)
-          })
-          dat <- dat[-idx, -idx]
-        }
+        pdf(file = temp)
+        par(mfrow = c(2,2), mar = c(5,5,2,2))
+        #par(mfrow = c(2,2))
+        plot(y[[2]][1:(nrow(y[[2]]) - 1), 8] ~ x[[16]], pch = 16, 
+             xlab = "Number of alleles", ylab = expression(hat(theta)), 
+             ylim = c(0, 1), las = 1, cex.lab = 1.5)
+        abline(lm(y[[2]][1:(nrow(y[[2]]) - 1), 8] ~ x[[16]]), col = "red", 
+               lwd = 2)
+        cor1 <- cor.test(y[[2]][1:(nrow(y[[2]]) - 1), 8], x[[16]])
+        sig <- sigStar(cor1)
+        text(x = max(x[[16]])/1.5, y = 0.8, 
+             labels = paste("r = ", round(cor1$estimate[[1]], 3), " ", sig, 
+                            sep = ""), cex = 2)
+        plot(y[[2]][1:(nrow(y[[2]]) - 1), 4] ~ x[[16]], pch = 16, 
+             xlab = "Number of alleles", ylab = expression(G[st]), 
+             ylim = c(0, 1), las = 1, cex.lab = 1.5)
+        abline(lm(y[[2]][1:(nrow(y[[2]]) - 1), 4] ~ x[[16]]), col = "red", 
+               lwd = 2)
+        cor2 <- cor.test(y[[2]][1:(nrow(y[[2]]) - 1), 4], x[[16]])
+        sig <- sigStar(cor2)
+        text(x = max(x[[16]])/1.5, y = 0.8, 
+             labels = paste("r = ", round(cor2$estimate[[1]], 3), " ", sig, 
+                            sep = ""), cex = 2)
+        plot(y[[2]][1:(nrow(y[[2]]) - 1), 5] ~ x[[16]], pch = 16, 
+             xlab = "Number of alleles", ylab = expression("G'"[st]), 
+             ylim = c(0, 1), las = 1, cex.lab = 1.5)
+        abline(lm(y[[2]][1:(nrow(y[[2]]) - 1), 5] ~ x[[16]]), col = "red", 
+               lwd = 2)
+        cor3 <- cor.test(y[[2]][1:(nrow(y[[2]]) - 1), 5], x[[16]])
+        sig <- sigStar(cor3)
+        text(x = max(x[[16]])/1.5, y = 0.8, 
+             labels = paste("r = ", round(cor3$estimate[[1]], 3), " ", sig, 
+                            sep = ""), cex = 2)
+        plot(y[[2]][1:(nrow(y[[2]]) - 1), 6] ~ x[[16]], pch = 16, 
+             xlab = "Number of alleles", ylab = expression(D[est]), 
+             ylim = c(0, 1), las = 1, cex.lab = 1.5)
+        abline(lm(y[[2]][1:(nrow(y[[2]]) - 1), 6] ~ x[[16]]), col = "red", 
+               lwd = 2)
+        cor4 <- cor.test(y[[2]][1:(nrow(y[[2]]) - 1), 6], x[[16]])
+        sig <- sigStar(cor4)
+        text(x = max(x[[16]])/1.5, y = 0.8, 
+             labels = paste("r = ", round(cor4$estimate[[1]], 3), " ", sig, 
+                            sep = ""), cex = 2)
+        dev.off()
+        bytes <- readBin(temp, "raw", file.info(temp)$size)
+        writeBin(bytes, file)
       }
-      dat[is.na(dat)] <- 0
-      if(input$filter_threshold != 0L){
-        dat[dat <= input$filter_threshold] <- 0
-      }
-      if(input$format == "eps"){
-        setEPS()
-        postscript(file = tmp)
-      } else if(input$format == "pdf"){
-        pdf(file = tmp, paper = "a4r")
-      } else if(input$format == "png"){
-        png(file = tmp, width = 800, height = 750)
-      }
-      qgraph::qgraph(dat, nodeNames = colnames(dat), posCol = "darkblue",
-                     legend = TRUE, edge.labels = TRUE, 
-                     mar = c(2,2,5,5), curve = 2.5)
-      if(input$nbs != 0L){
-        title(paste("Relative migration network (Filter threshold = ", 
-                    input$filter_threshold, "; ", input$nbs, 
-                    " bootstraps; ", input$stat, " method)", sep = ""))
-      } else {
-        title(paste("Relative migration network (Filter threshold = ", 
-                    input$filter_threshold, "; ", input$stat, ")", sep = "")) 
-      }
-      dev.off()
-      bytes <- readBin(tmp, "raw", file.info(tmp)$size)
-      writeBin(bytes, file)
     }
   )
-  
-  
 })
