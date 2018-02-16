@@ -42,7 +42,7 @@ shinyUI(
                "from RStudio and Inc. (2012).")
     ),
     
-    mainPanel(progressInit(),
+    mainPanel(#progressInit(),
               tabsetPanel(id = "tabs",
                           tabPanel(
                             HTML("<h5><font color = #215F9C>Usage Instructions</font></h5>"),
