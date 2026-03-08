@@ -5,6 +5,22 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
+// Tab
+IntegerVector Tab(CharacterVector x);
+RcppExport SEXP _diveRsity_Tab(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(Tab(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // allCount
 int allCount(CharacterMatrix x);
 RcppExport SEXP _diveRsity_allCount(SEXP xSEXP) {
@@ -160,17 +176,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// Tab
-IntegerVector Tab(CharacterVector x);
-RcppExport SEXP _diveRsity_Tab(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(Tab(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 // tabMerge
 NumericVector tabMerge(List hsum);
 RcppExport SEXP _diveRsity_tabMerge(SEXP hsumSEXP) {
@@ -196,6 +201,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_diveRsity_Tab", (DL_FUNC) &_diveRsity_Tab, 1},
     {"_diveRsity_allCount", (DL_FUNC) &_diveRsity_allCount, 1},
     {"_diveRsity_bsHetCalc", (DL_FUNC) &_diveRsity_bsHetCalc, 1},
     {"_diveRsity_diffCalcHarm", (DL_FUNC) &_diveRsity_diffCalcHarm, 2},
@@ -209,7 +215,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_diveRsity_pwHt", (DL_FUNC) &_diveRsity_pwHt, 2},
     {"_diveRsity_pwTabMerge", (DL_FUNC) &_diveRsity_pwTabMerge, 2},
     {"_diveRsity_pwWCcpp", (DL_FUNC) &_diveRsity_pwWCcpp, 4},
-    {"_diveRsity_Tab", (DL_FUNC) &_diveRsity_Tab, 1},
     {"_diveRsity_tabMerge", (DL_FUNC) &_diveRsity_tabMerge, 1},
     {"_diveRsity_varFunc", (DL_FUNC) &_diveRsity_varFunc, 2},
     {NULL, NULL, 0}

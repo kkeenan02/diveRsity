@@ -3,7 +3,7 @@
 \alias{Big_data}
 \title{Example infile for diveRsity package}
 \description{
-   big_data is a typical genepop (Rousset, 2008) two digit format input file for the package diveRsity. The data was simulated using a hierarchical island model containing five island groups with ten local demes each. Migration within island groups was much larger that between.
+   Big_data is a typical genepop (Rousset, 2008) two digit format input file for the package diveRsity. The data was simulated using a hierarchical island model containing five island groups with ten local demes each. Migration within island groups was much larger that between.
 }
 \usage{Big_data}
 \format{genepop 2 digit.}
