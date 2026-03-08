@@ -17,3 +17,4 @@ TODO.md
 TODO.html
 issues.md
 cran-comments.md
+^\.devcontainer$
